@@ -1,7 +1,6 @@
 import Image from "next/image";
-import { invitados, youtubeChannelUrl } from "@/app/data/podcast";
+import { youtubeChannelUrl } from "@/app/data/podcast";
 import SectionHeading from "@/app/components/ui/SectionHeading";
-import GlassCard from "@/app/components/ui/GlassCard";
 import CtaButton from "@/app/components/ui/CtaButton";
 
 export default function PodcastSection() {
@@ -26,27 +25,6 @@ export default function PodcastSection() {
               Ver en YouTube
             </CtaButton>
           </div>
-        </div>
-
-        <h3 className="mt-14 text-xl font-bold text-white">Invitados</h3>
-        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
-          {invitados.map((invitado) => (
-            <GlassCard key={invitado.id} className="overflow-hidden">
-              <div className="relative aspect-square w-full">
-                <Image
-                  src={invitado.foto}
-                  alt={invitado.nombre}
-                  fill
-                  sizes="(max-width: 640px) 50vw, 33vw"
-                  className="object-cover"
-                />
-              </div>
-              <div className="p-4">
-                <p className="font-bold text-kanot-pink">{invitado.nombre}</p>
-                <p className="text-xs text-white/70">{invitado.rol}</p>
-              </div>
-            </GlassCard>
-          ))}
         </div>
       </div>
     </section>

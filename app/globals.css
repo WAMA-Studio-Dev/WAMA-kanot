@@ -23,3 +23,58 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+/* 12-frame (4 cols x 3 rows) sprite-sheet rotation for the Kanot 3D logo. */
+@keyframes kanot-logo-spin {
+  0% {
+    background-position: 0% 0%;
+    animation-timing-function: steps(1);
+  }
+  8.3333% {
+    background-position: 33.3333% 0%;
+    animation-timing-function: steps(1);
+  }
+  16.6667% {
+    background-position: 66.6667% 0%;
+    animation-timing-function: steps(1);
+  }
+  25% {
+    background-position: 100% 0%;
+    animation-timing-function: steps(1);
+  }
+  33.3333% {
+    background-position: 0% 50%;
+    animation-timing-function: steps(1);
+  }
+  41.6667% {
+    background-position: 33.3333% 50%;
+    animation-timing-function: steps(1);
+  }
+  50% {
+    background-position: 66.6667% 50%;
+    animation-timing-function: steps(1);
+  }
+  58.3333% {
+    background-position: 100% 50%;
+    animation-timing-function: steps(1);
+  }
+  66.6667% {
+    background-position: 0% 100%;
+    animation-timing-function: steps(1);
+  }
+  75% {
+    background-position: 33.3333% 100%;
+    animation-timing-function: steps(1);
+  }
+  83.3333% {
+    background-position: 66.6667% 100%;
+    animation-timing-function: steps(1);
+  }
+  91.6667% {
+    background-position: 100% 100%;
+    animation-timing-function: steps(1);
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}

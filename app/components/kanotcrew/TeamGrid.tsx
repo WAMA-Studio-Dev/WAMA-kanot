@@ -7,7 +7,7 @@ export default function TeamGrid() {
   return (
     <div id="quienes-lo-llevamos" className="scroll-mt-28 py-16">
       <SectionHeading
-        kicker="KanotCrew"
+        kicker="Kanot Krew"
         title="Quiénes lo llevamos"
         description="El equipo detrás de Kanot: dirección, competición, formación y contenido."
       />

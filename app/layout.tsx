@@ -10,9 +10,9 @@ const readexPro = Readex_Pro({
 });
 
 export const metadata: Metadata = {
-  title: "ByKanot | Kanot Crew — Competición y Cultura Urbana 2026/2027",
+  title: "ByKanot | Kanot Krew — Competición y Cultura Urbana 2026/2027",
   description:
-    "ByKanot es el grupo de competición y cultura urbana liderado por Ariadna y Enrique. Descubre KanotCrew, CódigoClub, nuestro podcast y las formaciones de la temporada 2026/2027.",
+    "ByKanot es el grupo de competición y cultura urbana liderado por Ariadna y Enrique. Descubre Kanot Krew, CódigoClub, nuestro podcast y las formaciones de la temporada 2026/2027.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

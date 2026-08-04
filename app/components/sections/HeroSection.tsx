@@ -1,5 +1,3 @@
-import Pill from "@/app/components/ui/Pill";
-
 export default function HeroSection() {
   return (
     <section
@@ -19,13 +17,8 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-kanot-navy-deep/40 via-transparent to-kanot-navy" />
 
       <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-6 px-4 text-center">
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <Pill>2026 / 2027</Pill>
-          <Pill>Grupo de Competición</Pill>
-        </div>
-
         <h1 className="text-[18vw] sm:text-[14vw] md:text-[12vw] font-black uppercase leading-[0.85] tracking-tighter text-kanot-pink">
-          KANOT
+          ByKanot
         </h1>
 
         <p className="max-w-2xl text-base md:text-xl font-medium text-white/90">

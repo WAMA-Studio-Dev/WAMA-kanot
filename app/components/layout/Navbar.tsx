@@ -1,28 +1,58 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { temporadas } from "@/app/data/temporadas";
 
-const kanotCrewLinks = [
-  { label: "Quiénes lo llevamos", href: "#quienes-lo-llevamos" },
-  { label: "Temporadas", href: "#temporadas" },
-  { label: "Formulario", href: "#formulario" },
-];
+const kanotCrewLinkTop = { label: "Quiénes lo llevamos", href: "/quienes-lo-llevamos" };
+const kanotCrewLinkBottom = { label: "Formulario", href: "/formulario" };
+
+const temporadasLinks = temporadas.map((temporada) => ({
+  label: temporada.periodo,
+  href: `/temporadas/${temporada.id}`,
+}));
 
 const navLinks = [
-  { label: "CódigoClub", href: "#codigoclub" },
-  { label: "Podcast", href: "#podcast" },
-  { label: "Formaciones", href: "#formaciones" },
+  { label: "Formaciones", href: "/formaciones" },
+  { label: "Kodigo Klub", href: "/kodigoklub" },
+  { label: "Podcast", href: "/podcast" },
 ];
+
+const socialLinks = [
+  { label: "Instagram", href: "https://instagram.com/bykanot" },
+  { label: "TikTok", href: "https://tiktok.com/@bykanot" },
+];
+
+function InstagramIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.6">
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4.2" />
+      <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+      <path d="M16.5 2h-3.1v13.6a2.9 2.9 0 1 1-2.4-2.86V9.6a6 6 0 1 0 5.5 5.98V9.1a7.7 7.7 0 0 0 4.5 1.43V7.4a4.6 4.6 0 0 1-4.5-4.5Z" />
+    </svg>
+  );
+}
 
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [temporadasSubOpen, setTemporadasSubOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileTemporadasOpen, setMobileTemporadasOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setDropdownOpen(false);
+        setTemporadasSubOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -32,9 +62,9 @@ export default function Navbar() {
   return (
     <header className="fixed top-4 md:top-6 inset-x-4 md:inset-x-0 z-50 md:mx-auto md:w-fit">
       <div className="flex items-center gap-4 md:gap-8 rounded-full border border-white/10 bg-kanot-navy/80 backdrop-blur-md px-4 md:px-6 py-2.5 shadow-lg shadow-black/20">
-        <a href="#inicio" className="font-extrabold text-lg text-kanot-pink tracking-tight">
+        <Link href="/#inicio" className="font-extrabold text-lg text-kanot-pink tracking-tight">
           ByKanot
-        </a>
+        </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-white/90">
           <div ref={dropdownRef} className="relative">
@@ -42,9 +72,9 @@ export default function Navbar() {
               type="button"
               onClick={() => setDropdownOpen((v) => !v)}
               aria-expanded={dropdownOpen}
-              className="flex items-center gap-1 hover:text-kanot-electric transition-colors"
+              className="flex items-center gap-1 hover:text-kanot-pink active:text-kanot-pink transition-colors"
             >
-              KanotCrew
+              Kanot Krew
               <svg
                 width="12"
                 height="12"
@@ -63,36 +93,97 @@ export default function Navbar() {
             </button>
             {dropdownOpen && (
               <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 w-56 rounded-2xl border border-kanot-pink/20 bg-kanot-navy/95 backdrop-blur-md p-2 shadow-xl">
-                {kanotCrewLinks.map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setDropdownOpen(false)}
-                    className="block rounded-lg px-3 py-2 text-sm hover:bg-white/5 hover:text-kanot-pink transition-colors"
+                <Link
+                  href={kanotCrewLinkTop.href}
+                  onClick={() => setDropdownOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-sm hover:bg-white/5 hover:text-kanot-pink active:text-kanot-pink transition-colors"
+                >
+                  {kanotCrewLinkTop.label}
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => setTemporadasSubOpen((v) => !v)}
+                  aria-expanded={temporadasSubOpen}
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm hover:bg-white/5 hover:text-kanot-pink active:text-kanot-pink transition-colors"
+                >
+                  Temporadas
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    className={`transition-transform ${temporadasSubOpen ? "rotate-180" : ""}`}
                   >
-                    {link.label}
-                  </a>
-                ))}
+                    <path
+                      d="M2 4l4 4 4-4"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+                {temporadasSubOpen && (
+                  <div className="ml-3 flex flex-col border-l border-white/10 pl-2">
+                    {temporadasLinks.map((link) => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          setTemporadasSubOpen(false);
+                        }}
+                        className="block rounded-lg px-3 py-2 text-sm hover:bg-white/5 hover:text-kanot-pink active:text-kanot-pink transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+
+                <Link
+                  href={kanotCrewLinkBottom.href}
+                  onClick={() => setDropdownOpen(false)}
+                  className="block rounded-lg px-3 py-2 text-sm hover:bg-white/5 hover:text-kanot-pink active:text-kanot-pink transition-colors"
+                >
+                  {kanotCrewLinkBottom.label}
+                </Link>
               </div>
             )}
           </div>
+
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
-              className="hover:text-kanot-electric transition-colors"
+              className="hover:text-kanot-pink active:text-kanot-pink transition-colors"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
-        </nav>
 
-        <a
-          href="#formulario"
-          className="hidden md:inline-block rounded-full bg-kanot-pink px-6 py-2 font-bold text-kanot-navy hover:bg-white transition-colors"
-        >
-          Únete
-        </a>
+          <div className="flex items-center gap-3 border-l border-white/10 pl-4">
+            <a
+              href={socialLinks[0].href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={socialLinks[0].label}
+              className="hover:text-kanot-pink active:text-kanot-pink transition-colors"
+            >
+              <InstagramIcon className="h-[18px] w-[18px]" />
+            </a>
+            <a
+              href={socialLinks[1].href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={socialLinks[1].label}
+              className="hover:text-kanot-pink active:text-kanot-pink transition-colors"
+            >
+              <TikTokIcon className="h-[18px] w-[18px]" />
+            </a>
+          </div>
+        </nav>
 
         <button
           type="button"
@@ -124,36 +215,98 @@ export default function Navbar() {
       {mobileOpen && (
         <div className="md:hidden mt-3 rounded-2xl border border-white/10 bg-kanot-navy/95 backdrop-blur-md p-4 flex flex-col gap-1">
           <p className="px-3 pt-1 pb-2 text-xs font-semibold uppercase tracking-wide text-kanot-pink-soft">
-            KanotCrew
+            Kanot Krew
           </p>
-          {kanotCrewLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
-              className="rounded-lg px-3 py-2 text-sm text-white/90 hover:bg-white/5 hover:text-kanot-pink transition-colors"
+          <Link
+            href={kanotCrewLinkTop.href}
+            onClick={() => setMobileOpen(false)}
+            className="rounded-lg px-3 py-2 text-sm text-white/90 hover:bg-white/5 hover:text-kanot-pink active:text-kanot-pink transition-colors"
+          >
+            {kanotCrewLinkTop.label}
+          </Link>
+
+          <button
+            type="button"
+            onClick={() => setMobileTemporadasOpen((v) => !v)}
+            aria-expanded={mobileTemporadasOpen}
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-left text-sm text-white/90 hover:bg-white/5 hover:text-kanot-pink active:text-kanot-pink transition-colors"
+          >
+            Temporadas
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 12 12"
+              fill="none"
+              className={`transition-transform ${mobileTemporadasOpen ? "rotate-180" : ""}`}
             >
-              {link.label}
-            </a>
-          ))}
+              <path
+                d="M2 4l4 4 4-4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          {mobileTemporadasOpen && (
+            <div className="ml-3 flex flex-col border-l border-white/10 pl-2">
+              {temporadasLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => {
+                    setMobileOpen(false);
+                    setMobileTemporadasOpen(false);
+                  }}
+                  className="rounded-lg px-3 py-2 text-sm text-white/90 hover:bg-white/5 hover:text-kanot-pink active:text-kanot-pink transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+          )}
+
+          <Link
+            href={kanotCrewLinkBottom.href}
+            onClick={() => setMobileOpen(false)}
+            className="rounded-lg px-3 py-2 text-sm text-white/90 hover:bg-white/5 hover:text-kanot-pink active:text-kanot-pink transition-colors"
+          >
+            {kanotCrewLinkBottom.label}
+          </Link>
+
           <div className="my-2 border-t border-white/10" />
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               onClick={() => setMobileOpen(false)}
-              className="rounded-lg px-3 py-2 text-sm text-white/90 hover:bg-white/5 hover:text-kanot-pink transition-colors"
+              className="rounded-lg px-3 py-2 text-sm text-white/90 hover:bg-white/5 hover:text-kanot-pink active:text-kanot-pink transition-colors"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
-          <a
-            href="#formulario"
-            onClick={() => setMobileOpen(false)}
-            className="mt-3 rounded-full bg-kanot-pink px-6 py-2 text-center font-bold text-kanot-navy hover:bg-white transition-colors"
-          >
-            Únete
-          </a>
+
+          <div className="my-2 border-t border-white/10" />
+          <div className="flex items-center gap-4 px-3 py-1 text-white/90">
+            <a
+              href={socialLinks[0].href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={socialLinks[0].label}
+              className="hover:text-kanot-pink active:text-kanot-pink transition-colors"
+            >
+              <InstagramIcon className="h-5 w-5" />
+            </a>
+            <a
+              href={socialLinks[1].href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={socialLinks[1].label}
+              className="hover:text-kanot-pink active:text-kanot-pink transition-colors"
+            >
+              <TikTokIcon className="h-5 w-5" />
+            </a>
+          </div>
         </div>
       )}
     </header>

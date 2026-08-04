@@ -18,14 +18,14 @@ export default function JoinForm() {
     e.preventDefault();
     // Formulario solo de frontend: sin backend todavía.
     // TODO: conectar con un backend o servicio de email (Formspree, Resend...) cuando esté disponible.
-    console.log("Solicitud KanotCrew:", form);
+    console.log("Solicitud Kanot Krew:", form);
     setSubmitted(true);
   }
 
   return (
     <div id="formulario" className="scroll-mt-28 py-16">
       <SectionHeading
-        kicker="KanotCrew"
+        kicker="Kanot Krew"
         title="Formulario"
         description="¿Quieres unirte a la crew? Cuéntanos quién eres."
       />

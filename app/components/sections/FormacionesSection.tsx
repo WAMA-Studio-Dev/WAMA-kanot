@@ -3,7 +3,6 @@ import { formaciones } from "@/app/data/formaciones";
 import SectionHeading from "@/app/components/ui/SectionHeading";
 import GlassCard from "@/app/components/ui/GlassCard";
 import Pill from "@/app/components/ui/Pill";
-import InscripcionForm from "@/app/components/formaciones/InscripcionForm";
 
 export default function FormacionesSection() {
   return (
@@ -40,13 +39,6 @@ export default function FormacionesSection() {
               </div>
             </GlassCard>
           ))}
-        </div>
-
-        <div className="mt-14">
-          <h3 className="text-xl font-bold text-white">Inscríbete</h3>
-          <div className="mt-6">
-            <InscripcionForm formaciones={formaciones} />
-          </div>
         </div>
       </div>
     </section>

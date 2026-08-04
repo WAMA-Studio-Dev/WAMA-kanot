@@ -6,7 +6,7 @@ import Pill from "@/app/components/ui/Pill";
 export default function TemporadasList() {
   return (
     <div id="temporadas" className="scroll-mt-28 py-16">
-      <SectionHeading kicker="KanotCrew" title="Temporadas" />
+      <SectionHeading kicker="Kanot Krew" title="Temporadas" />
 
       <div className="mt-10 grid gap-4 md:grid-cols-2">
         {temporadas.map((temporada) => (

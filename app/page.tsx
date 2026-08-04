@@ -12,9 +12,9 @@ export default function Home() {
       <main className="flex-1">
         <HeroSection />
         <KanotCrewSection />
+        <FormacionesSection />
         <CodigoClubSection />
         <PodcastSection />
-        <FormacionesSection />
       </main>
     </>
   );
