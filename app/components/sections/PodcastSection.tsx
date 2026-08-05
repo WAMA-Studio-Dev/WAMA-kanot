@@ -10,7 +10,7 @@ export default function PodcastSection() {
         <div className="relative overflow-hidden rounded-3xl border border-white/10">
           <div className="relative aspect-[21/9] w-full">
             <Image
-              src="/imagenes/podcast/portada-podcast.jpg"
+              src="/imagenes/podcast/kanotonair.png"
               alt="Podcast ByKanot"
               fill
               sizes="100vw"
