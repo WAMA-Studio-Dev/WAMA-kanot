@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { equipos, type Equipo } from "@/app/data/equipos";
+import ScrollReveal from "@/app/components/ui/ScrollReveal";
+import MotionZoomImage from "@/app/components/ui/MotionZoomImage";
+import { cardHoverVariants, CARD_TRANSITION, CARD_TAP } from "@/app/lib/motion";
+import { useCursorGlow } from "@/app/lib/useCursorGlow";
 
 function BadgeIcon({ className }: { className?: string }) {
   return (
@@ -101,12 +106,77 @@ function EquipoModal({ equipo, onClose }: { equipo: Equipo; onClose: () => void 
   );
 }
 
+function EquipoCard({
+  equipo,
+  onSelect,
+}: {
+  equipo: Equipo;
+  onSelect: (equipo: Equipo) => void;
+}) {
+  const { glowStyle, handlers } = useCursorGlow();
+
+  return (
+    <motion.div
+      initial="rest"
+      whileHover="hover"
+      whileTap={CARD_TAP}
+      variants={cardHoverVariants}
+      transition={CARD_TRANSITION}
+      {...handlers}
+      className="relative flex flex-col overflow-visible rounded-[2rem] border border-white/10 bg-white/5 p-6 pt-16 backdrop-blur-md"
+    >
+      <span className="absolute left-5 top-5 z-20 inline-flex items-center gap-1.5 rounded-full bg-kanot-pink px-3 py-1 text-xs font-bold uppercase tracking-wide text-kanot-navy">
+        <BadgeIcon className="h-3.5 w-3.5" />
+        {equipo.categoria}
+      </span>
+
+      <div className="relative z-10 mb-2 flex justify-center">
+        <div className="relative h-36 w-36 scale-110 drop-shadow-2xl sm:h-40 sm:w-40">
+          <MotionZoomImage>
+            <Image
+              src={equipo.imagen}
+              alt={equipo.nombre}
+              fill
+              sizes="160px"
+              className="object-contain"
+            />
+          </MotionZoomImage>
+        </div>
+      </div>
+
+      <p className="flex-1 text-center text-sm text-white/70 md:text-left">
+        {equipo.descripcion}
+      </p>
+
+      <div className="mt-6 flex items-center justify-between gap-3 border-t border-white/10 pt-4">
+        <div>
+          <p className="text-lg font-bold text-white">{equipo.nombre}</p>
+          <p className="text-xs text-white/60">{equipo.rango}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => onSelect(equipo)}
+          className="shrink-0 rounded-full bg-kanot-pink px-4 py-2 text-sm font-bold text-kanot-navy transition-colors hover:bg-white"
+        >
+          Ver más
+        </button>
+      </div>
+
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-30 rounded-[inherit]"
+        style={glowStyle}
+      />
+    </motion.div>
+  );
+}
+
 export default function EquiposGrid() {
   const [equipoActivo, setEquipoActivo] = useState<Equipo | null>(null);
 
   return (
     <div>
-      <div className="relative flex items-center justify-center">
+      <ScrollReveal className="relative flex items-center justify-center">
         <p className="absolute right-full mr-6 hidden whitespace-nowrap text-xs font-semibold uppercase tracking-[0.3em] text-white/40 lg:block">
           Temporada
         </p>
@@ -116,49 +186,11 @@ export default function EquiposGrid() {
         <p className="absolute left-full ml-6 hidden whitespace-nowrap text-xs font-semibold uppercase tracking-[0.3em] text-white/40 lg:block">
           2026 / 2027
         </p>
-      </div>
+      </ScrollReveal>
 
       <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
         {equipos.map((equipo) => (
-          <div
-            key={equipo.id}
-            className="relative flex flex-col overflow-visible rounded-[2rem] border border-white/10 bg-white/5 p-6 pt-16 backdrop-blur-md"
-          >
-            <span className="absolute left-5 top-5 z-20 inline-flex items-center gap-1.5 rounded-full bg-kanot-pink px-3 py-1 text-xs font-bold uppercase tracking-wide text-kanot-navy">
-              <BadgeIcon className="h-3.5 w-3.5" />
-              {equipo.categoria}
-            </span>
-
-            <div className="relative z-10 mb-2 flex justify-center">
-              <div className="relative h-36 w-36 scale-110 drop-shadow-2xl sm:h-40 sm:w-40">
-                <Image
-                  src={equipo.imagen}
-                  alt={equipo.nombre}
-                  fill
-                  sizes="160px"
-                  className="object-contain"
-                />
-              </div>
-            </div>
-
-            <p className="flex-1 text-center text-sm text-white/70 md:text-left">
-              {equipo.descripcion}
-            </p>
-
-            <div className="mt-6 flex items-center justify-between gap-3 border-t border-white/10 pt-4">
-              <div>
-                <p className="text-lg font-bold text-white">{equipo.nombre}</p>
-                <p className="text-xs text-white/60">{equipo.rango}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setEquipoActivo(equipo)}
-                className="shrink-0 rounded-full bg-kanot-pink px-4 py-2 text-sm font-bold text-kanot-navy transition-colors hover:bg-white"
-              >
-                Ver más
-              </button>
-            </div>
-          </div>
+          <EquipoCard key={equipo.id} equipo={equipo} onSelect={setEquipoActivo} />
         ))}
       </div>
 

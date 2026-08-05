@@ -1,3 +1,6 @@
+import AnimatedHeroTitle from "@/app/components/sections/AnimatedHeroTitle";
+import CtaButton from "@/app/components/ui/CtaButton";
+
 export default function HeroSection() {
   return (
     <section
@@ -17,13 +20,15 @@ export default function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-kanot-navy-deep/40 via-transparent to-kanot-navy" />
 
       <div className="relative z-10 flex h-full w-full flex-col items-center justify-center gap-6 px-4 text-center">
-        <h1 className="text-[18vw] sm:text-[14vw] md:text-[12vw] font-black uppercase leading-[0.85] tracking-tighter text-kanot-pink">
-          ByKanot
-        </h1>
+        <AnimatedHeroTitle />
 
         <p className="max-w-2xl text-base md:text-xl font-medium text-white/90">
           ByKanot nace con la idea de crear un espacio donde la danza vaya más allá de las clases.
         </p>
+
+        <CtaButton href="/formulario" variant="glow">
+          Contacta con nosotros
+        </CtaButton>
       </div>
     </section>
   );
