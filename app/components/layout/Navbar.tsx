@@ -5,7 +5,7 @@ import Link from "next/link";
 import { temporadas } from "@/app/data/temporadas";
 import { InstagramIcon, TikTokIcon } from "@/app/components/ui/SocialIcons";
 
-const kanotCrewLinkTop = { label: "Quiénes lo llevamos", href: "/quienes-lo-llevamos" };
+const kanotCrewLinkTop = { label: "Quiénes somos", href: "/quienes-lo-llevamos" };
 const kanotCrewLinkBottom = { label: "Formulario", href: "/formulario" };
 
 const temporadasLinks = temporadas.map((temporada) => ({

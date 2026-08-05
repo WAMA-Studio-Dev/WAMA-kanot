@@ -8,8 +8,8 @@ export default function TeamGrid() {
   return (
     <div id="quienes-lo-llevamos" className="scroll-mt-28 py-16">
       <SectionHeading
-        title="Quiénes lo llevamos"
-        description="El equipo detrás de Kanot: dirección, competición, formación y contenido."
+        title="¿Qué es ByKanot?"
+        description="Podcast, Grupos de competición, Formación dancística con profesionales, creación de contenido y proyectos que impulsan la cultura urbana, ofreciendo oportunidades para bailarines de todos los niveles que quieran evolucionar tanto dentro como fuera del escenario."
       />
 
       <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">

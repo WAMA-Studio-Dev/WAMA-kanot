@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { temporadas } from "@/app/data/temporadas";
 import SectionHeading from "@/app/components/ui/SectionHeading";
 import GlassCard from "@/app/components/ui/GlassCard";
@@ -9,13 +10,23 @@ export default function TemporadasList() {
       <SectionHeading kicker="Kanot Krew" title="Temporadas" />
 
       <div className="mt-10 grid gap-4 md:grid-cols-2">
-        {temporadas.map((temporada) => (
-          <GlassCard key={temporada.id} className="p-6 md:p-8">
-            <Pill>{temporada.periodo}</Pill>
-            <h3 className="mt-4 text-2xl font-bold text-white">{temporada.titulo}</h3>
-            <p className="mt-2 text-white/70">{temporada.descripcion}</p>
-          </GlassCard>
-        ))}
+        {temporadas.map((temporada) =>
+          temporada.id === "2026-2027" ? (
+            <Link key={temporada.id} href={`/temporadas/${temporada.id}`}>
+              <GlassCard className="p-6 transition-colors hover:border-kanot-pink/40 md:p-8">
+                <Pill>{temporada.periodo}</Pill>
+                <h3 className="mt-4 text-2xl font-bold text-white">{temporada.titulo}</h3>
+                <p className="mt-2 text-white/70">{temporada.descripcion}</p>
+              </GlassCard>
+            </Link>
+          ) : (
+            <GlassCard key={temporada.id} className="p-6 md:p-8">
+              <Pill>{temporada.periodo}</Pill>
+              <h3 className="mt-4 text-2xl font-bold text-white">{temporada.titulo}</h3>
+              <p className="mt-2 text-white/70">{temporada.descripcion}</p>
+            </GlassCard>
+          )
+        )}
       </div>
     </div>
   );

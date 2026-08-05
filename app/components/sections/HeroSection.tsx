@@ -24,10 +24,6 @@ export default function HeroSection() {
         <p className="max-w-2xl text-base md:text-xl font-medium text-white/90">
           ByKanot nace con la idea de crear un espacio donde la danza vaya más allá de las clases.
         </p>
-
-        <p className="max-w-2xl text-base md:text-xl font-medium text-white/90">
-          Grupo de competición, formaciones, podcast y mucho más.
-        </p>
       </div>
     </section>
   );
