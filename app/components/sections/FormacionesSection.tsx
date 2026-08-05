@@ -12,7 +12,7 @@ export default function FormacionesSection() {
     >
       <div className="mx-auto max-w-6xl">
         <SectionHeading
-          kicker="Kanot"
+          kicker="ByKanot"
           title="Formaciones"
           description="Formaciones que iremos anunciando durante la temporada 2026/2027."
         />
@@ -35,7 +35,9 @@ export default function FormacionesSection() {
                   <Pill>{f.precio}</Pill>
                 </div>
                 <h3 className="mt-4 text-lg font-bold text-white">{f.titulo}</h3>
-                <p className="mt-2 text-sm text-white/70">{f.descripcion}</p>
+                {f.descripcion && (
+                  <p className="mt-2 text-sm text-white/70">{f.descripcion}</p>
+                )}
               </div>
             </GlassCard>
           ))}

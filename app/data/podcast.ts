@@ -5,7 +5,7 @@ export type Invitado = {
   foto: string;
 };
 
-export const youtubeChannelUrl = "https://youtube.com/@bykanot";
+export const youtubeChannelUrl = "https://www.youtube.com/@kanotcrew";
 
 export const invitados: Invitado[] = [
   {
@@ -16,7 +16,7 @@ export const invitados: Invitado[] = [
   },
   {
     id: "enrique",
-    nombre: "Enrique",
+    nombre: "Eric",
     rol: "Fundador de Kanot Krew",
     foto: "/imagenes/podcast/invitado-enrique.jpg",
   },

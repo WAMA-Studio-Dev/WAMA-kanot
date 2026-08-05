@@ -4,28 +4,32 @@ export type TeamMember = {
   role: string;
   photo: string;
   bio: string;
+  instagram: string;
 };
 
 export const teamMembers: TeamMember[] = [
   {
     id: "ariadna",
     name: "Ariadna",
-    role: "Fundadora & Directora Artística",
-    photo: "/imagenes/equipo/ariadna.jpg",
+    role: "Coreógrafa y CEO",
+    photo: "/imagenes/equipo/ariadna.jpeg",
     bio: "Representa a Kanot Krew liderando la dirección artística, la coreografía y la visión de marca.",
+    instagram: "https://www.instagram.com/ariadnagnzz",
   },
   {
     id: "enrique",
-    name: "Enrique",
-    role: "Fundador & Director de Competición",
-    photo: "/imagenes/equipo/enrique.jpg",
+    name: "Eric",
+    role: "Coreógrafo y CEO",
+    photo: "/imagenes/equipo/eric.jpeg",
     bio: "Al frente del grupo de competición, la formación técnica y la estrategia de temporada.",
+    instagram: "https://www.instagram.com/ericdguezz",
   },
   {
     id: "crew-4",
     name: "Diego",
-    role: "Bailarín & Creador de Contenido",
-    photo: "/imagenes/equipo/diego.jpg",
+    role: "Dirección y coordinación",
+    photo: "/imagenes/equipo/diego.jpeg",
     bio: "Cultura urbana y creación de contenido audiovisual para la crew.",
+    instagram: "https://www.instagram.com/diegoogmzzz",
   },
 ];

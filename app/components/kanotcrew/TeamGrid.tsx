@@ -2,12 +2,12 @@ import Image from "next/image";
 import { teamMembers } from "@/app/data/team";
 import SectionHeading from "@/app/components/ui/SectionHeading";
 import GlassCard from "@/app/components/ui/GlassCard";
+import { InstagramIcon } from "@/app/components/ui/SocialIcons";
 
 export default function TeamGrid() {
   return (
     <div id="quienes-lo-llevamos" className="scroll-mt-28 py-16">
       <SectionHeading
-        kicker="Kanot Krew"
         title="Quiénes lo llevamos"
         description="El equipo detrás de Kanot: dirección, competición, formación y contenido."
       />
@@ -25,7 +25,18 @@ export default function TeamGrid() {
               />
             </div>
             <div className="p-4">
-              <p className="text-lg font-bold text-kanot-pink">{member.name}</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-lg font-bold text-kanot-pink">{member.name}</p>
+                <a
+                  href={member.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Instagram de ${member.name}`}
+                  className="shrink-0 text-white/70 hover:text-kanot-pink active:text-kanot-pink transition-colors"
+                >
+                  <InstagramIcon className="h-[18px] w-[18px]" />
+                </a>
+              </div>
               <p className="text-xs md:text-sm text-white/70">{member.role}</p>
             </div>
           </GlassCard>

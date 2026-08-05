@@ -22,8 +22,11 @@ export default function HeroSection() {
         </h1>
 
         <p className="max-w-2xl text-base md:text-xl font-medium text-white/90">
-          Representado por Ariadna y Enrique. Grupo de competición, cultura urbana,
-          formación y creación de contenido 2026/2027.
+          ByKanot nace con la idea de crear un espacio donde la danza vaya más allá de las clases.
+        </p>
+
+        <p className="max-w-2xl text-base md:text-xl font-medium text-white/90">
+          Grupo de competición, formaciones, podcast y mucho más.
         </p>
       </div>
     </section>
