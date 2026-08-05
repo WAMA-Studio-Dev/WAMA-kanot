@@ -6,7 +6,7 @@ export default function PageHero({ title }: { title: string }) {
         loop
         muted
         playsInline
-        poster="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=1600&auto=format&fit=crop"
+        poster="/imagenes/hero/fondo-hero.jpg"
         className="absolute inset-0 h-full w-full object-cover opacity-30 mix-blend-overlay"
         src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260418_063509_7d167302-4fd4-480b-8260-18ab572333d4.mp4"
       />

@@ -17,7 +17,7 @@ export default function Logo3D({
       style={{
         width,
         aspectRatio: FRAME_ASPECT_RATIO,
-        backgroundImage: "url(/imagenes/logo-3d.png)",
+        backgroundImage: "url(/imagenes/logo/logo-3d.png)",
         backgroundSize: "400% 300%",
         animation: `kanot-logo-spin ${durationMs}ms linear infinite`,
       }}

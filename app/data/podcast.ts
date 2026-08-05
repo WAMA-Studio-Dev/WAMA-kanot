@@ -12,18 +12,18 @@ export const invitados: Invitado[] = [
     id: "ariadna",
     nombre: "Ariadna",
     rol: "Fundadora de Kanot Krew",
-    foto: "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?q=80&w=1200&auto=format&fit=crop",
+    foto: "/imagenes/podcast/invitado-ariadna.jpg",
   },
   {
     id: "enrique",
     nombre: "Enrique",
     rol: "Fundador de Kanot Krew",
-    foto: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=1200&auto=format&fit=crop",
+    foto: "/imagenes/podcast/invitado-enrique.jpg",
   },
   {
     id: "invitado-3",
     nombre: "Nora",
     rol: "Coach & bailarina invitada",
-    foto: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=1200&auto=format&fit=crop",
+    foto: "/imagenes/podcast/invitado-nora.jpg",
   },
 ];

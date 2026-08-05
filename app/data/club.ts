@@ -5,9 +5,9 @@ export type Horario = {
 };
 
 export const clubPhotos: string[] = [
-  "https://images.unsplash.com/photo-1547153760-18fc86324498?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=1600&auto=format&fit=crop",
+  "/imagenes/kodigoklub/club-foto-1.jpg",
+  "/imagenes/kodigoklub/club-foto-2.jpg",
+  "/imagenes/kodigoklub/club-foto-3.jpg",
 ];
 
 export const horarios: Horario[] = [
