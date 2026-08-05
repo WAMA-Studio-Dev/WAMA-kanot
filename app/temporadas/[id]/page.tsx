@@ -25,7 +25,7 @@ export default async function TemporadaPage({
     <>
       <Navbar />
       <main className="flex-1">
-        <PageHero title={id === "2026-2027" ? "Kanot Krew" : temporada.periodo} />
+        <PageHero title="Kanot Krew" />
         {id === "2026-2027" ? (
           <section className="bg-kanot-navy-deep px-6 py-16 md:px-12 lg:px-20">
             <div className="mx-auto max-w-6xl">
