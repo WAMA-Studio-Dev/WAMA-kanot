@@ -2,6 +2,7 @@ import Image from "next/image";
 import { teamMembers } from "@/app/data/team";
 import SectionHeading from "@/app/components/ui/SectionHeading";
 import GlassCard from "@/app/components/ui/GlassCard";
+import MotionZoomImage from "@/app/components/ui/MotionZoomImage";
 import { InstagramIcon } from "@/app/components/ui/SocialIcons";
 
 export default function TeamGrid() {
@@ -16,13 +17,15 @@ export default function TeamGrid() {
         {teamMembers.map((member) => (
           <GlassCard key={member.id} className="overflow-hidden">
             <div className="relative aspect-[3/4] w-full">
-              <Image
-                src={member.photo}
-                alt={member.name}
-                fill
-                sizes="(max-width: 768px) 50vw, 25vw"
-                className="object-cover"
-              />
+              <MotionZoomImage>
+                <Image
+                  src={member.photo}
+                  alt={member.name}
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover"
+                />
+              </MotionZoomImage>
             </div>
             <div className="p-4">
               <div className="flex items-center justify-between gap-2">

@@ -45,8 +45,12 @@ export default function Navbar() {
   return (
     <header className="fixed top-4 md:top-6 inset-x-4 md:inset-x-0 z-50 md:mx-auto md:w-fit">
       <div className="flex items-center gap-4 md:gap-8 rounded-full border border-white/10 bg-kanot-navy/80 backdrop-blur-md px-4 md:px-6 py-2.5 shadow-lg shadow-black/20">
-        <Link href="/#inicio" className="font-extrabold text-lg text-kanot-pink tracking-tight">
-          ByKanot
+        <Link
+          href="/#inicio"
+          aria-label="ByKanot"
+          className="font-extrabold text-lg text-kanot-pink tracking-tight"
+        >
+          K
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-white/90">

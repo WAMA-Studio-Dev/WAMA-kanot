@@ -1,3 +1,8 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { fadeUpVariants, REVEAL_TRANSITION } from "@/app/lib/motion";
+
 export default function SectionHeading({
   kicker,
   title,
@@ -8,7 +13,14 @@ export default function SectionHeading({
   description?: string;
 }) {
   return (
-    <div className="max-w-3xl">
+    <motion.div
+      className="max-w-3xl"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.3 }}
+      variants={fadeUpVariants}
+      transition={REVEAL_TRANSITION}
+    >
       {kicker && (
         <p className="mb-3 text-sm md:text-base font-semibold uppercase tracking-[0.2em] text-kanot-pink-soft">
           {kicker}
@@ -20,6 +32,6 @@ export default function SectionHeading({
       {description && (
         <p className="mt-4 text-base md:text-lg text-white/80">{description}</p>
       )}
-    </div>
+    </motion.div>
   );
 }

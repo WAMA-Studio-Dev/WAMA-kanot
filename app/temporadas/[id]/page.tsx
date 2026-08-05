@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Navbar from "@/app/components/layout/Navbar";
 import PageHero from "@/app/components/sections/PageHero";
 import Pill from "@/app/components/ui/Pill";
+import ScrollReveal from "@/app/components/ui/ScrollReveal";
 import EquiposGrid from "@/app/components/temporadas/EquiposGrid";
 import { temporadas } from "@/app/data/temporadas";
 
@@ -34,13 +35,13 @@ export default async function TemporadaPage({
           </section>
         ) : (
           <section className="bg-kanot-navy-deep px-6 py-16 md:px-12 lg:px-20">
-            <div className="mx-auto max-w-3xl text-center">
+            <ScrollReveal className="mx-auto max-w-3xl text-center">
               <Pill>{temporada.periodo}</Pill>
               <h2 className="mt-4 text-2xl font-bold text-white md:text-3xl">
                 {temporada.titulo}
               </h2>
               <p className="mt-4 text-base text-white/80 md:text-lg">{temporada.descripcion}</p>
-            </div>
+            </ScrollReveal>
           </section>
         )}
       </main>

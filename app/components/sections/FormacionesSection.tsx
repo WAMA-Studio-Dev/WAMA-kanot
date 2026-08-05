@@ -2,6 +2,7 @@ import Image from "next/image";
 import { formaciones } from "@/app/data/formaciones";
 import SectionHeading from "@/app/components/ui/SectionHeading";
 import GlassCard from "@/app/components/ui/GlassCard";
+import MotionZoomImage from "@/app/components/ui/MotionZoomImage";
 import Pill from "@/app/components/ui/Pill";
 
 export default function FormacionesSection() {
@@ -21,13 +22,15 @@ export default function FormacionesSection() {
           {formaciones.map((f) => (
             <GlassCard key={f.id} className="overflow-hidden">
               <div className="relative aspect-[16/10] w-full">
-                <Image
-                  src={f.foto}
-                  alt={f.titulo}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
-                />
+                <MotionZoomImage>
+                  <Image
+                    src={f.foto}
+                    alt={f.titulo}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                  />
+                </MotionZoomImage>
               </div>
               <div className="p-5">
                 <div className="flex items-center gap-2">
