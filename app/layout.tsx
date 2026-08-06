@@ -14,10 +14,25 @@ const readexPro = Readex_Pro({
   display: "swap",
 });
 
+const SITE_TITLE = "ByKanot | Grupo de Danza y Competición";
+const SITE_DESCRIPTION =
+  "ByKanot es el grupo de danza urbana y competición liderado por Ariadna y Eric. Descubre Kanot Krew, Kodigo Klub, nuestro podcast y las formaciones de la temporada 2026/2027.";
+
 export const metadata: Metadata = {
-  title: "ByKanot | Kanot Krew — Competición y Cultura Urbana 2026/2027",
-  description:
-    "ByKanot es el grupo de competición y cultura urbana liderado por Ariadna y Eric. Descubre Kanot Krew, CódigoClub, nuestro podcast y las formaciones de la temporada 2026/2027.",
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    siteName: "ByKanot",
+    locale: "es_ES",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

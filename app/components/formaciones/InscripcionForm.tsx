@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import type { Formacion } from "@/app/data/formaciones";
 import GlassCard from "@/app/components/ui/GlassCard";
 import { InputField, TextareaField, SelectField } from "@/app/components/ui/FormField";
+import { isValidEmail, isValidPhone, sanitizePhoneInput } from "@/app/lib/validation";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -21,6 +22,11 @@ export default function InscripcionForm({ formaciones }: { formaciones: Formacio
     return (
       e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  }
+
+  function handleTelefonoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const sanitized = sanitizePhoneInput(e.target.value);
+    setForm((prev) => ({ ...prev, telefono: sanitized }));
   }
 
   async function handleSubmit(e: FormEvent) {
@@ -50,6 +56,9 @@ export default function InscripcionForm({ formaciones }: { formaciones: Formacio
   }
 
   const isSubmitting = status === "submitting";
+  const emailValid = isValidEmail(form.email);
+  const phoneValid = isValidPhone(form.telefono);
+  const canSubmit = form.nombre.trim() !== "" && emailValid && phoneValid && form.formacionId !== "";
 
   return (
     <GlassCard className="p-6 md:p-10">
@@ -67,22 +76,34 @@ export default function InscripcionForm({ formaciones }: { formaciones: Formacio
             value={form.nombre}
             onChange={handleChange("nombre")}
           />
-          <InputField
-            label="Email"
-            name="email"
-            type="email"
-            required
-            value={form.email}
-            onChange={handleChange("email")}
-          />
-          <InputField
-            label="Teléfono"
-            name="telefono"
-            type="tel"
-            required
-            value={form.telefono}
-            onChange={handleChange("telefono")}
-          />
+          <div className="flex flex-col gap-1">
+            <InputField
+              label="Email"
+              name="email"
+              type="email"
+              required
+              value={form.email}
+              onChange={handleChange("email")}
+            />
+            {form.email !== "" && !emailValid && (
+              <span className="text-xs font-medium text-red-400">
+                Introduce un email válido (ej: nombre@dominio.com).
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <InputField
+              label="Teléfono"
+              name="telefono"
+              type="tel"
+              required
+              value={form.telefono}
+              onChange={handleTelefonoChange}
+            />
+            {form.telefono !== "" && !phoneValid && (
+              <span className="text-xs font-medium text-red-400">Teléfono no válido.</span>
+            )}
+          </div>
           <SelectField
             label="Formación de interés"
             name="formacionId"
@@ -110,7 +131,7 @@ export default function InscripcionForm({ formaciones }: { formaciones: Formacio
           )}
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !canSubmit}
             className="md:col-span-2 rounded-full bg-kanot-pink px-6 py-3 font-bold text-kanot-navy hover:bg-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Enviando..." : "Enviar inscripción"}

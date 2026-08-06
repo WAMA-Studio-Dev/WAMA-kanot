@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { sanitizePhoneDigitsOnly } from "@/app/lib/validation";
 
 const COUNTRY_CODES = [
   { code: "ES", dial: "+34", flag: "🇪🇸" },
@@ -22,12 +23,14 @@ export default function PhoneField({
   name,
   required,
   onChange,
+  error,
   className = "",
 }: {
   label: string;
   name: string;
   required?: boolean;
   onChange: (fullValue: string) => void;
+  error?: string;
   className?: string;
 }) {
   const [dial, setDial] = useState(COUNTRY_CODES[0].dial);
@@ -63,13 +66,15 @@ export default function PhoneField({
           required={required}
           value={number}
           onChange={(e) => {
-            setNumber(e.target.value);
-            emit(dial, e.target.value);
+            const sanitized = sanitizePhoneDigitsOnly(e.target.value);
+            setNumber(sanitized);
+            emit(dial, sanitized);
           }}
           placeholder="612 345 678"
           className="w-full bg-transparent px-3 py-3 text-white placeholder-white/40 focus:outline-none"
         />
       </div>
+      {error && <span className="text-xs font-medium text-red-400">{error}</span>}
     </label>
   );
 }

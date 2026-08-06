@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import SectionHeading from "@/app/components/ui/SectionHeading";
 import GlassCard from "@/app/components/ui/GlassCard";
 import { InputField, TextareaField } from "@/app/components/ui/FormField";
+import { isValidEmail } from "@/app/lib/validation";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -41,6 +42,8 @@ export default function JoinForm() {
   }
 
   const isSubmitting = status === "submitting";
+  const emailValid = isValidEmail(form.email);
+  const canSubmit = form.nombre.trim() !== "" && emailValid && form.mensaje.trim() !== "";
 
   return (
     <div id="formulario" className="scroll-mt-28 py-16">
@@ -65,14 +68,21 @@ export default function JoinForm() {
               value={form.nombre}
               onChange={handleChange("nombre")}
             />
-            <InputField
-              label="Email"
-              name="email"
-              type="email"
-              required
-              value={form.email}
-              onChange={handleChange("email")}
-            />
+            <div className="flex flex-col gap-1">
+              <InputField
+                label="Email"
+                name="email"
+                type="email"
+                required
+                value={form.email}
+                onChange={handleChange("email")}
+              />
+              {form.email !== "" && !emailValid && (
+                <span className="text-xs font-medium text-red-400">
+                  Introduce un email válido (ej: nombre@dominio.com).
+                </span>
+              )}
+            </div>
             <InputField
               label="Instagram"
               name="instagram"
@@ -97,7 +107,7 @@ export default function JoinForm() {
             )}
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !canSubmit}
               className="md:col-span-2 rounded-full bg-kanot-pink px-6 py-3 font-bold text-kanot-navy hover:bg-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? "Enviando..." : "Enviar solicitud"}

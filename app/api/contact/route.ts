@@ -12,7 +12,38 @@ type ContactPayload = {
   extra?: Record<string, string>;
 };
 
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 3;
+
+// Almacén en memoria del proceso: suficiente para una única instancia de servidor,
+// no persiste entre despliegues serverless multi-instancia (limitación conocida).
+const requestTimestamps = new Map<string, number[]>();
+
+function getClientIp(request: NextRequest): string {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) return forwardedFor.split(",")[0].trim();
+  return request.headers.get("x-real-ip") ?? "unknown";
+}
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const recent = (requestTimestamps.get(ip) ?? []).filter(
+    (timestamp) => now - timestamp < RATE_LIMIT_WINDOW_MS
+  );
+  recent.push(now);
+  requestTimestamps.set(ip, recent);
+  return recent.length > RATE_LIMIT_MAX_REQUESTS;
+}
+
 export async function POST(request: NextRequest) {
+  const ip = getClientIp(request);
+  if (isRateLimited(ip)) {
+    return NextResponse.json(
+      { error: "Demasiadas solicitudes. Espera un minuto antes de volver a intentarlo." },
+      { status: 429 }
+    );
+  }
+
   let payload: ContactPayload;
   try {
     payload = await request.json();

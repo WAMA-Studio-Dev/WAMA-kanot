@@ -8,6 +8,7 @@ import { InputField, SelectField, TextareaField } from "@/app/components/ui/Form
 import AgeRangeSlider from "@/app/components/ui/AgeRangeSlider";
 import PhoneField from "@/app/components/ui/PhoneField";
 import { CARD_TRANSITION, NEON_PINK_RGB, REVEAL_TRANSITION } from "@/app/lib/motion";
+import { isValidEmail, isValidPhone } from "@/app/lib/validation";
 
 const RANGOS_COMPETICION = ["Hasta 12 años", "12 - 14 años", "14 - 17 años"];
 
@@ -102,6 +103,18 @@ export default function ContactModal({ onClose }: { onClose: () => void }) {
   }
 
   const isSubmitting = status === "submitting";
+  const emailValid = isValidEmail(form.email);
+  const phoneValid = isValidPhone(form.telefono);
+  const objetivoValid =
+    form.objetivo !== "" &&
+    (form.objetivo !== "grupo-competicion" || form.rangoCompeticion !== "") &&
+    (form.objetivo !== "formaciones" || form.formacion !== "");
+  const canSubmit =
+    form.nombre.trim() !== "" &&
+    emailValid &&
+    phoneValid &&
+    form.municipio.trim() !== "" &&
+    objetivoValid;
 
   return createPortal(
     <motion.div
@@ -196,20 +209,28 @@ export default function ContactModal({ onClose }: { onClose: () => void }) {
                     className="md:col-span-2"
                   />
 
-                  <InputField
-                    label="Correo electrónico"
-                    name="email"
-                    type="email"
-                    required
-                    value={form.email}
-                    onChange={handleChange("email")}
-                  />
+                  <div className="flex flex-col gap-1">
+                    <InputField
+                      label="Correo electrónico"
+                      name="email"
+                      type="email"
+                      required
+                      value={form.email}
+                      onChange={handleChange("email")}
+                    />
+                    {form.email !== "" && !emailValid && (
+                      <span className="text-xs font-medium text-red-400">
+                        Introduce un email válido (ej: nombre@dominio.com).
+                      </span>
+                    )}
+                  </div>
 
                   <PhoneField
                     label="Teléfono de contacto"
                     name="telefono"
                     required
                     onChange={(value) => setForm((prev) => ({ ...prev, telefono: value }))}
+                    error={form.telefono !== "" && !phoneValid ? "Teléfono no válido." : undefined}
                   />
 
                   <InputField
@@ -311,9 +332,9 @@ export default function ContactModal({ onClose }: { onClose: () => void }) {
 
                 <motion.button
                   type="submit"
-                  disabled={isSubmitting}
-                  whileHover={isSubmitting ? undefined : { scale: 1.03, boxShadow: GLOW_SHADOW }}
-                  whileTap={isSubmitting ? undefined : { scale: 0.97, boxShadow: GLOW_SHADOW }}
+                  disabled={isSubmitting || !canSubmit}
+                  whileHover={isSubmitting || !canSubmit ? undefined : { scale: 1.03, boxShadow: GLOW_SHADOW }}
+                  whileTap={isSubmitting || !canSubmit ? undefined : { scale: 0.97, boxShadow: GLOW_SHADOW }}
                   transition={CARD_TRANSITION}
                   className="mt-2 rounded-full bg-kanot-pink px-8 py-3.5 font-bold text-kanot-navy transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
                 >
