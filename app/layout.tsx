@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Readex_Pro } from "next/font/google";
 import { ContactModalProvider } from "@/app/components/contacto/ContactModalContext";
+import { CookieConsentProvider } from "@/app/components/legal/CookieConsentContext";
+import CookieBanner from "@/app/components/legal/CookieBanner";
+import Footer from "@/app/components/layout/Footer";
 import "./globals.css";
 
 const readexPro = Readex_Pro({
@@ -23,7 +26,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${readexPro.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full flex flex-col bg-kanot-navy text-white">
-        <ContactModalProvider>{children}</ContactModalProvider>
+        <ContactModalProvider>
+          <CookieConsentProvider>
+            {children}
+            <Footer />
+            <CookieBanner />
+          </CookieConsentProvider>
+        </ContactModalProvider>
       </body>
     </html>
   );
