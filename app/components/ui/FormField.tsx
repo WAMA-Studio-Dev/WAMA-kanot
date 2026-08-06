@@ -1,7 +1,7 @@
 import type { SelectHTMLAttributes, InputHTMLAttributes, TextareaHTMLAttributes } from "react";
 
 const fieldClasses =
-  "w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white placeholder-white/40 focus:border-kanot-pink focus:outline-none transition-colors";
+  "w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white placeholder-white/40 focus:border-kanot-pink focus:outline-none focus:ring-1 focus:ring-kanot-pink transition-colors";
 
 type BaseProps = {
   label: string;
