@@ -24,9 +24,25 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
-.kodigo-navbar a:hover,
-.kodigo-navbar button:hover {
-  color: #c9c9d6;
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-kanot-navy-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-kanot-pink);
+  border-radius: 9999px;
+  border: 2px solid var(--color-kanot-navy-deep);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-kanot-pink-soft);
+}
+
+html {
+  scrollbar-color: var(--color-kanot-pink) var(--color-kanot-navy-deep);
+  scrollbar-width: thin;
 }
 
 @keyframes kodigo-slide-in {

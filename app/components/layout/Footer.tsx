@@ -38,6 +38,10 @@ export default function Footer() {
         </nav>
 
         <p className="text-xs text-white/40">© 2026 ByKanot. Todos los Derechos Reservados.</p>
+
+        <p className="text-[11px] font-light tracking-wide text-white/25">
+          Designed &amp; Developed by WAMA Studio
+        </p>
       </div>
     </footer>
   );

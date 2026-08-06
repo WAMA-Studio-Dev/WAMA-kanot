@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { temporadas } from "@/app/data/temporadas";
 import { InstagramIcon, TikTokIcon } from "@/app/components/ui/SocialIcons";
 
@@ -24,18 +23,12 @@ const socialLinks = [
   { label: "TikTok", href: "https://tiktok.com/@bykanot" },
 ];
 
-const KODIGO_KLUB_INSTAGRAM_HREF =
-  "https://www.instagram.com/kodigoklub?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==";
-
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [temporadasSubOpen, setTemporadasSubOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileTemporadasOpen, setMobileTemporadasOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const pathname = usePathname();
-  const isTransparent = pathname === "/kodigoklub";
-  const instagramHref = pathname === "/kodigoklub" ? KODIGO_KLUB_INSTAGRAM_HREF : socialLinks[0].href;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -50,14 +43,11 @@ export default function Navbar() {
 
   return (
     <header
-suppressHydrationWarning
-className={`fixed top-4 md:top-6 inset-x-4 md:inset-x-0 z-50 md:mx-auto md:w-fit ${isTransparent ? "kodigo-navbar" : ""}`}
->
-      <div
-        className={`relative flex items-center gap-4 md:gap-8 rounded-full px-4 md:px-6 py-2.5 transition-colors ${
-          isTransparent ? "" : "border border-white/10 bg-kanot-navy/80 backdrop-blur-md shadow-lg shadow-black/20"
-        }`}
-      >
+      suppressHydrationWarning
+      className="fixed top-4 md:top-6 inset-x-4 md:inset-x-0 z-50 md:mx-auto md:w-fit"
+    >
+      <div className="relative flex items-center gap-4 md:gap-8 rounded-full border border-white/10 bg-kanot-navy/80 px-4 py-2.5 shadow-lg shadow-black/20 backdrop-blur-md transition-colors md:px-6">
+
         <Link
           href="/#inicio"
           aria-label="ByKanot"
@@ -157,7 +147,7 @@ className={`fixed top-4 md:top-6 inset-x-4 md:inset-x-0 z-50 md:mx-auto md:w-fit
 
           <div className="flex items-center gap-3 border-l border-white/10 pl-4">
             <a
-              href={instagramHref}
+              href={socialLinks[0].href}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={socialLinks[0].label}
@@ -273,7 +263,7 @@ className={`fixed top-4 md:top-6 inset-x-4 md:inset-x-0 z-50 md:mx-auto md:w-fit
           <div className="my-2 border-t border-white/10" />
           <div className="flex items-center gap-4 px-3 py-1 text-white/90">
             <a
-              href={instagramHref}
+              href={socialLinks[0].href}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={socialLinks[0].label}

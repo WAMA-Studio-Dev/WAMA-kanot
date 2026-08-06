@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { equipos, type Equipo } from "@/app/data/equipos";
 import ScrollReveal from "@/app/components/ui/ScrollReveal";
 
 const TRANSITION_MS = 650;
 const EASE_CSS = "cubic-bezier(0.4, 0, 0.2, 1)";
-const CARD_TRANSITION_CSS = `left ${TRANSITION_MS}ms ${EASE_CSS}, bottom ${TRANSITION_MS}ms ${EASE_CSS}, height ${TRANSITION_MS}ms ${EASE_CSS}, transform ${TRANSITION_MS}ms ${EASE_CSS}, filter ${TRANSITION_MS}ms ${EASE_CSS}, opacity ${TRANSITION_MS}ms ${EASE_CSS}`;
+// Cards keep animating via Framer Motion's `layout` (FLIP/transform), which stays
+// compositor-only even though `left`/`bottom`/`height` are set as plain styles below.
+const CARD_LAYOUT_TRANSITION = { duration: TRANSITION_MS / 1000, ease: [0.4, 0, 0.2, 1] as const };
 
 const BACKGROUND_COLORS = ["#0b2b6b", "#082054", "#12184f", "#170f3d"];
 
@@ -168,7 +171,10 @@ function CarouselCard({
   const isCenter = role === "center";
 
   return (
-    <div
+    <motion.div
+      layout
+      transition={CARD_LAYOUT_TRANSITION}
+      animate={{ scale: style.scale, opacity: style.opacity, filter: `blur(${style.blur}px)` }}
       role={isCenter ? undefined : "button"}
       tabIndex={isCenter ? undefined : 0}
       onClick={isCenter ? undefined : onSelect}
@@ -186,13 +192,10 @@ function CarouselCard({
         bottom: style.bottom,
         height: style.height,
         maxHeight: "100%",
-        transform: `translateX(-50%) scale(${style.scale})`,
+        x: "-50%",
         transformOrigin: "50% 100%",
-        filter: `blur(${style.blur}px)`,
-        opacity: style.opacity,
         zIndex: style.zIndex,
-        willChange: "transform, filter, opacity",
-        transition: CARD_TRANSITION_CSS,
+        willChange: "transform",
         cursor: isCenter ? "default" : "pointer",
       }}
     >
@@ -203,7 +206,7 @@ function CarouselCard({
         sizes="(max-width: 640px) 40vw, 320px"
         className="object-contain drop-shadow-2xl"
       />
-    </div>
+    </motion.div>
   );
 }
 

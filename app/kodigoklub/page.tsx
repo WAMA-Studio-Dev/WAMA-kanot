@@ -1,4 +1,4 @@
-import Navbar from "@/app/components/layout/Navbar";
+import KodigoKlubFloatingNav from "@/app/components/kodigoklub/KodigoKlubFloatingNav";
 import KodigoKlubHero from "@/app/components/kodigoklub/KodigoKlubHero";
 import JoinBand from "@/app/components/kodigoklub/JoinBand";
 import PhotoCarousel from "@/app/components/kodigoklub/PhotoCarousel";
@@ -9,7 +9,7 @@ import ComoLlegar from "@/app/components/kodigoklub/ComoLlegar";
 export default function KodigoKlubPage() {
   return (
     <>
-      <Navbar />
+      <KodigoKlubFloatingNav />
       <main className="flex-1">
         <KodigoKlubHero />
         <JoinBand />

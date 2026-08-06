@@ -4,6 +4,7 @@ import { ContactModalProvider } from "@/app/components/contacto/ContactModalCont
 import { CookieConsentProvider } from "@/app/components/legal/CookieConsentContext";
 import CookieBanner from "@/app/components/legal/CookieBanner";
 import Footer from "@/app/components/layout/Footer";
+import BackToTop from "@/app/components/ui/BackToTop";
 import "./globals.css";
 
 const readexPro = Readex_Pro({
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <CookieConsentProvider>
             {children}
             <Footer />
+            <BackToTop />
             <CookieBanner />
           </CookieConsentProvider>
         </ContactModalProvider>
