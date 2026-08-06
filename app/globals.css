@@ -64,7 +64,6 @@ input[type="range"].kanot-range::-moz-range-thumb {
   box-shadow: 0 0 8px rgba(255, 176, 214, 0.7);
   cursor: pointer;
 }
-}
 
 /* 12-frame (4 cols x 3 rows) sprite-sheet rotation for the Kanot 3D logo. */
 @keyframes kanot-logo-spin {
