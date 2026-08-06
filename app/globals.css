@@ -29,6 +29,19 @@ body {
   color: #c9c9d6;
 }
 
+@keyframes kodigo-slide-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.kodigo-carousel-slide {
+  animation: kodigo-slide-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* Custom thumb/track for <input type="range" class="kanot-range">. */
 input[type="range"].kanot-range {
   -webkit-appearance: none;

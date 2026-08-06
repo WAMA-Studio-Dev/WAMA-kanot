@@ -1,9 +1,8 @@
 import Navbar from "@/app/components/layout/Navbar";
 import KodigoKlubHero from "@/app/components/kodigoklub/KodigoKlubHero";
-import EventShowcase from "@/app/components/kodigoklub/EventShowcase";
-import AboutSection from "@/app/components/kodigoklub/AboutSection";
-import HorariosSection from "@/app/components/kodigoklub/HorariosSection";
-import GallerySection from "@/app/components/kodigoklub/GallerySection";
+import JoinBand from "@/app/components/kodigoklub/JoinBand";
+import PhotoCarousel from "@/app/components/kodigoklub/PhotoCarousel";
+import PosterGallery from "@/app/components/kodigoklub/PosterGallery";
 import ClosingCta from "@/app/components/kodigoklub/ClosingCta";
 
 export default function KodigoKlubPage() {
@@ -12,10 +11,9 @@ export default function KodigoKlubPage() {
       <Navbar />
       <main className="flex-1">
         <KodigoKlubHero />
-        <EventShowcase />
-        <AboutSection />
-        <HorariosSection />
-        <GallerySection />
+        <JoinBand />
+        <PhotoCarousel />
+        <PosterGallery />
         <ClosingCta />
       </main>
     </>
