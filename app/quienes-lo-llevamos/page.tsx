@@ -23,7 +23,10 @@ export default function QuienesLoLlevamosPage() {
               description="No creemos que el baile sea solo ganar competiciones. Creemos en entrenar con disciplina, disfrutar del proceso, respetar la cultura y crecer junto a personas que comparten la misma pasión. Porque una comunidad fuerte crea mejores bailarines."
             />
 
-            <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16">
+            <div
+              id={ariadna.id}
+              className="grid scroll-mt-28 grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16"
+            >
               <div className="flex justify-center">
                 <div className="relative aspect-square w-72 overflow-hidden rounded-3xl border border-white/10 shadow-lg shadow-black/20 sm:w-96">
                   <Image
@@ -67,7 +70,10 @@ export default function QuienesLoLlevamosPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16">
+            <div
+              id={eric.id}
+              className="grid scroll-mt-28 grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16"
+            >
               <div className="flex justify-center md:order-2">
                 <div className="relative aspect-square w-72 overflow-hidden rounded-3xl border border-white/10 shadow-lg shadow-black/20 sm:w-96">
                   <Image
@@ -109,7 +115,10 @@ export default function QuienesLoLlevamosPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16">
+            <div
+              id={diego.id}
+              className="grid scroll-mt-28 grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16"
+            >
               <div className="flex justify-center">
                 <div className="relative aspect-square w-72 overflow-hidden rounded-3xl border border-white/10 shadow-lg shadow-black/20 sm:w-96">
                   <Image

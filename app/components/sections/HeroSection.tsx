@@ -1,7 +1,13 @@
+"use client";
+
 import AnimatedHeroTitle from "@/app/components/sections/AnimatedHeroTitle";
 import CtaButton from "@/app/components/ui/CtaButton";
+import ScrollIndicator from "@/app/components/ui/ScrollIndicator";
+import { useContactModal } from "@/app/components/contacto/ContactModalContext";
 
 export default function HeroSection() {
+  const { openModal } = useContactModal();
+
   return (
     <section
       id="inicio"
@@ -26,10 +32,12 @@ export default function HeroSection() {
           ByKanot nace con la idea de crear un espacio donde la danza vaya más allá de las clases.
         </p>
 
-        <CtaButton href="/formulario" variant="glow">
+        <CtaButton onClick={openModal} variant="glow">
           Contacta con nosotros
         </CtaButton>
       </div>
+
+      <ScrollIndicator />
     </section>
   );
 }

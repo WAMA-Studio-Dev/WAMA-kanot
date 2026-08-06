@@ -24,6 +24,42 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+/* Custom thumb/track for <input type="range" class="kanot-range">. */
+input[type="range"].kanot-range {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+input[type="range"].kanot-range::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 9999px;
+}
+input[type="range"].kanot-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -5px;
+  border-radius: 9999px;
+  background: var(--color-kanot-pink);
+  box-shadow: 0 0 8px rgba(255, 176, 214, 0.7);
+  cursor: pointer;
+}
+input[type="range"].kanot-range::-moz-range-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: transparent;
+}
+input[type="range"].kanot-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--color-kanot-pink);
+  box-shadow: 0 0 8px rgba(255, 176, 214, 0.7);
+  cursor: pointer;
+}
+
 /* 12-frame (4 cols x 3 rows) sprite-sheet rotation for the Kanot 3D logo. */
 @keyframes kanot-logo-spin {
   0% {

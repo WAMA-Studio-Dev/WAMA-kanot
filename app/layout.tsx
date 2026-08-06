@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Readex_Pro } from "next/font/google";
+import { ContactModalProvider } from "@/app/components/contacto/ContactModalContext";
 import "./globals.css";
 
 const readexPro = Readex_Pro({
@@ -22,7 +23,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${readexPro.variable} h-full scroll-smooth antialiased`}
     >
       <body className="min-h-full flex flex-col bg-kanot-navy text-white">
-        {children}
+        <ContactModalProvider>{children}</ContactModalProvider>
       </body>
     </html>
   );

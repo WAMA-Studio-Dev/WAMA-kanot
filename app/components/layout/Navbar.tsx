@@ -6,7 +6,6 @@ import { temporadas } from "@/app/data/temporadas";
 import { InstagramIcon, TikTokIcon } from "@/app/components/ui/SocialIcons";
 
 const kanotCrewLinkTop = { label: "Quiénes somos", href: "/quienes-lo-llevamos" };
-const kanotCrewLinkBottom = { label: "Formulario", href: "/formulario" };
 
 const temporadasLinks = temporadas.map((temporada) => ({
   label: temporada.periodo,
@@ -43,14 +42,17 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="fixed top-4 md:top-6 inset-x-4 md:inset-x-0 z-50 md:mx-auto md:w-fit">
-      <div className="flex items-center gap-4 md:gap-8 rounded-full border border-white/10 bg-kanot-navy/80 backdrop-blur-md px-4 md:px-6 py-2.5 shadow-lg shadow-black/20">
+    <header
+      suppressHydrationWarning
+      className="fixed top-4 md:top-6 inset-x-4 md:inset-x-0 z-50 md:mx-auto md:w-fit"
+    >
+      <div className="relative flex items-center gap-4 md:gap-8 rounded-full border border-white/10 bg-kanot-navy/80 backdrop-blur-md px-4 md:px-6 py-2.5 shadow-lg shadow-black/20">
         <Link
           href="/#inicio"
           aria-label="ByKanot"
-          className="font-extrabold text-lg text-kanot-pink tracking-tight"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-extrabold text-lg text-kanot-pink tracking-[0.1em] md:static md:left-auto md:top-auto md:translate-x-0 md:translate-y-0 md:text-xl"
         >
-          K
+          ByKanot
         </Link>
 
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-white/90">
@@ -128,14 +130,6 @@ export default function Navbar() {
                     ))}
                   </div>
                 )}
-
-                <Link
-                  href={kanotCrewLinkBottom.href}
-                  onClick={() => setDropdownOpen(false)}
-                  className="block rounded-lg px-3 py-2 text-sm hover:bg-white/5 hover:text-kanot-pink active:text-kanot-pink transition-colors"
-                >
-                  {kanotCrewLinkBottom.label}
-                </Link>
               </div>
             )}
           </div>
@@ -252,14 +246,6 @@ export default function Navbar() {
               ))}
             </div>
           )}
-
-          <Link
-            href={kanotCrewLinkBottom.href}
-            onClick={() => setMobileOpen(false)}
-            className="rounded-lg px-3 py-2 text-sm text-white/90 hover:bg-white/5 hover:text-kanot-pink active:text-kanot-pink transition-colors"
-          >
-            {kanotCrewLinkBottom.label}
-          </Link>
 
           <div className="my-2 border-t border-white/10" />
           {navLinks.map((link) => (
