@@ -24,6 +24,11 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+.kodigo-navbar a:hover,
+.kodigo-navbar button:hover {
+  color: #c9c9d6;
+}
+
 /* 12-frame (4 cols x 3 rows) sprite-sheet rotation for the Kanot 3D logo. */
 @keyframes kanot-logo-spin {
   0% {
