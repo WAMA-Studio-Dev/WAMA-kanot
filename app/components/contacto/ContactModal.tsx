@@ -38,11 +38,12 @@ const INITIAL_FORM = {
 };
 
 type FormState = typeof INITIAL_FORM;
-type Status = "idle" | "submitting" | "success";
+type Status = "idle" | "submitting" | "success" | "error";
 
 export default function ContactModal({ onClose }: { onClose: () => void }) {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [status, setStatus] = useState<Status>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -63,15 +64,41 @@ export default function ContactModal({ onClose }: { onClose: () => void }) {
     setForm((prev) => ({ ...prev, objetivo, rangoCompeticion: "", formacion: "" }));
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setStatus("submitting");
-    // Formulario solo de frontend: sin backend todavía.
-    // TODO: conectar con un backend o servicio de email (Formspree, Resend...) cuando esté disponible.
-    window.setTimeout(() => {
-      console.log("Solicitud Formulario ByKanot:", form);
+    setErrorMessage("");
+
+    const objetivoLabel = OBJETIVOS.find((o) => o.value === form.objetivo)?.label ?? "Contacto";
+
+    const extra: Record<string, string> = {
+      Instagram: form.instagram,
+      Municipio: form.municipio,
+    };
+    if (form.rangoCompeticion) extra["Rango de competición"] = form.rangoCompeticion;
+    if (form.formacion) extra["Formación de interés"] = form.formacion;
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: form.nombre,
+          email: form.email,
+          telefono: form.telefono,
+          tipo: objetivoLabel,
+          edad: form.edad,
+          mensaje: form.detalles,
+          extra,
+        }),
+      });
+
+      if (!res.ok) throw new Error();
       setStatus("success");
-    }, 900);
+    } catch {
+      setErrorMessage("No hemos podido enviar tu solicitud. Inténtalo de nuevo en unos minutos.");
+      setStatus("error");
+    }
   }
 
   const isSubmitting = status === "submitting";
@@ -277,6 +304,10 @@ export default function ContactModal({ onClose }: { onClose: () => void }) {
                     className="md:col-span-2"
                   />
                 </div>
+
+                {status === "error" && (
+                  <p className="text-sm font-medium text-red-400">{errorMessage}</p>
+                )}
 
                 <motion.button
                   type="submit"

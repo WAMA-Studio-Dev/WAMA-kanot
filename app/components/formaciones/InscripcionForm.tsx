@@ -5,6 +5,8 @@ import type { Formacion } from "@/app/data/formaciones";
 import GlassCard from "@/app/components/ui/GlassCard";
 import { InputField, TextareaField, SelectField } from "@/app/components/ui/FormField";
 
+type Status = "idle" | "submitting" | "success" | "error";
+
 export default function InscripcionForm({ formaciones }: { formaciones: Formacion[] }) {
   const [form, setForm] = useState({
     nombre: "",
@@ -13,7 +15,7 @@ export default function InscripcionForm({ formaciones }: { formaciones: Formacio
     formacionId: formaciones[0]?.id ?? "",
     mensaje: "",
   });
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
 
   function handleChange(field: keyof typeof form) {
     return (
@@ -21,17 +23,37 @@ export default function InscripcionForm({ formaciones }: { formaciones: Formacio
     ) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    // Formulario solo de frontend: sin backend todavía.
-    // TODO: conectar con un backend o servicio de email (Formspree, Resend...) cuando esté disponible.
-    console.log("Inscripción Formaciones:", form);
-    setSubmitted(true);
+    setStatus("submitting");
+
+    const formacion = formaciones.find((f) => f.id === form.formacionId);
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: form.nombre,
+          email: form.email,
+          telefono: form.telefono,
+          tipo: `Inscripción - ${formacion?.titulo ?? "Formación"}`,
+          mensaje: form.mensaje,
+        }),
+      });
+
+      if (!res.ok) throw new Error();
+      setStatus("success");
+    } catch {
+      setStatus("error");
+    }
   }
+
+  const isSubmitting = status === "submitting";
 
   return (
     <GlassCard className="p-6 md:p-10">
-      {submitted ? (
+      {status === "success" ? (
         <p className="text-lg font-semibold text-kanot-pink">
           ¡Gracias! Hemos recibido tu inscripción, te contactaremos pronto.
         </p>
@@ -81,11 +103,17 @@ export default function InscripcionForm({ formaciones }: { formaciones: Formacio
             onChange={handleChange("mensaje")}
             className="md:col-span-2"
           />
+          {status === "error" && (
+            <p className="md:col-span-2 text-sm font-medium text-red-400">
+              No hemos podido enviar tu inscripción. Inténtalo de nuevo en unos minutos.
+            </p>
+          )}
           <button
             type="submit"
-            className="md:col-span-2 rounded-full bg-kanot-pink px-6 py-3 font-bold text-kanot-navy hover:bg-white transition-colors"
+            disabled={isSubmitting}
+            className="md:col-span-2 rounded-full bg-kanot-pink px-6 py-3 font-bold text-kanot-navy hover:bg-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Enviar inscripción
+            {isSubmitting ? "Enviando..." : "Enviar inscripción"}
           </button>
         </form>
       )}

@@ -5,22 +5,42 @@ import SectionHeading from "@/app/components/ui/SectionHeading";
 import GlassCard from "@/app/components/ui/GlassCard";
 import { InputField, TextareaField } from "@/app/components/ui/FormField";
 
+type Status = "idle" | "submitting" | "success" | "error";
+
 export default function JoinForm() {
   const [form, setForm] = useState({ nombre: "", email: "", instagram: "", mensaje: "" });
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
 
   function handleChange(field: keyof typeof form) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    // Formulario solo de frontend: sin backend todavía.
-    // TODO: conectar con un backend o servicio de email (Formspree, Resend...) cuando esté disponible.
-    console.log("Solicitud Kanot Krew:", form);
-    setSubmitted(true);
+    setStatus("submitting");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: form.nombre,
+          email: form.email,
+          tipo: "Kanot Krew",
+          mensaje: form.mensaje,
+          extra: { Instagram: form.instagram },
+        }),
+      });
+
+      if (!res.ok) throw new Error();
+      setStatus("success");
+    } catch {
+      setStatus("error");
+    }
   }
+
+  const isSubmitting = status === "submitting";
 
   return (
     <div id="formulario" className="scroll-mt-28 py-16">
@@ -31,7 +51,7 @@ export default function JoinForm() {
       />
 
       <GlassCard className="mt-10 p-6 md:p-10">
-        {submitted ? (
+        {status === "success" ? (
           <p className="text-lg font-semibold text-kanot-pink">
             ¡Gracias! Hemos recibido tu solicitud, te contactaremos pronto.
           </p>
@@ -70,11 +90,17 @@ export default function JoinForm() {
               onChange={handleChange("mensaje")}
               className="md:col-span-2"
             />
+            {status === "error" && (
+              <p className="md:col-span-2 text-sm font-medium text-red-400">
+                No hemos podido enviar tu solicitud. Inténtalo de nuevo en unos minutos.
+              </p>
+            )}
             <button
               type="submit"
-              className="md:col-span-2 rounded-full bg-kanot-pink px-6 py-3 font-bold text-kanot-navy hover:bg-white transition-colors"
+              disabled={isSubmitting}
+              className="md:col-span-2 rounded-full bg-kanot-pink px-6 py-3 font-bold text-kanot-navy hover:bg-white transition-colors disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Enviar solicitud
+              {isSubmitting ? "Enviando..." : "Enviar solicitud"}
             </button>
           </form>
         )}
