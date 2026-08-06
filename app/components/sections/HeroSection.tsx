@@ -20,7 +20,7 @@ export default function HeroSection() {
         playsInline
         poster="/imagenes/hero/fondo-hero.jpg"
         className="absolute inset-0 h-full w-full object-cover opacity-30 mix-blend-overlay"
-        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260418_063509_7d167302-4fd4-480b-8260-18ab572333d4.mp4"
+        src="/imagenes/fondos/fondo-hero.mov"
       />
 
       <div className="absolute inset-0 bg-gradient-to-b from-kanot-navy-deep/40 via-transparent to-kanot-navy" />

@@ -24,6 +24,9 @@ const socialLinks = [
   { label: "TikTok", href: "https://tiktok.com/@bykanot" },
 ];
 
+const KODIGO_KLUB_INSTAGRAM_HREF =
+  "https://www.instagram.com/kodigoklub?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==";
+
 export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [temporadasSubOpen, setTemporadasSubOpen] = useState(false);
@@ -32,6 +35,7 @@ export default function Navbar() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const isTransparent = pathname === "/kodigoklub";
+  const instagramHref = pathname === "/kodigoklub" ? KODIGO_KLUB_INSTAGRAM_HREF : socialLinks[0].href;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -153,7 +157,7 @@ className={`fixed top-4 md:top-6 inset-x-4 md:inset-x-0 z-50 md:mx-auto md:w-fit
 
           <div className="flex items-center gap-3 border-l border-white/10 pl-4">
             <a
-              href={socialLinks[0].href}
+              href={instagramHref}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={socialLinks[0].label}
@@ -269,7 +273,7 @@ className={`fixed top-4 md:top-6 inset-x-4 md:inset-x-0 z-50 md:mx-auto md:w-fit
           <div className="my-2 border-t border-white/10" />
           <div className="flex items-center gap-4 px-3 py-1 text-white/90">
             <a
-              href={socialLinks[0].href}
+              href={instagramHref}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={socialLinks[0].label}

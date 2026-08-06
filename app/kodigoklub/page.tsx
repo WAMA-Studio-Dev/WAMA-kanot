@@ -3,7 +3,8 @@ import KodigoKlubHero from "@/app/components/kodigoklub/KodigoKlubHero";
 import JoinBand from "@/app/components/kodigoklub/JoinBand";
 import PhotoCarousel from "@/app/components/kodigoklub/PhotoCarousel";
 import PosterGallery from "@/app/components/kodigoklub/PosterGallery";
-import ClosingCta from "@/app/components/kodigoklub/ClosingCta";
+import UneteKodigo from "@/app/components/kodigoklub/UneteKodigo";
+import ComoLlegar from "@/app/components/kodigoklub/ComoLlegar";
 
 export default function KodigoKlubPage() {
   return (
@@ -14,7 +15,8 @@ export default function KodigoKlubPage() {
         <JoinBand />
         <PhotoCarousel />
         <PosterGallery />
-        <ClosingCta />
+        <UneteKodigo />
+        <ComoLlegar />
       </main>
     </>
   );
