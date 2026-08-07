@@ -13,7 +13,8 @@ type ContactPayload = {
 };
 
 const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX_REQUESTS = 3;
+const RATE_LIMIT_MAX_REQUESTS = 15;
+const LOCAL_IPS = new Set(["127.0.0.1", "::1", "unknown"]);
 
 // Almacén en memoria del proceso: suficiente para una única instancia de servidor,
 // no persiste entre despliegues serverless multi-instancia (limitación conocida).
@@ -26,6 +27,8 @@ function getClientIp(request: NextRequest): string {
 }
 
 function isRateLimited(ip: string): boolean {
+  if (process.env.NODE_ENV === "development" || LOCAL_IPS.has(ip)) return false;
+
   const now = Date.now();
   const recent = (requestTimestamps.get(ip) ?? []).filter(
     (timestamp) => now - timestamp < RATE_LIMIT_WINDOW_MS

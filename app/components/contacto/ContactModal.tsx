@@ -94,10 +94,21 @@ export default function ContactModal({ onClose }: { onClose: () => void }) {
         }),
       });
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(
+          res.status === 429
+            ? data?.error ?? "Demasiadas solicitudes. Espera un minuto antes de volver a intentarlo."
+            : data?.error ?? "No hemos podido enviar tu solicitud. Inténtalo de nuevo en unos minutos."
+        );
+      }
       setStatus("success");
-    } catch {
-      setErrorMessage("No hemos podido enviar tu solicitud. Inténtalo de nuevo en unos minutos.");
+    } catch (err) {
+      setErrorMessage(
+        err instanceof Error && err.message
+          ? err.message
+          : "No hemos podido enviar tu solicitud. Inténtalo de nuevo en unos minutos."
+      );
       setStatus("error");
     }
   }
@@ -322,6 +333,7 @@ export default function ContactModal({ onClose }: { onClose: () => void }) {
                     name="detalles"
                     value={form.detalles}
                     onChange={handleChange("detalles")}
+                    maxLength={25}
                     className="md:col-span-2"
                   />
                 </div>

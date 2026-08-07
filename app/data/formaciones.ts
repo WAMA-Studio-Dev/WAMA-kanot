@@ -20,7 +20,7 @@ export const formaciones: Formacion[] = [
     fecha: "15-17 Octubre 2026",
     precio: "120€",
     foto: "/imagenes/formaciones/proximamente.jpg",
-    ubicacion: "Sala ByKanot, Barcelona",
+    ubicacion: "Sala ByKanot, Sevilla",
     horario: "Viernes 18:00-21:00 · Sábado y domingo 10:00-14:00",
     nivel: "Todos los niveles",
     profesores: ["Ariadna", "Eric"],

@@ -42,7 +42,7 @@ function emailShell(bodyHtml: string): string {
             <tr>
               <td style="padding:20px 32px 28px; text-align:center; border-top:1px solid ${BORDER};">
                 <p style="margin:0 0 8px; font-size:12px; color:rgba(255,255,255,0.45);">
-                  ByKanot &middot; Barcelona
+                  ByKanot &middot; Sevilla
                 </p>
                 <p style="margin:0; font-size:12px;">
                   <a href="https://instagram.com/bykanot" style="color:${BRAND_BLUE}; text-decoration:none; margin-right:12px;">Instagram</a>

@@ -15,7 +15,7 @@ const GLOW_SHADOW = `0 0 20px rgba(${NEON_PINK_RGB}, 0.6)`;
 const INITIAL_FORM = { nombre: "", telefono: "", email: "", edad: 12 };
 
 type FormState = typeof INITIAL_FORM;
-type Status = "idle" | "submitting" | "success";
+type Status = "idle" | "submitting" | "success" | "error";
 
 export default function InscripcionModal({
   formacion,
@@ -26,6 +26,7 @@ export default function InscripcionModal({
 }) {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [status, setStatus] = useState<Status>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -40,15 +41,41 @@ export default function InscripcionModal({
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
   }
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setStatus("submitting");
-    // Formulario solo de frontend: sin backend todavía.
-    // TODO: conectar con un backend o servicio de email (Formspree, Resend...) cuando esté disponible.
-    window.setTimeout(() => {
-      console.log("Inscripción", formacion.titulo, form);
+    setErrorMessage("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: form.nombre,
+          email: form.email,
+          telefono: form.telefono,
+          tipo: `Inscripción - ${formacion.titulo}`,
+          edad: form.edad,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(
+          res.status === 429
+            ? data?.error ?? "Demasiadas solicitudes. Espera un minuto antes de volver a intentarlo."
+            : data?.error ?? "No hemos podido enviar tu inscripción. Inténtalo de nuevo en unos minutos."
+        );
+      }
       setStatus("success");
-    }, 700);
+    } catch (err) {
+      setErrorMessage(
+        err instanceof Error && err.message
+          ? err.message
+          : "No hemos podido enviar tu inscripción. Inténtalo de nuevo en unos minutos."
+      );
+      setStatus("error");
+    }
   }
 
   return createPortal(
@@ -160,6 +187,10 @@ export default function InscripcionModal({
                   value={form.edad}
                   onChange={(edad) => setForm((prev) => ({ ...prev, edad }))}
                 />
+
+                {status === "error" && (
+                  <p className="text-sm font-medium text-red-400">{errorMessage}</p>
+                )}
 
                 <motion.button
                   type="submit"

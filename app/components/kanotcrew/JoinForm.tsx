@@ -11,6 +11,7 @@ type Status = "idle" | "submitting" | "success" | "error";
 export default function JoinForm() {
   const [form, setForm] = useState({ nombre: "", email: "", instagram: "", mensaje: "" });
   const [status, setStatus] = useState<Status>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
 
   function handleChange(field: keyof typeof form) {
     return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -20,6 +21,7 @@ export default function JoinForm() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setStatus("submitting");
+    setErrorMessage("");
 
     try {
       const res = await fetch("/api/contact", {
@@ -34,9 +36,21 @@ export default function JoinForm() {
         }),
       });
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(
+          res.status === 429
+            ? data?.error ?? "Demasiadas solicitudes. Espera un minuto antes de volver a intentarlo."
+            : data?.error ?? "No hemos podido enviar tu solicitud. Inténtalo de nuevo en unos minutos."
+        );
+      }
       setStatus("success");
-    } catch {
+    } catch (err) {
+      setErrorMessage(
+        err instanceof Error && err.message
+          ? err.message
+          : "No hemos podido enviar tu solicitud. Inténtalo de nuevo en unos minutos."
+      );
       setStatus("error");
     }
   }
@@ -98,12 +112,11 @@ export default function JoinForm() {
               required
               value={form.mensaje}
               onChange={handleChange("mensaje")}
+              maxLength={25}
               className="md:col-span-2"
             />
             {status === "error" && (
-              <p className="md:col-span-2 text-sm font-medium text-red-400">
-                No hemos podido enviar tu solicitud. Inténtalo de nuevo en unos minutos.
-              </p>
+              <p className="md:col-span-2 text-sm font-medium text-red-400">{errorMessage}</p>
             )}
             <button
               type="submit"
