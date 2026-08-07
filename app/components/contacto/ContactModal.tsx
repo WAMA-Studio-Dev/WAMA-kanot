@@ -334,7 +334,7 @@ export default function ContactModal({ onClose }: { onClose: () => void }) {
                     name="detalles"
                     value={form.detalles}
                     onChange={handleChange("detalles")}
-                    maxLength={25}
+                    maxLength={1000}
                     className="md:col-span-2"
                   />
                 </div>
