@@ -123,7 +123,7 @@ export default function AnimatedHeroTitle() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="relative text-[18vw] sm:text-[14vw] md:text-[12vw] font-black uppercase leading-[0.85] tracking-tighter text-kanot-pink will-change-transform [transform-style:preserve-3d]"
+      className="relative text-[18vw] sm:text-[14vw] md:text-[12vw] font-black uppercase leading-[1.15] tracking-tighter text-kanot-pink will-change-transform [transform-style:preserve-3d]"
     >
       <motion.span
         aria-hidden
