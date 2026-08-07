@@ -12,7 +12,7 @@ import { CARD_TRANSITION, NEON_PINK_RGB, REVEAL_TRANSITION } from "@/app/lib/mot
 
 const GLOW_SHADOW = `0 0 20px rgba(${NEON_PINK_RGB}, 0.6)`;
 
-const INITIAL_FORM = { nombre: "", telefono: "", email: "", edad: 12 };
+const INITIAL_FORM = { nombre: "", telefono: "", email: "", instagram: "", edad: 12 };
 
 type FormState = typeof INITIAL_FORM;
 type Status = "idle" | "submitting" | "success" | "error";
@@ -36,7 +36,7 @@ export default function InscripcionModal({
     };
   }, []);
 
-  function handleChange(field: "nombre" | "email") {
+  function handleChange(field: "nombre" | "email" | "instagram") {
     return (e: ChangeEvent<HTMLInputElement>) =>
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
   }
@@ -56,6 +56,7 @@ export default function InscripcionModal({
           telefono: form.telefono,
           tipo: `Inscripción - ${formacion.titulo}`,
           edad: form.edad,
+          instagram: form.instagram,
         }),
       });
 
@@ -180,6 +181,14 @@ export default function InscripcionModal({
                   required
                   value={form.email}
                   onChange={handleChange("email")}
+                />
+                <InputField
+                  label="Instagram (opcional)"
+                  name="instagram"
+                  type="text"
+                  placeholder="@usuario"
+                  value={form.instagram}
+                  onChange={handleChange("instagram")}
                 />
                 <AgeRangeSlider
                   label="Edad"

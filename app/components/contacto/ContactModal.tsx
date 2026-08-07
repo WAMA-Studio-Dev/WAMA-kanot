@@ -89,6 +89,7 @@ export default function ContactModal({ onClose }: { onClose: () => void }) {
           telefono: form.telefono,
           tipo: objetivoLabel,
           edad: form.edad,
+          instagram: form.instagram,
           mensaje: form.detalles,
           extra,
         }),
