@@ -15,3 +15,11 @@ export function TikTokIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
+export function YouTubeIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor">
+      <path d="M21.6 7.2a2.9 2.9 0 0 0-2.05-2.05C17.8 4.7 12 4.7 12 4.7s-5.8 0-7.55.45A2.9 2.9 0 0 0 2.4 7.2 30 30 0 0 0 2 12a30 30 0 0 0 .4 4.8 2.9 2.9 0 0 0 2.05 2.05C6.2 19.3 12 19.3 12 19.3s5.8 0 7.55-.45a2.9 2.9 0 0 0 2.05-2.05A30 30 0 0 0 22 12a30 30 0 0 0-.4-4.8ZM10 15.3V8.7l5.7 3.3-5.7 3.3Z" />
+    </svg>
+  );
+}

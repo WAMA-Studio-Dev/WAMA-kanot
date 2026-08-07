@@ -19,9 +19,6 @@ export default function FormacionCard({ formacion }: { formacion: Formacion }) {
         <h3 className="text-2xl font-black uppercase tracking-tight text-kanot-pink">
           {formacion.titulo}
         </h3>
-        {formacion.descripcion && (
-          <p className="mt-2 text-sm text-white/70">{formacion.descripcion}</p>
-        )}
 
         <div className="mt-4 flex flex-wrap gap-2">
           <Pill>{formacion.fecha}</Pill>

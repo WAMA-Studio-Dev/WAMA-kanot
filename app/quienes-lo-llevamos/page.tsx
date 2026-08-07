@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Navbar from "@/app/components/layout/Navbar";
 import PageHero from "@/app/components/sections/PageHero";
-import SectionHeading from "@/app/components/ui/SectionHeading";
 import { InstagramIcon } from "@/app/components/ui/SocialIcons";
 import { teamMembers } from "@/app/data/team";
 
@@ -14,15 +13,15 @@ export default function QuienesLoLlevamosPage() {
     <>
       <Navbar />
       <main className="flex-1">
-        <PageHero title="Quiénes somos" />
+        <PageHero
+          title="Quienes Somos"
+          description={[
+            "No creemos que el baile sea solo ganar competiciones. Creemos en entrenar con disciplina, disfrutar del proceso, respetar la cultura y crecer junto a personas que comparten la misma pasión.",
+          ]}
+        />
 
         <section className="bg-kanot-navy px-6 py-20 md:px-12 lg:px-20">
           <div className="mx-auto flex max-w-6xl flex-col gap-16">
-            <SectionHeading
-              title="Nuestra filosofía"
-              description="No creemos que el baile sea solo ganar competiciones. Creemos en entrenar con disciplina, disfrutar del proceso, respetar la cultura y crecer junto a personas que comparten la misma pasión. Porque una comunidad fuerte crea mejores bailarines."
-            />
-
             <div
               id={ariadna.id}
               className="grid scroll-mt-28 grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-16"

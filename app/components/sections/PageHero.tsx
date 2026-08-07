@@ -8,7 +8,7 @@ export default function PageHero({
   videoSrc = DEFAULT_VIDEO_SRC,
   poster = videoSrc === DEFAULT_VIDEO_SRC ? "/imagenes/hero/fondo-hero.jpg" : undefined,
 }: {
-  title: string;
+  title?: string;
   description?: string[];
   videoSrc?: string;
   poster?: string;
@@ -28,9 +28,11 @@ export default function PageHero({
 
       <div className="absolute inset-0 bg-gradient-to-b from-kanot-navy-deep/40 via-transparent to-kanot-navy" />
 
-      <h1 className="relative z-10 px-4 text-center text-[12vw] sm:text-[9vw] md:text-[7vw] font-black uppercase leading-[0.9] tracking-tighter text-kanot-pink">
-        {title}
-      </h1>
+      {title && (
+        <h1 className="relative z-10 px-4 text-center text-[12vw] sm:text-[9vw] md:text-[7vw] font-black uppercase leading-[0.9] tracking-tighter text-kanot-pink">
+          {title}
+        </h1>
+      )}
 
       {description && (
         <div className="relative z-10 flex max-w-2xl flex-col gap-3 px-4 text-center">

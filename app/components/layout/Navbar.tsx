@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { temporadas } from "@/app/data/temporadas";
-import { InstagramIcon, TikTokIcon } from "@/app/components/ui/SocialIcons";
+import { InstagramIcon, TikTokIcon, YouTubeIcon } from "@/app/components/ui/SocialIcons";
 
 const kanotCrewLinkTop = { label: "Quiénes somos", href: "/quienes-lo-llevamos" };
 
@@ -21,6 +21,7 @@ const navLinks = [
 const socialLinks = [
   { label: "Instagram", href: "https://instagram.com/bykanot" },
   { label: "TikTok", href: "https://tiktok.com/@bykanot" },
+  { label: "YouTube", href: "https://youtube.com/@bykanot?si=fKRgEjg8yDjDBbYz" },
 ];
 
 export default function Navbar() {
@@ -164,6 +165,15 @@ export default function Navbar() {
             >
               <TikTokIcon className="h-[18px] w-[18px]" />
             </a>
+            <a
+              href={socialLinks[2].href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={socialLinks[2].label}
+              className="hover:text-kanot-pink active:text-kanot-pink transition-colors"
+            >
+              <YouTubeIcon className="h-[18px] w-[18px]" />
+            </a>
           </div>
         </nav>
 
@@ -279,6 +289,15 @@ export default function Navbar() {
               className="hover:text-kanot-pink active:text-kanot-pink transition-colors"
             >
               <TikTokIcon className="h-5 w-5" />
+            </a>
+            <a
+              href={socialLinks[2].href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={socialLinks[2].label}
+              className="hover:text-kanot-pink active:text-kanot-pink transition-colors"
+            >
+              <YouTubeIcon className="h-5 w-5" />
             </a>
           </div>
         </div>

@@ -29,7 +29,7 @@ export default function PodcastSection() {
             <div className="relative aspect-[21/9] w-full">
               <MotionZoomImage>
                 <Image
-                  src="/imagenes/podcast/kanotonair.png"
+                  src="/imagenes/podcast/jose-ballesteros.png"
                   alt="Podcast ByKanot"
                   fill
                   sizes="100vw"
@@ -39,11 +39,11 @@ export default function PodcastSection() {
               </MotionZoomImage>
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-kanot-navy via-kanot-navy/40 to-transparent" />
-            <div className="absolute inset-0 flex flex-col items-start justify-end p-6 pb-24 md:p-10 md:pb-28">
+            <div className="absolute inset-0 flex flex-col items-end justify-end p-6 pb-24 text-right md:p-10 md:pb-28">
               <SectionHeading kicker="Kanot" title="Podcast" />
             </div>
           </Link>
-          <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 z-40">
+          <div className="absolute bottom-6 right-6 md:bottom-10 md:right-10 z-40">
             <CtaButton href={youtubeChannelUrl} target="_blank" rel="noopener noreferrer">
               Ver en YouTube
             </CtaButton>

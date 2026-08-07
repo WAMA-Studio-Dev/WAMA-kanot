@@ -2,18 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { equipos, type Equipo } from "@/app/data/equipos";
 import ScrollReveal from "@/app/components/ui/ScrollReveal";
 
 const TRANSITION_MS = 650;
-const EASE_CSS = "cubic-bezier(0.4, 0, 0.2, 1)";
-// Cards keep animating via Framer Motion's `layout` (FLIP/transform), which stays
-// compositor-only even though `left`/`bottom`/`height` are set as plain styles below.
-const CARD_LAYOUT_TRANSITION = { duration: TRANSITION_MS / 1000, ease: [0.4, 0, 0.2, 1] as const };
 
-const BACKGROUND_COLORS = ["#0b2b6b", "#082054", "#12184f", "#170f3d"];
+const AUTOPLAY_MS = 3000;
 
 type Role = "center" | "left" | "right" | "back";
 
@@ -32,13 +27,13 @@ function getRoleStyle(role: Role, isMobile: boolean) {
   switch (role) {
     case "center":
       return {
-        scale: isMobile ? 1.15 : 1.3,
+        scale: isMobile ? 1.35 : 1.55,
         blur: 0,
         opacity: 1,
         zIndex: 20,
         left: "50%",
-        height: isMobile ? "70%" : "70%",
-        bottom: isMobile ? "10%" : "6%",
+        height: isMobile ? "64%" : "60%",
+        bottom: isMobile ? "7%" : "3.5%",
       };
     case "left":
       return {
@@ -47,8 +42,8 @@ function getRoleStyle(role: Role, isMobile: boolean) {
         opacity: 0.85,
         zIndex: 10,
         left: isMobile ? "20%" : "30%",
-        height: isMobile ? "16%" : "28%",
-        bottom: isMobile ? "32%" : "12%",
+        height: isMobile ? "24%" : "40%",
+        bottom: isMobile ? "30%" : "10%",
       };
     case "right":
       return {
@@ -57,8 +52,8 @@ function getRoleStyle(role: Role, isMobile: boolean) {
         opacity: 0.85,
         zIndex: 10,
         left: isMobile ? "80%" : "70%",
-        height: isMobile ? "16%" : "28%",
-        bottom: isMobile ? "32%" : "12%",
+        height: isMobile ? "24%" : "40%",
+        bottom: isMobile ? "30%" : "10%",
       };
     case "back":
       return {
@@ -67,8 +62,8 @@ function getRoleStyle(role: Role, isMobile: boolean) {
         opacity: 1,
         zIndex: 5,
         left: "50%",
-        height: isMobile ? "13%" : "22%",
-        bottom: isMobile ? "32%" : "12%",
+        height: isMobile ? "18%" : "30%",
+        bottom: isMobile ? "30%" : "10%",
       };
   }
 }
@@ -171,10 +166,7 @@ function CarouselCard({
   const isCenter = role === "center";
 
   return (
-    <motion.div
-      layout
-      transition={CARD_LAYOUT_TRANSITION}
-      animate={{ scale: style.scale, opacity: style.opacity, filter: `blur(${style.blur}px)` }}
+    <div
       role={isCenter ? undefined : "button"}
       tabIndex={isCenter ? undefined : 0}
       onClick={isCenter ? undefined : onSelect}
@@ -192,21 +184,25 @@ function CarouselCard({
         bottom: style.bottom,
         height: style.height,
         maxHeight: "100%",
-        x: "-50%",
+        transform: `translateX(-50%) scale(${style.scale})`,
+        opacity: style.opacity,
+        filter: `blur(${style.blur}px)`,
         transformOrigin: "50% 100%",
         zIndex: style.zIndex,
         willChange: "transform",
         cursor: isCenter ? "default" : "pointer",
+        transition: `left ${TRANSITION_MS}ms cubic-bezier(0.4,0,0.2,1), bottom ${TRANSITION_MS}ms cubic-bezier(0.4,0,0.2,1), height ${TRANSITION_MS}ms cubic-bezier(0.4,0,0.2,1), transform ${TRANSITION_MS}ms cubic-bezier(0.4,0,0.2,1), opacity ${TRANSITION_MS}ms cubic-bezier(0.4,0,0.2,1), filter ${TRANSITION_MS}ms cubic-bezier(0.4,0,0.2,1)`,
       }}
     >
       <Image
         src={equipo.imagen}
         alt={equipo.nombre}
         fill
-        sizes="(max-width: 640px) 40vw, 320px"
+        sizes="(max-width: 640px) 70vw, 480px"
+        quality={95}
         className="object-contain drop-shadow-2xl"
       />
-    </motion.div>
+    </div>
   );
 }
 
@@ -228,6 +224,15 @@ export default function EquiposGrid() {
   const goNext = () => goTo((activeIndex + 1) % total);
   const equipoCentral = equipos[activeIndex];
 
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveIndex((current) => (current + 1) % total);
+      setIsAnimating(true);
+      window.setTimeout(() => setIsAnimating(false), TRANSITION_MS);
+    }, AUTOPLAY_MS);
+    return () => window.clearInterval(timer);
+  }, [activeIndex, total]);
+
   return (
     <div>
       <ScrollReveal className="relative flex items-center justify-center">
@@ -244,22 +249,7 @@ export default function EquiposGrid() {
 
       <div className="relative mx-auto mt-16 max-w-4xl px-2 md:mt-24">
         <div className="relative">
-          <div
-            className="relative h-[380px] w-full overflow-hidden rounded-[2rem] border border-white/10 sm:h-[480px] md:h-[560px]"
-            style={{
-              backgroundColor: BACKGROUND_COLORS[activeIndex % BACKGROUND_COLORS.length],
-              transition: `background-color ${TRANSITION_MS}ms ${EASE_CSS}`,
-            }}
-          >
-            <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden px-4">
-              <span
-                className="select-none whitespace-nowrap text-center font-black uppercase leading-none tracking-tighter text-white/[0.07]"
-                style={{ fontSize: "clamp(2rem, 9vw, 5rem)" }}
-              >
-                KANOT 26/27
-              </span>
-            </div>
-
+          <div className="relative h-[420px] w-full overflow-hidden rounded-[2rem] border border-white/10 bg-kanot-navy-deep sm:h-[540px] md:h-[660px]">
             <div className="absolute inset-0 z-10">
               {equipos.map((equipo, index) => (
                 <CarouselCard

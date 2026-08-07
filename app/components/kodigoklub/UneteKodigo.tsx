@@ -3,9 +3,7 @@
 import { CreditCard, Mail } from "lucide-react";
 import { InstagramIcon } from "@/app/components/ui/SocialIcons";
 import { useContactModal } from "@/app/components/contacto/ContactModalContext";
-
-const KODIGO_KLUB_INSTAGRAM_HREF =
-  "https://www.instagram.com/kodigoklub?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==";
+import { KODIGO_KLUB_INSTAGRAM_HREF } from "@/app/data/kodigoKlub";
 
 export default function UneteKodigo() {
   const { openModal } = useContactModal();

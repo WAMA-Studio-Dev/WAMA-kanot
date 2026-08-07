@@ -5,6 +5,8 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Disc3, GraduationCap, Home, Mail, Mic2, X } from "lucide-react";
 import { useContactModal } from "@/app/components/contacto/ContactModalContext";
+import { InstagramIcon } from "@/app/components/ui/SocialIcons";
+import { KODIGO_KLUB_INSTAGRAM_HREF } from "@/app/data/kodigoKlub";
 
 const links = [
   { label: "Volver a ByKanot", href: "/", icon: Home },
@@ -49,6 +51,16 @@ export default function KodigoKlubFloatingNav() {
               Contacto
               <Mail className="h-4 w-4 text-[#d6127e]" />
             </button>
+            <a
+              href={KODIGO_KLUB_INSTAGRAM_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setOpen(false)}
+              className="flex w-full items-center justify-end gap-2 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold text-white/90 transition-colors hover:bg-[#9c1e53] hover:text-white"
+            >
+              Instagram
+              <InstagramIcon className="h-4 w-4 text-[#d6127e]" />
+            </a>
           </motion.div>
         )}
       </AnimatePresence>
@@ -60,7 +72,7 @@ export default function KodigoKlubFloatingNav() {
         aria-expanded={open}
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.94 }}
-        className="flex h-12 w-12 items-center justify-center rounded-full border border-[#d6127e]/40 bg-black text-[#d6127e] shadow-[0_0_20px_rgba(214,18,126,0.5)]"
+        className="flex h-14 w-14 items-center justify-center rounded-full border border-[#d6127e]/40 bg-black text-[#d6127e] shadow-[0_0_20px_rgba(214,18,126,0.5)] md:h-16 md:w-16"
       >
         <AnimatePresence mode="wait" initial={false}>
           {open ? (
@@ -72,7 +84,7 @@ export default function KodigoKlubFloatingNav() {
               transition={{ duration: 0.2 }}
               className="flex"
             >
-              <X className="h-5 w-5" />
+              <X className="h-6 w-6 md:h-7 md:w-7" />
             </motion.span>
           ) : (
             <motion.span
@@ -81,7 +93,7 @@ export default function KodigoKlubFloatingNav() {
               transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
               className="flex"
             >
-              <Disc3 className="h-6 w-6" />
+              <Disc3 className="h-7 w-7 md:h-8 md:w-8" />
             </motion.span>
           )}
         </AnimatePresence>
