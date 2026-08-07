@@ -78,24 +78,30 @@ export async function POST(request: NextRequest) {
   const fromAddress = process.env.RESEND_FROM_EMAIL || "ByKanot <onboarding@resend.dev>";
   const fecha = new Date().toLocaleString("es-ES", { timeZone: "Europe/Madrid" });
 
-  try {
-    await Promise.all([
-      resend.emails.send({
-        from: fromAddress,
-        to: recipient,
-        replyTo: email,
-        subject: `[NUEVO CONTACTO / INSCRIPCIÓN] - ${nombre}`,
-        html: buildAdminEmail({ nombre, email, telefono, tipo, edad, mensaje, extra, fecha }),
-      }),
-      resend.emails.send({
-        from: fromAddress,
-        to: email,
-        subject: "¡Hemos recibido tu mensaje! | ByKanot",
-        html: buildUserEmail({ nombre }),
-      }),
-    ]);
-  } catch (error) {
-    console.error("Error enviando correo con Resend:", error);
+  const [adminResult, userResult] = await Promise.allSettled([
+    resend.emails.send({
+      from: fromAddress,
+      to: recipient,
+      replyTo: email,
+      subject: `[NUEVO CONTACTO / INSCRIPCIÓN] - ${nombre}`,
+      html: buildAdminEmail({ nombre, email, telefono, tipo, edad, mensaje, extra, fecha }),
+    }),
+    resend.emails.send({
+      from: fromAddress,
+      to: email,
+      subject: "¡Hemos recibido tu mensaje! | ByKanot",
+      html: buildUserEmail({ nombre }),
+    }),
+  ]);
+
+  if (adminResult.status === "rejected") {
+    console.error("Error enviando correo de notificación con Resend:", adminResult.reason);
+  }
+  if (userResult.status === "rejected") {
+    console.error("Error enviando correo de confirmación con Resend:", userResult.reason);
+  }
+
+  if (adminResult.status === "rejected" && userResult.status === "rejected") {
     return NextResponse.json({ error: "No se pudo enviar el correo." }, { status: 502 });
   }
 
