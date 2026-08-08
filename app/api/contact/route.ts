@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
           email,
           telefono: telefono ?? "",
           tipo,
-          instagram: instagram ?? "",
+          instagram: payload.instagram?.trim() || "",
           mensaje: mensaje ?? "",
         }),
       });
