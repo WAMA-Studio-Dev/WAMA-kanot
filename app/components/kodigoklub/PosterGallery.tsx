@@ -12,7 +12,7 @@ const posters: PosterItem[] = [
   { type: "poster", src: "/imagenes/kodigoklub/ISABELA.jpg", alt: "Isabela" },
   { type: "poster", src: "/imagenes/kodigoklub/POLO Y PATRI.jpg", alt: "Polo & Patri" },
   { type: "poster", src: "/imagenes/kodigoklub/ENTRADAS.PNG", alt: "Venta de entradas" },
-  { type: "soon" },
+  { type: "poster", src: "/imagenes/kodigoklub/ARI.png", alt: "Ari & Eric" },
   { type: "poster", src: "/imagenes/kodigoklub/QUE ES.jpeg", alt: "¿Qué es Kodigo Klub?" },
 ];
 
