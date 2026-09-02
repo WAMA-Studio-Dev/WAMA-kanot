@@ -38,22 +38,19 @@ export default function UneteKodigo() {
             </span>
           </a>
 
-          <button
-            type="button"
-            disabled
-            aria-disabled="true"
-            className="flex flex-1 cursor-not-allowed flex-col items-start gap-5 rounded-2xl bg-[#9c1e53]/60 px-6 py-6 text-left opacity-70"
+          <a
+            href="https://entradas.salaeven.com/es/entradas/kodigo-klub-en-sevilla"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex flex-1 flex-col items-start gap-5 rounded-2xl bg-[#9c1e53] px-6 py-6 transition-all duration-300 hover:scale-[1.02] hover:bg-black"
           >
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-black">
-              <CreditCard className="h-5 w-5 text-[#d6127e]" />
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-black transition-colors duration-300 group-hover:bg-[#d6127e]">
+              <CreditCard className="h-5 w-5 text-[#d6127e] transition-colors duration-300 group-hover:text-black" />
             </span>
-            <span className="flex flex-col gap-0.5">
-              <span className="font-semibold text-white">Entradas</span>
-              <span className="text-xs font-semibold uppercase tracking-wide text-[#d6127e]">
-                Próximamente
-              </span>
+            <span className="font-semibold text-white transition-colors duration-300 group-hover:text-[#d6127e]">
+              Entradas
             </span>
-          </button>
+          </a>
 
           <button
             type="button"
