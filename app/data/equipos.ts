@@ -17,7 +17,13 @@ export const equipos: Equipo[] = [
     descripcion:
       "Los más pequeños de Kanot. Aquí comienzan su camino en la competición desarrollando técnica, coordinación, confianza y trabajo en equipo, siempre disfrutando del proceso.",
     imagen: "/imagenes/equipos/KNELO.png",
-    galeria: ["/imagenes/formaciones/proximamente.jpg"],
+    galeria: [
+      "/imagenes/temporadas/2026-2027/KANOT 1.jpg",
+      "/imagenes/temporadas/2026-2027/KANOT-2.jpg",
+      "/imagenes/temporadas/2026-2027/KANOT-3.jpg",
+      "/imagenes/temporadas/2026-2027/KANOT-4.jpg",
+      "/imagenes/temporadas/2026-2027/KANOT-5.jpg",
+    ],
   },
   {
     id: "knot-jr",
@@ -26,27 +32,39 @@ export const equipos: Equipo[] = [
     rango: "Categoría Junior · 12 a 14 años",
     descripcion: "Un equipo donde los bailarines dan un paso más en su formación.",
     imagen: "/imagenes/equipos/KNOT JR.png",
-    galeria: ["/imagenes/formaciones/proximamente.jpg"],
+    galeria: [
+      "/imagenes/temporadas/2026-2027/IMG_9760.JPG",
+      "/imagenes/temporadas/2026-2027/IMG_9766.JPG",
+      "/imagenes/temporadas/2026-2027/IMG_9773.JPG",
+    ],
   },
   {
     id: "knallas",
     nombre: "KNALLAS",
-    categoria: "Youth",
-    rango: "Categoría Youth · 15 a 17 años",
+    categoria: "Youth B",
+    rango: "Categoría Youth B · 15 a 17 años",
     descripcion:
-      "Nuestro equipo Youth reúne a bailarines comprometidos con seguir creciendo y compitiendo al máximo nivel.",
+      "Nuestro equipo Youth B reúne a bailarines comprometidos con seguir creciendo y compitiendo al máximo nivel.",
     imagen: "/imagenes/equipos/KNALLAS.png",
-    galeria: ["/imagenes/formaciones/proximamente.jpg"],
+    galeria: [
+      "/imagenes/temporadas/2026-2027/IMG_9775.JPG",
+      "/imagenes/temporadas/2026-2027/IMG_9777.JPG",
+      "/imagenes/temporadas/2026-2027/IMG_9781.JPG",
+      "/imagenes/temporadas/2026-2027/IMG_9786.JPG",
+    ],
   },
   {
     id: "kinkis",
     nombre: "KINKIS",
-    categoria: "Próximamente",
-    rango: "Categoría por anunciar",
+    categoria: "Youth A",
+    rango: "Categoría Youth A",
     descripcion:
       "Estamos preparando un nuevo equipo para la crew. Muy pronto compartiremos todos los detalles.",
     imagen: "/imagenes/equipos/PROXIMAMENTE.png",
-    galeria: ["/imagenes/formaciones/proximamente.jpg"],
+    galeria: [
+      "/imagenes/temporadas/2026-2027/IMG_9789.JPG",
+      "/imagenes/temporadas/2026-2027/IMG_9794.JPG",
+    ],
   },
   {
     id: "proximo-equipo-2",

@@ -22,7 +22,7 @@ export default function FormacionCard({ formacion }: { formacion: Formacion }) {
 
         <div className="mt-4 flex flex-wrap gap-2">
           <Pill>{formacion.fecha}</Pill>
-          <Pill>{formacion.precio}</Pill>
+          {formacion.finalizada && <Pill>Finalizada</Pill>}
         </div>
       </div>
 
@@ -55,10 +55,13 @@ export default function FormacionCard({ formacion }: { formacion: Formacion }) {
                 <div className="flex items-start gap-2 text-sm text-white/80">
                   <Users className="mt-0.5 h-4 w-4 shrink-0 text-kanot-pink" />
                   <div>
-                    <p className="font-semibold text-white">Profesores</p>
+                    <p className="font-semibold text-white">
+                      {formacion.profesores.length === 1 ? "Profesor" : "Profesores"}
+                    </p>
                     <p className="text-white/70">{formacion.profesores.join(", ")}</p>
                   </div>
                 </div>
+                {formacion.horario && (
                 <div className="flex items-start gap-2 text-sm text-white/80">
                   <svg
                     viewBox="0 0 24 24"
@@ -75,6 +78,7 @@ export default function FormacionCard({ formacion }: { formacion: Formacion }) {
                     <p className="text-white/70">{formacion.horario}</p>
                   </div>
                 </div>
+                )}
               </div>
 
               <div>
@@ -105,13 +109,19 @@ export default function FormacionCard({ formacion }: { formacion: Formacion }) {
             className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""}`}
           />
         </button>
-        <button
-          type="button"
-          onClick={() => setModalOpen(true)}
-          className="ml-auto rounded-full bg-kanot-pink px-5 py-2.5 text-sm font-bold text-kanot-navy transition-colors hover:bg-white"
-        >
-          Apúntate
-        </button>
+        {formacion.finalizada ? (
+          <span className="ml-auto whitespace-nowrap rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold text-white/50">
+            Ya realizada
+          </span>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setModalOpen(true)}
+            className="ml-auto rounded-full bg-kanot-pink px-5 py-2.5 text-sm font-bold text-kanot-navy transition-colors hover:bg-white"
+          >
+            Apúntate
+          </button>
+        )}
       </div>
 
       <AnimatePresence>

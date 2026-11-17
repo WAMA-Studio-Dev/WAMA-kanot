@@ -12,8 +12,8 @@ export default function FormacionesPage() {
           <div className="mx-auto max-w-6xl">
             <SectionHeading
               kicker="ByKanot"
-              title="Próximas formaciones"
-              description="Elige la formación que más te interese, consulta el temario completo y apúntate en un par de clics."
+              title="Formaciones"
+              description="Elige la formación o estilo que más te interese y apúntate en un par de clics."
             />
 
             <div className="mt-10 grid gap-6 md:grid-cols-3">

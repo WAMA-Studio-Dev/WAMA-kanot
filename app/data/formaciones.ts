@@ -2,42 +2,39 @@ export type Formacion = {
   id: string;
   titulo: string;
   fecha: string;
-  precio: string;
   ubicacion: string;
-  horario: string;
+  horario?: string;
   nivel: string;
   profesores: string[];
   temario: string[];
+  finalizada?: boolean;
 };
 
 export const formaciones: Formacion[] = [
   {
-    id: "formacion-octubre",
-    titulo: "Formación Octubre",
-    fecha: "Octubre 2026",
-    precio: "Precio por confirmar",
-    ubicacion: "Ubicación pendiente de anunciar",
-    horario: "Horario aún sin definir",
-    nivel: "Nivel por concretar",
-    profesores: ["Anunciaremos el equipo docente pronto"],
-    temario: ["Muy pronto compartiremos el temario completo"],
+    id: "formacion-noviembre",
+    titulo: "Formación Noviembre",
+    fecha: "7 de noviembre de 2026",
+    ubicacion: "Star Factory Sevilla",
+    nivel: "Inicio-Medio",
+    profesores: ["Adrián Franco"],
+    temario: ["Estilo: Hip-Hop"],
+    finalizada: true,
   },
   {
     id: "formacion-diciembre",
     titulo: "Formación Diciembre",
-    fecha: "Diciembre 2026",
-    precio: "Precio por confirmar",
-    ubicacion: "Sede por anunciar",
+    fecha: "20 de diciembre de 2026",
+    ubicacion: "Sevilla Dance Center",
     horario: "Horario por confirmar",
-    nivel: "Nivel pendiente de anunciar",
-    profesores: ["Profesorado por confirmar"],
-    temario: ["Detalles del temario disponibles próximamente"],
+    nivel: "Intermedio/Avanzado",
+    profesores: ["Caro BM"],
+    temario: ["Estilo: Hip-Hop"],
   },
   {
     id: "formacion-enero",
     titulo: "Formación Enero",
     fecha: "Enero 2027",
-    precio: "Precio por confirmar",
     ubicacion: "Lugar todavía sin concretar",
     horario: "Horario pendiente de definir",
     nivel: "Aún sin determinar",

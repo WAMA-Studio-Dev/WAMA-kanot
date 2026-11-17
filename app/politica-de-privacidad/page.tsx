@@ -14,7 +14,7 @@ const ITEMS: AccordionItem[] = [
           El responsable del tratamiento de tus datos personales es{" "}
           <strong className="text-white">ByKanot</strong>, proyecto de danza urbana, formación y
           competición con domicilio en Sevilla, España. Puedes contactar con nosotros a través del
-          correo electrónico <span className="text-white">contacto@bykanot.com</span> para
+          correo electrónico <span className="text-white">kanotcrew@gmail.com</span> para
           cualquier cuestión relacionada con la protección de tus datos.
         </p>
       </>
@@ -86,7 +86,7 @@ const ITEMS: AccordionItem[] = [
             acceso, rectificación, cancelación/supresión y oposición
           </strong>{" "}
           (así como portabilidad y limitación del tratamiento, cuando corresponda) enviando un
-          correo a <span className="text-white">contacto@bykanot.com</span>, indicando el derecho
+          correo a <span className="text-white">kanotcrew@gmail.com</span>, indicando el derecho
           que deseas ejercer y adjuntando un documento que acredite tu identidad.
         </p>
         <p>
@@ -110,7 +110,7 @@ const ITEMS: AccordionItem[] = [
         <p>
           La participación en estas actividades implica el consentimiento para este uso de tu
           imagen, salvo que manifiestes expresamente lo contrario por escrito a{" "}
-          <span className="text-white">contacto@bykanot.com</span>. En el caso de menores de edad,
+          <span className="text-white">kanotcrew@gmail.com</span>. En el caso de menores de edad,
           este consentimiento debe ser otorgado por su madre, padre o tutor legal.
         </p>
       </>

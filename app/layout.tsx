@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Readex_Pro } from "next/font/google";
 import { ContactModalProvider } from "@/app/components/contacto/ContactModalContext";
 import { CookieConsentProvider } from "@/app/components/legal/CookieConsentContext";
-import CookieBanner from "@/app/components/legal/CookieBanner";
-import Footer from "@/app/components/layout/Footer";
-import BackToTop from "@/app/components/ui/BackToTop";
+import SiteChrome from "@/app/components/layout/SiteChrome";
 import "./globals.css";
 
 const readexPro = Readex_Pro({
@@ -45,9 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <ContactModalProvider>
           <CookieConsentProvider>
             {children}
-            <Footer />
-            <BackToTop />
-            <CookieBanner />
+            <SiteChrome />
           </CookieConsentProvider>
         </ContactModalProvider>
       </body>

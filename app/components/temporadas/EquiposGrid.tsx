@@ -143,7 +143,8 @@ function EquipoModal({ equipo, onClose }: { equipo: Equipo; onClose: () => void 
             {equipo.nombre}
           </h3>
           <p className="mt-3 text-sm text-white/70 md:text-base">
-            Galería de fotos próximamente. {equipo.descripcion}
+            {equipo.galeria.some((src) => src.includes("proximamente")) && "Galería de fotos próximamente. "}
+            {equipo.descripcion}
           </p>
         </div>
       </div>

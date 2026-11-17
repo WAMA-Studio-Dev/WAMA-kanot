@@ -135,7 +135,7 @@ export default function QuienesLoLlevamosPage() {
                   Diego Gómez
                 </h1>
                 <h2 className="flex items-center justify-center gap-2 text-lg font-semibold text-kanot-pink-soft md:justify-start md:text-xl">
-                  Dirección y coordinación ·
+                  Dirección, coordinación y fotografía ·
                   <a
                     href={diego.instagram}
                     target="_blank"

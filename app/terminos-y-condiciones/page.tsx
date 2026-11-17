@@ -66,7 +66,7 @@ export default function TerminosYCondicionesPage() {
         <h2 className="text-xl font-bold text-white">6. Contacto</h2>
         <p>
           Para cualquier duda relacionada con estos términos y condiciones, puedes escribirnos a{" "}
-          <span className="text-white">contacto@bykanot.com</span>.
+          <span className="text-white">kanotcrew@gmail.com</span>.
         </p>
       </section>
     </LegalPageLayout>

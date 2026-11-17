@@ -22,7 +22,7 @@ export default function AvisoLegalPage() {
           <li>Titular: ByKanot</li>
           <li>Actividad: proyecto de danza urbana, formación y competición</li>
           <li>Domicilio: Sevilla, España</li>
-          <li>Correo electrónico de contacto: contacto@bykanot.com</li>
+          <li>Correo electrónico de contacto: kanotcrew@gmail.com</li>
         </ul>
       </section>
 

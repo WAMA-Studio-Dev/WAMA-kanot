@@ -24,7 +24,7 @@ export const teamMembers: TeamMember[] = [
   {
     id: "crew-4",
     name: "Diego",
-    role: "Dirección y coordinación",
+    role: "Dirección, coordinación y fotografía",
     photo: "/imagenes/equipo/diego.jpeg",
     instagram: "https://www.instagram.com/diegoogmzzz",
   },
