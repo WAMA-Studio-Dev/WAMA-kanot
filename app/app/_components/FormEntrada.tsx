@@ -69,7 +69,20 @@ export default function FormEntrada({
       <form onSubmit={guardar} className="flex flex-col gap-4">
         {c.titulo && (
           <Etiqueta texto={c.titulo}>
-            <Input value={valores.titulo} onChange={set("titulo")} required autoFocus />
+            <Input
+              value={valores.titulo}
+              onChange={set("titulo")}
+              required
+              autoFocus
+              list={seccion.sugerencias ? `sugerencias-${seccion.slug}` : undefined}
+            />
+            {seccion.sugerencias && (
+              <datalist id={`sugerencias-${seccion.slug}`}>
+                {seccion.sugerencias.map((s) => (
+                  <option key={s} value={s} />
+                ))}
+              </datalist>
+            )}
           </Etiqueta>
         )}
         {c.dia_semana && (
@@ -86,7 +99,7 @@ export default function FormEntrada({
         )}
         {c.fecha && (
           <Etiqueta texto={c.fecha}>
-            <Input type="date" value={valores.fecha} onChange={set("fecha")} />
+            <Input type="date" value={valores.fecha} onChange={set("fecha")} required={seccion.vista === "calendario"} />
           </Etiqueta>
         )}
         {c.hora && (

@@ -7,6 +7,7 @@ import {
   Mic,
   Briefcase,
   Camera,
+  Shirt,
   type LucideIcon,
 } from "lucide-react";
 
@@ -26,24 +27,43 @@ export type Seccion = {
    * Cómo se muestran las entradas:
    * semana = agrupadas por día · fechas = próximas/anteriores · texto = bloques de información · personas = fichas
    */
-  vista: "semana" | "fechas" | "texto" | "personas";
+  vista: "semana" | "fechas" | "texto" | "personas" | "calendario";
   /** Texto del botón del enlace (por defecto "Abrir enlace"). */
   textoEnlace?: string;
+  /** Sugerencias para el campo título (aparecen al escribir). */
+  sugerencias?: string[];
+  /** Cada evento tiene autorización para descargar y subir firmada. */
+  autorizaciones?: boolean;
 };
+
+/** Grupos de Kanot Crew y su color (como en el calendario de la temporada). */
+export const GRUPOS = [
+  { nombre: "Kanot Jr", color: "#ffb0d6" },
+  { nombre: "Knallas", color: "#4da8ff" },
+  { nombre: "Knelo", color: "#ffd166" },
+  { nombre: "Kinkis", color: "#7ee0c3" },
+  { nombre: "Todos juntos", color: "#ffffff" },
+];
+
+export function colorGrupo(titulo: string) {
+  const t = titulo.toLowerCase();
+  return GRUPOS.find((g) => t.includes(g.nombre.toLowerCase()))?.color ?? "#ffffff";
+}
 
 export const SECCIONES: Seccion[] = [
   {
     slug: "horarios",
     nombre: "Horarios",
-    descripcion: "Clases y ensayos de la semana",
+    descripcion: "Ensayos de la temporada",
     icono: CalendarClock,
-    vista: "semana",
+    vista: "calendario",
+    sugerencias: GRUPOS.map((g) => g.nombre),
     campos: {
-      titulo: "Clase / grupo",
-      dia_semana: "Día",
-      hora: "Hora (ej. 18:00 – 19:30)",
-      lugar: "Sala / lugar",
-      descripcion: "Notas (profe, nivel…)",
+      titulo: "Grupo",
+      fecha: "Día",
+      hora: "Hora (ej. 10:00 – 12:00)",
+      lugar: "Lugar (opcional)",
+      descripcion: "Notas (opcional)",
     },
   },
   {
@@ -123,6 +143,7 @@ export const SECCIONES: Seccion[] = [
     descripcion: "Calendario de competiciones y resultados",
     icono: Trophy,
     vista: "fechas",
+    autorizaciones: true,
     campos: {
       titulo: "Competición",
       fecha: "Fecha",
@@ -148,22 +169,19 @@ export const SECCIONES: Seccion[] = [
   {
     slug: "agencia",
     nombre: "Agencia",
-    descripcion: "Castings, trabajos y bolos",
+    descripcion: "Representación de bailarines",
     icono: Briefcase,
-    vista: "fechas",
+    vista: "texto",
     campos: {
-      titulo: "Trabajo / casting",
-      fecha: "Fecha",
-      hora: "Hora",
-      lugar: "Lugar",
-      descripcion: "Detalles (requisitos, perfil, pago…)",
-      enlace: "Enlace (inscripción, info…)",
+      titulo: "Título del bloque",
+      descripcion: "Texto",
+      enlace: "Enlace (opcional)",
     },
   },
   {
     slug: "fotografia",
     nombre: "Fotografía",
-    descripcion: "Sesiones de fotos y álbumes",
+    descripcion: "Sesiones de fotos con Diego",
     icono: Camera,
     vista: "fechas",
     campos: {
@@ -194,6 +212,13 @@ const desdeSeccion = (slug: string, corto?: string): Apartado => {
 
 export const APARTADOS: Apartado[] = [
   desdeSeccion("podcast"),
+  {
+    href: "/app/merch",
+    nombre: "Merch",
+    corto: "Merch",
+    descripcion: "Camiseta, pantalón y pack",
+    icono: Shirt,
+  },
   desdeSeccion("agencia"),
   desdeSeccion("fotografia", "Fotos"),
 ];
@@ -211,9 +236,10 @@ export type Entrada = {
   lugar: string | null;
   enlace: string | null;
   orden: number;
+  documento_path?: string | null;
 };
 
-export type Rol = "pendiente" | "usuario" | "editor" | "admin";
+export type Rol = "pendiente" | "usuario" | "miembro" | "editor" | "admin";
 
 export type Perfil = {
   id: string;
@@ -221,4 +247,5 @@ export type Perfil = {
   nombre: string | null;
   role: Rol;
   created_at: string;
+  avatar_url?: string | null;
 };

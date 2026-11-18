@@ -8,6 +8,7 @@ import { supabaseConfigurado } from "@/app/lib/supabase/client";
 import { AuthProvider, useAuth } from "./AuthProvider";
 import Acceso from "./Acceso";
 import IslaNav from "./IslaNav";
+import Avatar from "./Avatar";
 import { Boton, Cargando } from "./ui";
 
 export default function AppShell({ children }: { children: ReactNode }) {
@@ -62,18 +63,25 @@ function Puerta({ children }: { children: ReactNode }) {
 }
 
 function Marco({ children }: { children: ReactNode }) {
+  const { perfil } = useAuth();
+  const nombre = perfil?.nombre?.split(" ")[0];
+
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-kanot-navy/85 pt-[env(safe-area-inset-top)] backdrop-blur-lg">
+      <header className="sticky top-0 z-30 print:hidden border-b border-white/10 bg-kanot-navy/85 pt-[env(safe-area-inset-top)] backdrop-blur-lg">
         <div className="mx-auto flex h-14 max-w-5xl items-center px-4">
           <Link href="/app" className="flex items-center gap-2">
             <Image src="/imagenes/logo/bykanot-icon.png" alt="" width={30} height={30} />
-            <span className="font-bold tracking-wide">Kanot</span>
+            <span className="font-bold tracking-wide">ByKanot</span>
+            {nombre && <span className="font-medium text-kanot-pink">{nombre}</span>}
+          </Link>
+          <Link href="/app/perfil" aria-label="Mi perfil" className="ml-auto">
+            <Avatar perfil={perfil} tamano={32} />
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-6">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-6 print:max-w-none print:p-0">
         {children}
       </main>
 

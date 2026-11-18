@@ -6,7 +6,7 @@
 
 -- ---------- Roles y perfiles ----------
 do $$ begin
-  create type public.app_role as enum ('pendiente', 'usuario', 'editor', 'admin');
+  create type public.app_role as enum ('pendiente', 'usuario', 'miembro', 'editor', 'admin');
 exception when duplicate_object then null; end $$;
 
 create table if not exists public.profiles (
@@ -28,7 +28,7 @@ as $$ select role from public.profiles where id = auth.uid() $$;
 create or replace function public.es_miembro()
 returns boolean
 language sql stable security definer set search_path = ''
-as $$ select coalesce(public.mi_rol() in ('usuario', 'editor', 'admin'), false) $$;
+as $$ select coalesce(public.mi_rol() in ('usuario', 'miembro', 'editor', 'admin'), false) $$;
 
 create or replace function public.es_editor()
 returns boolean

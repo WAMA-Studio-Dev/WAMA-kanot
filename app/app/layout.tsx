@@ -2,12 +2,12 @@ import type { Metadata, Viewport } from "next";
 import AppShell from "./_components/AppShell";
 
 export const metadata: Metadata = {
-  title: "App Kanot",
+  title: "ByKanot",
   description: "Horarios, formaciones, Kodigo Klub, Kanot Kamp, competición y podcast de Kanot.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "Kanot",
+    title: "ByKanot",
     statusBarStyle: "black-translucent",
   },
   icons: {

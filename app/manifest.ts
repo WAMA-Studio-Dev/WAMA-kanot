@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "App Kanot",
-    short_name: "Kanot",
+    name: "ByKanot",
+    short_name: "ByKanot",
     description: "Horarios, formaciones, Kodigo Klub, Kanot Kamp, competición y podcast de Kanot.",
     id: "/app",
     start_url: "/app",

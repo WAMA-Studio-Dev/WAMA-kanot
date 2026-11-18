@@ -7,6 +7,8 @@ import { useAuth } from "./AuthProvider";
 import { DIAS, getSeccion, type Entrada, type Seccion } from "./secciones";
 import { Aviso, Boton, Cargando } from "./ui";
 import FormEntrada from "./FormEntrada";
+import VistaCalendario from "./VistaCalendario";
+import BloqueAutorizacion from "./BloqueAutorizacion";
 
 export default function VistaSeccion({
   slug,
@@ -86,6 +88,7 @@ export default function VistaSeccion({
         <Listado
           seccion={seccion}
           entradas={entradas}
+          recargar={cargar}
           acciones={
             esEditor
               ? (e) => (
@@ -120,7 +123,17 @@ export default function VistaSeccion({
 
 type Acciones = ((e: Entrada) => React.ReactNode) | undefined;
 
-function Listado({ seccion, entradas, acciones }: { seccion: Seccion; entradas: Entrada[]; acciones: Acciones }) {
+function Listado({
+  seccion,
+  entradas,
+  acciones,
+  recargar,
+}: {
+  seccion: Seccion;
+  entradas: Entrada[];
+  acciones: Acciones;
+  recargar: () => void;
+}) {
   const hoy = new Date().toISOString().slice(0, 10);
   const [verPasados, setVerPasados] = useState(false);
 
@@ -140,6 +153,8 @@ function Listado({ seccion, entradas, acciones }: { seccion: Seccion; entradas: 
     }
     return [];
   }, [entradas, seccion.vista]);
+
+  if (seccion.vista === "calendario") return <VistaCalendario entradas={entradas} acciones={acciones} />;
 
   if (seccion.vista === "semana") {
     return (
@@ -216,7 +231,14 @@ function Listado({ seccion, entradas, acciones }: { seccion: Seccion; entradas: 
       {proximos.length > 0 ? (
         <div className={esPodcast ? "grid gap-3 sm:grid-cols-2" : "flex flex-col gap-3"}>
           {proximos.map((e) => (
-            <TarjetaEntrada key={e.id} entrada={e} acciones={acciones} textoEnlace={seccion.textoEnlace} video={esPodcast} />
+            <TarjetaEntrada
+              key={e.id}
+              entrada={e}
+              acciones={acciones}
+              textoEnlace={seccion.textoEnlace}
+              video={esPodcast}
+              pie={seccion.autorizaciones && e.fecha ? <BloqueAutorizacion entrada={e} onCambio={recargar} /> : undefined}
+            />
           ))}
         </div>
       ) : (
@@ -250,11 +272,14 @@ function TarjetaEntrada({
   acciones,
   video,
   textoEnlace = "Abrir enlace",
+  pie,
 }: {
   entrada: Entrada;
   acciones: Acciones;
   video?: boolean;
   textoEnlace?: string;
+  /** Contenido extra al final de la tarjeta (p. ej. autorizaciones). */
+  pie?: React.ReactNode;
 }) {
   const youtubeId = video && e.enlace ? idYoutube(e.enlace) : null;
 
@@ -307,6 +332,7 @@ function TarjetaEntrada({
             {textoEnlace} <ExternalLink size={14} />
           </a>
         )}
+        {pie}
       </div>
     </article>
   );

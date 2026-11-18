@@ -10,6 +10,8 @@ type AuthState = {
   session: Session | null;
   perfil: Perfil | null;
   esEditor: boolean;
+  /** Miembro de Kanot Crew (o editor/admin): puede entrar en Kanot Crew. */
+  esCrew: boolean;
   esAdmin: boolean;
   recargarPerfil: () => Promise<void>;
   salir: () => Promise<void>;
@@ -63,6 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     session,
     perfil,
     esEditor: perfil?.role === "editor" || perfil?.role === "admin",
+    esCrew: perfil?.role === "miembro" || perfil?.role === "editor" || perfil?.role === "admin",
     esAdmin: perfil?.role === "admin",
     recargarPerfil: () => cargarPerfil(session),
     salir: async () => {

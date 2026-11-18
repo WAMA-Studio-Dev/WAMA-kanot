@@ -1,10 +1,11 @@
 "use client";
 
 import { Suspense } from "react";
-import { CalendarClock, ExternalLink, FolderOpen, GraduationCap, Trophy, UsersRound } from "lucide-react";
+import { CalendarClock, ExternalLink, FolderOpen, GraduationCap, Lock, Trophy, UsersRound } from "lucide-react";
 import { useAuth } from "../_components/AuthProvider";
 import VistaSeccion from "../_components/VistaSeccion";
 import GestorArchivos from "../_components/GestorArchivos";
+import FormacionesWeb from "../_components/FormacionesWeb";
 import { KANOT_DRIVE_URL } from "../_components/secciones";
 import { Cargando } from "../_components/ui";
 import Pestanas, { usePestanaActiva } from "../_components/Pestanas";
@@ -25,9 +26,11 @@ export default function PaginaKanotCrew() {
 }
 
 function KanotCrew() {
-  const { esEditor } = useAuth();
+  const { esEditor, esCrew } = useAuth();
   const visibles = PESTANAS.filter((p) => !p.soloEquipo || esEditor);
   const activa = usePestanaActiva(visibles);
+
+  if (!esCrew) return <SoloMiembros />;
 
   return (
     <div className="flex flex-col gap-5">
@@ -45,7 +48,7 @@ function KanotCrew() {
 
       {activa === "horarios" && <VistaSeccion key="horarios" slug="horarios" compacto />}
       {activa === "competicion" && <VistaSeccion key="competicion" slug="competicion" compacto />}
-      {activa === "formaciones" && <VistaSeccion key="formaciones" slug="formaciones" compacto />}
+      {activa === "formaciones" && <FormacionesWeb />}
       {activa === "archivos" && esEditor && (
         <div className="flex flex-col gap-5">
           {KANOT_DRIVE_URL ? (
@@ -87,5 +90,21 @@ function GoogleDriveLogo() {
       <path d="M59.8 53H27.5L13.75 76.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc" />
       <path d="M73.4 26.5 60.7 4.5c-.8-1.4-1.95-2.5-3.3-3.3L43.65 25 59.8 53h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00" />
     </svg>
+  );
+}
+
+/** Pantalla para quien no es miembro de Kanot Crew. */
+function SoloMiembros() {
+  return (
+    <div className="flex flex-col items-center gap-4 py-16 text-center">
+      <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/5 text-kanot-pink">
+        <Lock size={28} />
+      </span>
+      <h1 className="text-2xl font-black">Solo para Kanot Crew</h1>
+      <p className="max-w-xs text-sm text-white/65">
+        Los horarios, la competición y las autorizaciones son solo para los miembros del grupo. Si formas parte de
+        Kanot Crew, pide al equipo que active tu cuenta como miembro.
+      </p>
+    </div>
   );
 }

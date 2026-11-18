@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Briefcase, Home, UserRound, UsersRound, type LucideIcon } from "lucide-react";
 import { SUBSECCIONES_CREW } from "./secciones";
+import { useAuth } from "./AuthProvider";
 
 type ItemNav = { href: string; nombre: string; icono: LucideIcon; activo: (p: string) => boolean };
 
@@ -27,14 +28,17 @@ const ITEMS: ItemNav[] = [
 /** Isla flotante de navegación en la parte inferior. El resto de apartados está en Inicio. */
 export default function IslaNav() {
   const pathname = usePathname();
+  const { esCrew } = useAuth();
+  // Kanot Crew solo aparece para miembros, editores y admins.
+  const items = ITEMS.filter((i) => esCrew || i.href !== "/app/kanot-crew");
 
   return (
     <nav
       aria-label="Navegación principal"
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-40 print:hidden flex justify-center px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
     >
       <ul className="pointer-events-auto flex gap-1 rounded-full border border-white/15 bg-kanot-navy-deep/85 p-1.5 shadow-2xl shadow-black/50 backdrop-blur-xl">
-        {ITEMS.map((item) => {
+        {items.map((item) => {
           const activo = item.activo(pathname);
           return (
             <li key={item.href}>

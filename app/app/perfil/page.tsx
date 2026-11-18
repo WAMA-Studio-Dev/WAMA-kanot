@@ -1,18 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
-import { ChevronRight, FolderOpen, KeyRound, LogOut, Users } from "lucide-react";
+import { useRef, useState, type FormEvent } from "react";
+import { Camera, ChevronRight, FolderOpen, KeyRound, LogOut, Pencil, Trash2, Users } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "../_components/AuthProvider";
+import Avatar, { guardarMiPerfil, subirFotoPerfil } from "../_components/Avatar";
 import InstalarApp from "../_components/InstalarApp";
 import { Aviso, Boton, Etiqueta, Input, Modal } from "../_components/ui";
 
-const NOMBRE_ROL = { pendiente: "Pendiente", usuario: "Usuario", editor: "Editor", admin: "Admin" } as const;
+const NOMBRE_ROL = {
+  pendiente: "Pendiente",
+  usuario: "Usuario",
+  miembro: "Miembro de Kanot",
+  editor: "Editor",
+  admin: "Admin",
+} as const;
 
 export default function PaginaPerfil() {
   const { perfil, esEditor, esAdmin, salir } = useAuth();
   const [cambiarClave, setCambiarClave] = useState(false);
+  const [editar, setEditar] = useState(false);
   if (!perfil) return null;
 
   const enlaces = [
@@ -23,9 +31,7 @@ export default function PaginaPerfil() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col items-center gap-3 pt-2 text-center">
-        <span className="flex h-20 w-20 items-center justify-center rounded-full bg-kanot-pink text-3xl font-bold text-kanot-navy-deep">
-          {(perfil.nombre ?? perfil.email ?? "?").charAt(0).toUpperCase()}
-        </span>
+        <FotoEditable />
         <div>
           <h1 className="text-xl font-bold">{perfil.nombre || "Sin nombre"}</h1>
           <p className="text-sm text-white/55">{perfil.email}</p>
@@ -33,6 +39,13 @@ export default function PaginaPerfil() {
             {NOMBRE_ROL[perfil.role]}
           </span>
         </div>
+        <button
+          type="button"
+          onClick={() => setEditar(true)}
+          className="flex items-center gap-1.5 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold transition hover:border-kanot-pink hover:text-kanot-pink"
+        >
+          <Pencil size={14} /> Editar perfil
+        </button>
       </div>
 
       <InstalarApp />
@@ -85,6 +98,7 @@ export default function PaginaPerfil() {
       </section>
 
       {cambiarClave && <CambiarClave onCerrar={() => setCambiarClave(false)} />}
+      {editar && <EditarPerfil onCerrar={() => setEditar(false)} />}
     </div>
   );
 }
@@ -133,4 +147,118 @@ function CambiarClave({ onCerrar }: { onCerrar: () => void }) {
       )}
     </Modal>
   );
+}
+
+/** Foto grande con botón de cámara: al elegir una imagen se sube y se guarda al momento. */
+function FotoEditable() {
+  const { perfil, recargarPerfil } = useAuth();
+  const input = useRef<HTMLInputElement>(null);
+  const [subiendo, setSubiendo] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function elegir(archivo: File | undefined) {
+    if (!archivo || !perfil) return;
+    setSubiendo(true);
+    setError(null);
+    try {
+      const url = await subirFotoPerfil(perfil.id, archivo);
+      await guardarMiPerfil(perfil.nombre ?? "", url);
+      await recargarPerfil();
+    } catch (err) {
+      setError(mensajeError(err));
+    } finally {
+      setSubiendo(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <button
+        type="button"
+        onClick={() => input.current?.click()}
+        disabled={subiendo}
+        aria-label="Cambiar foto de perfil"
+        className="group relative rounded-full"
+      >
+        <Avatar perfil={perfil} tamano={104} className={`ring-4 ring-kanot-navy-deep ${subiendo ? "opacity-50" : ""}`} />
+        <span className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border-4 border-kanot-navy bg-kanot-pink text-kanot-navy-deep transition group-hover:scale-110">
+          {subiendo ? (
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-kanot-navy-deep/30 border-t-kanot-navy-deep" />
+          ) : (
+            <Camera size={16} />
+          )}
+        </span>
+      </button>
+      <input
+        ref={input}
+        type="file"
+        accept="image/*"
+        hidden
+        onChange={(e) => {
+          elegir(e.target.files?.[0]);
+          e.target.value = "";
+        }}
+      />
+      {error && <Aviso>{error}</Aviso>}
+    </div>
+  );
+}
+
+function EditarPerfil({ onCerrar }: { onCerrar: () => void }) {
+  const { perfil, recargarPerfil } = useAuth();
+  const [nombre, setNombre] = useState(perfil?.nombre ?? "");
+  const [quitarFoto, setQuitarFoto] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function guardar(e: FormEvent) {
+    e.preventDefault();
+    if (!perfil) return;
+    setGuardando(true);
+    setError(null);
+    try {
+      if (quitarFoto) {
+        // Borra los archivos de su carpeta (si falla, la foto igualmente deja de mostrarse).
+        const almacen = getSupabase().storage.from("avatares");
+        const { data } = await almacen.list(perfil.id);
+        if (data?.length) await almacen.remove(data.map((a) => `${perfil.id}/${a.name}`));
+      }
+      await guardarMiPerfil(nombre, quitarFoto ? null : (perfil.avatar_url ?? null));
+      await recargarPerfil();
+      onCerrar();
+    } catch (err) {
+      setError(mensajeError(err));
+      setGuardando(false);
+    }
+  }
+
+  return (
+    <Modal titulo="Editar perfil" onCerrar={onCerrar}>
+      <form onSubmit={guardar} className="flex flex-col gap-4">
+        <Etiqueta texto="Nombre y apellidos">
+          <Input value={nombre} onChange={(e) => setNombre(e.target.value)} required autoFocus autoComplete="name" />
+        </Etiqueta>
+        {perfil?.avatar_url && (
+          <label className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3 text-sm">
+            <input type="checkbox" checked={quitarFoto} onChange={(e) => setQuitarFoto(e.target.checked)} className="h-4 w-4 accent-kanot-pink" />
+            <Trash2 size={16} className="text-white/50" /> Quitar mi foto
+          </label>
+        )}
+        <p className="text-xs text-white/45">Para cambiar la foto, pulsa sobre ella en tu perfil.</p>
+        {error && <Aviso>{error}</Aviso>}
+        <Boton type="submit" disabled={guardando}>
+          {guardando ? "Guardando…" : "Guardar"}
+        </Boton>
+      </form>
+    </Modal>
+  );
+}
+
+function mensajeError(err: unknown) {
+  const msg = err instanceof Error ? err.message : String(err);
+  if (/actualizar_mi_perfil|function .* does not exist|schema cache/i.test(msg))
+    return "Falta activar las fotos de perfil en la base de datos (SQL 004).";
+  if (/bucket not found/i.test(msg)) return "Falta activar las fotos de perfil en la base de datos (SQL 004).";
+  if (/exceeded|too large|maximum/i.test(msg)) return "La foto es demasiado grande.";
+  return msg;
 }

@@ -1,13 +1,17 @@
 "use client";
 
 import Image from "next/image";
-import { Suspense } from "react";
-import { ExternalLink, Info, Ticket } from "lucide-react";
+import { Suspense, useState } from "react";
+import { Disc3, ExternalLink, Images, Info, MapPin, Ticket } from "lucide-react";
 import { InstagramIcon } from "@/app/components/ui/SocialIcons";
 import {
   KODIGO_KLUB_DESCRIPCION,
-  KODIGO_KLUB_ENTRADAS_HREF,
   KODIGO_KLUB_INSTAGRAM_HREF,
+  edicionPorDefecto,
+  edicionesOrdenadas,
+  nombreEdicion,
+  type KodigoEdicion,
+  type KodigoSala,
 } from "@/app/data/kodigoKlub";
 import VistaSeccion from "../_components/VistaSeccion";
 import Pestanas, { usePestanaActiva } from "../_components/Pestanas";
@@ -15,8 +19,14 @@ import { Cargando } from "../_components/ui";
 
 const PESTANAS = [
   { id: "que-es", nombre: "Qué es", icono: Info },
+  { id: "ediciones", nombre: "Ediciones", icono: Images },
   { id: "entradas", nombre: "Entradas", icono: Ticket },
 ] as const;
+
+/** Edición con entradas a la venta (ni finalizada ni "próximamente"), si la hay. */
+const EDICION_A_LA_VENTA = edicionesOrdenadas.find((e) => !e.proximamente && !e.finalizada && e.entradasHref);
+/** La siguiente edición anunciada, para avisar en Entradas. */
+const PROXIMA = edicionesOrdenadas.find((e) => e.proximamente);
 
 export default function PaginaKodigoKlub() {
   return (
@@ -45,13 +55,8 @@ function KodigoKlub() {
       <Pestanas pestanas={PESTANAS} activa={activa} />
 
       {activa === "que-es" && <QueEs />}
-      {activa === "entradas" && (
-        <div className="flex flex-col gap-5">
-          <BotonEntradas />
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-white/60">Próximos eventos</h2>
-          <VistaSeccion slug="kodigo-klub" compacto />
-        </div>
-      )}
+      {activa === "ediciones" && <Ediciones />}
+      {activa === "entradas" && <Entradas />}
     </div>
   );
 }
@@ -72,30 +77,182 @@ function QueEs() {
         />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <BotonEntradas />
-        <a
-          href={KODIGO_KLUB_INSTAGRAM_HREF}
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-5 py-4 font-semibold transition hover:bg-white/10"
-        >
-          <InstagramIcon className="h-5 w-5" /> @kodigoklub
-        </a>
+      <BotonInstagram />
+    </div>
+  );
+}
+
+function Ediciones() {
+  const [numero, setNumero] = useState(edicionPorDefecto.numero);
+  const edicion = edicionesOrdenadas.find((e) => e.numero === numero) ?? edicionesOrdenadas[0];
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div role="tablist" aria-label="Ediciones" className="flex flex-wrap justify-center gap-2">
+        {[...edicionesOrdenadas].reverse().map((e) => {
+          const activa = e.numero === edicion.numero;
+          return (
+            <button
+              key={e.numero}
+              type="button"
+              role="tab"
+              aria-selected={activa}
+              onClick={() => setNumero(e.numero)}
+              className={`rounded-full border px-4 py-2 text-xs font-black uppercase tracking-wider transition-colors ${
+                activa
+                  ? "border-[#d6127e] bg-[#d6127e] text-black"
+                  : "border-white/20 text-white/80 hover:border-[#d6127e] hover:text-[#ff5fb0]"
+              }`}
+            >
+              {nombreEdicion(e.numero)}
+              {e.proximamente && (
+                <span className={`ml-1.5 text-[10px] ${activa ? "text-black/70" : "text-[#ff5fb0]"}`}>Pronto</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="text-center">
+        <h2 className="text-3xl font-black uppercase tracking-tight">{nombreEdicion(edicion.numero)}</h2>
+        {edicion.fecha && (
+          <p className="mt-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#ff5fb0]">{edicion.fecha}</p>
+        )}
+      </div>
+
+      {edicion.proximamente ? <Proximamente /> : <ContenidoEdicion edicion={edicion} />}
+    </div>
+  );
+}
+
+function ContenidoEdicion({ edicion }: { edicion: KodigoEdicion }) {
+  const fotos = edicion.collage?.map((f) => f.src) ?? edicion.fotos;
+
+  return (
+    <div className="flex flex-col gap-6">
+      {fotos.length > 0 && (
+        <section>
+          <h3 className="mb-3 text-sm font-semibold uppercase tracking-widest text-white/60">Fotos</h3>
+          {/* Carrusel deslizable, a sangre en móvil */}
+          <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {fotos.map((src) => (
+              <div key={src} className="relative aspect-[4/5] w-[70%] shrink-0 snap-center overflow-hidden rounded-2xl sm:w-[40%]">
+                <Image src={src} alt="" fill sizes="(max-width: 640px) 70vw, 40vw" className="object-cover" />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {edicion.invitadxs.length > 0 && (
+        <section>
+          <h3 className="mb-3 text-sm font-semibold uppercase tracking-widest text-white/60">Invitadxs</h3>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {edicion.invitadxs.map((p) => (
+              <div key={p.src} className="relative aspect-[4/5] overflow-hidden rounded-2xl shadow-lg shadow-black/40">
+                <Image src={p.src} alt={p.alt} fill sizes="(max-width: 640px) 50vw, 33vw" className="object-cover" />
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {edicion.finalizada ? (
+        <p className="rounded-2xl bg-white/5 p-4 text-center text-sm text-white/60">
+          Esta edición ya se celebró. ¡Gracias por venir! 🖤
+        </p>
+      ) : (
+        <ComoLlegar sala={edicion.sala} />
+      )}
+    </div>
+  );
+}
+
+function Proximamente() {
+  return (
+    <div
+      className="rounded-3xl p-3"
+      style={{
+        backgroundColor: "#120010",
+        backgroundImage: "repeating-conic-gradient(#0a0a0a 0% 25%, #9c1e53 0% 50%)",
+        backgroundSize: "28px 28px",
+      }}
+    >
+      <div className="flex flex-col items-center gap-4 rounded-2xl bg-black/90 px-5 py-10 text-center">
+        <Disc3 className="h-12 w-12 animate-spin text-[#d6127e] [animation-duration:6s]" />
+        <h3 className="text-3xl font-black uppercase tracking-tight">Próximamente</h3>
+        <p className="max-w-sm text-sm text-white/70">
+          Estamos preparando la siguiente edición. Fecha, invitadxs y entradas, muy pronto en nuestro Instagram.
+        </p>
+        <BotonInstagram />
       </div>
     </div>
   );
 }
 
-function BotonEntradas() {
+function Entradas() {
+  return (
+    <div className="flex flex-col gap-5">
+      {EDICION_A_LA_VENTA ? (
+        <>
+          <a
+            href={EDICION_A_LA_VENTA.entradasHref}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-[#d6127e] px-5 py-4 font-bold text-white shadow-lg shadow-[#d6127e]/30 transition hover:bg-[#9c1e53]"
+          >
+            <Ticket size={20} /> Comprar entradas · {nombreEdicion(EDICION_A_LA_VENTA.numero)}
+            <ExternalLink size={16} className="opacity-70" />
+          </a>
+          <ComoLlegar sala={EDICION_A_LA_VENTA.sala} />
+        </>
+      ) : (
+        <div className="flex flex-col items-center gap-3 rounded-3xl border border-[#d6127e]/30 bg-[#9c1e53]/25 p-6 text-center">
+          <Ticket className="text-[#ff5fb0]" size={28} />
+          <p className="font-bold">
+            {PROXIMA ? `Las entradas de la ${nombreEdicion(PROXIMA.numero)} saldrán pronto` : "Ahora mismo no hay entradas a la venta"}
+          </p>
+          <p className="text-sm text-white/65">Te avisamos en Instagram en cuanto estén disponibles.</p>
+          <BotonInstagram />
+        </div>
+      )}
+
+      <h2 className="mt-2 text-sm font-semibold uppercase tracking-widest text-white/60">Próximos eventos</h2>
+      <VistaSeccion slug="kodigo-klub" compacto />
+    </div>
+  );
+}
+
+function ComoLlegar({ sala }: { sala: KodigoSala }) {
+  const mapa = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${sala.nombre}, ${sala.direccion}`)}`;
+  return (
+    <section className="rounded-3xl bg-[#9c1e53] p-5">
+      <h3 className="text-lg font-black uppercase tracking-tight">¿Cómo llegar?</h3>
+      <p className="mt-2 flex items-center gap-1.5 font-bold">
+        <MapPin size={16} /> {sala.nombre} · {sala.ciudad}
+      </p>
+      <p className="mt-1 text-sm text-white/80">{sala.direccion}</p>
+      <a
+        href={mapa}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-4 inline-flex items-center gap-2 rounded-full bg-black px-5 py-2.5 text-sm font-bold transition hover:bg-kanot-navy-deep"
+      >
+        Abrir en Google Maps <ExternalLink size={14} />
+      </a>
+    </section>
+  );
+}
+
+function BotonInstagram() {
   return (
     <a
-      href={KODIGO_KLUB_ENTRADAS_HREF}
+      href={KODIGO_KLUB_INSTAGRAM_HREF}
       target="_blank"
       rel="noreferrer"
-      className="flex items-center justify-center gap-2 rounded-2xl bg-[#d6127e] px-5 py-4 font-bold text-white shadow-lg shadow-[#d6127e]/30 transition hover:bg-[#9c1e53]"
+      className="flex items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-5 py-3.5 font-semibold transition hover:bg-white/10"
     >
-      <Ticket size={20} /> Comprar entradas <ExternalLink size={16} className="opacity-70" />
+      <InstagramIcon className="h-5 w-5" /> @kodigoklub
     </a>
   );
 }

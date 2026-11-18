@@ -6,10 +6,12 @@ import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "../_components/AuthProvider";
 import type { Perfil, Rol } from "../_components/secciones";
 import { Aviso, Cargando, Select } from "../_components/ui";
+import Avatar from "../_components/Avatar";
 
 const ROLES: { valor: Rol; nombre: string; ayuda: string }[] = [
   { valor: "pendiente", nombre: "Pendiente", ayuda: "Sin acceso todavía" },
-  { valor: "usuario", nombre: "Usuario", ayuda: "Ve los 6 apartados" },
+  { valor: "usuario", nombre: "Usuario", ayuda: "Ve la app, sin Kanot Crew" },
+  { valor: "miembro", nombre: "Miembro de Kanot", ayuda: "Además entra en Kanot Crew (horarios, competición, autorizaciones)" },
   { valor: "editor", nombre: "Editor", ayuda: "Edita contenido y gestiona archivos" },
   { valor: "admin", nombre: "Admin", ayuda: "Todo lo anterior + aprueba usuarios" },
 ];
@@ -96,9 +98,12 @@ function ListaPerfiles({ perfiles, onCambiar }: { perfiles: Perfil[]; onCambiar:
     <ul className="divide-y divide-white/5 overflow-hidden rounded-3xl border border-white/10 bg-black/25">
       {perfiles.map((p) => (
         <li key={p.id} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center">
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-medium">{p.nombre || "Sin nombre"}</p>
-            <p className="truncate text-xs text-white/50">{p.email}</p>
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <Avatar perfil={p} tamano={40} />
+            <div className="min-w-0">
+              <p className="truncate font-medium">{p.nombre || "Sin nombre"}</p>
+              <p className="truncate text-xs text-white/50">{p.email}</p>
+            </div>
           </div>
           <Select
             value={p.role}

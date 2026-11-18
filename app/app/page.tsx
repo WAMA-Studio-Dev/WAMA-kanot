@@ -6,6 +6,7 @@ import {
   ChevronRight,
   FolderOpen,
   GraduationCap,
+  Images,
   Info,
   Music2,
   PenLine,
@@ -17,32 +18,33 @@ import {
 import { APARTADOS, SUBSECCIONES_CREW, getSeccion } from "./_components/secciones";
 import { useAuth } from "./_components/AuthProvider";
 import InstalarApp from "./_components/InstalarApp";
+import EstaSemana from "./_components/EstaSemana";
 
 export default function InicioApp() {
-  const { perfil, esEditor } = useAuth();
-  const nombre = perfil?.nombre?.split(" ")[0];
+  const { esEditor, esCrew } = useAuth();
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <p className="text-sm text-white/60">Hola{nombre ? `, ${nombre}` : ""} 👋</p>
-        <h1 className="text-2xl font-bold">¿Qué quieres ver?</h1>
-      </div>
-
       <InstalarApp />
 
-      {/* Kanot Crew: agrupa Horarios, Competición y Formaciones */}
-      <TarjetaGrupo
-        href="/app/kanot-crew"
-        titulo="Kanot Crew"
-        subtitulo="El grupo de competición"
-        icono={<UsersRound size={24} />}
-        estilo="kanot"
-        accesos={SUBSECCIONES_CREW.map((slug) => {
-          const s = getSeccion(slug)!;
-          return { href: `/app/kanot-crew?tab=${slug}`, nombre: s.nombre, icono: s.icono };
-        })}
-      />
+      <EstaSemana />
+
+      <h2 className="mt-2 text-2xl font-black tracking-tight">Explora</h2>
+
+      {/* Kanot Crew (solo miembros, editores y admins): agrupa Horarios, Competición y Formaciones */}
+      {esCrew && (
+        <TarjetaGrupo
+          href="/app/kanot-crew"
+          titulo="Kanot Crew"
+          subtitulo="El grupo de competición"
+          icono={<UsersRound size={24} />}
+          estilo="kanot"
+          accesos={SUBSECCIONES_CREW.map((slug) => {
+            const s = getSeccion(slug)!;
+            return { href: `/app/kanot-crew?tab=${slug}`, nombre: s.nombre, icono: s.icono };
+          })}
+        />
+      )}
 
       <TarjetaGrupo
         href="/app/kodigo-klub"
@@ -52,7 +54,8 @@ export default function InicioApp() {
         estilo="kodigo"
         accesos={[
           { href: "/app/kodigo-klub?tab=que-es", nombre: "Qué es", icono: Info },
-          { href: "/app/kodigo-klub?tab=entradas", nombre: "Venta de entradas", icono: Ticket },
+          { href: "/app/kodigo-klub?tab=ediciones", nombre: "Ediciones", icono: Images },
+          { href: "/app/kodigo-klub?tab=entradas", nombre: "Entradas", icono: Ticket },
         ]}
       />
 
@@ -69,7 +72,7 @@ export default function InicioApp() {
         ]}
       />
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {APARTADOS.map((s) => (
           <Link
             key={s.href}
@@ -81,7 +84,7 @@ export default function InicioApp() {
             </span>
             <span>
               <span className="block text-sm font-semibold leading-tight sm:text-base">{s.nombre}</span>
-              <span className="mt-1 hidden text-xs leading-snug text-white/55 sm:block">{s.descripcion}</span>
+              <span className="mt-1 block text-xs leading-snug text-white/55">{s.descripcion}</span>
             </span>
           </Link>
         ))}

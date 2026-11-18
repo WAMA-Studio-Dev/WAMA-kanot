@@ -3,7 +3,15 @@ import { SECCIONES, getSeccion } from "../_components/secciones";
 import VistaSeccion from "../_components/VistaSeccion";
 
 // Apartados que se ven dentro de otra página (Kodigo Klub y Kanot Kamp tienen la suya propia con pestañas).
-const CON_PAGINA_PROPIA = ["kodigo-klub", "kanot-kamp", "kanot-kamp-info", "kanot-kamp-profes", "podcast"];
+const CON_PAGINA_PROPIA = [
+  "kodigo-klub",
+  "kanot-kamp",
+  "kanot-kamp-info",
+  "kanot-kamp-profes",
+  "podcast",
+  "agencia",
+  "fotografia",
+];
 
 export function generateStaticParams() {
   return SECCIONES.filter((s) => !CON_PAGINA_PROPIA.includes(s.slug)).map((s) => ({ seccion: s.slug }));
