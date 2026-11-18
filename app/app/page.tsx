@@ -73,7 +73,7 @@ export default function InicioApp() {
       />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        {APARTADOS.map((s) => (
+        {APARTADOS.filter((s) => esEditor || s.href !== "/app/agencia").map((s) => (
           <Link
             key={s.href}
             href={s.href}

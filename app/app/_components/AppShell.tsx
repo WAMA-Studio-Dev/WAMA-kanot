@@ -69,6 +69,7 @@ function Marco({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-30 print:hidden border-b border-white/10 bg-kanot-navy/85 pt-[env(safe-area-inset-top)] backdrop-blur-lg">
+        <BarraVerComo />
         <div className="mx-auto flex h-14 max-w-5xl items-center px-4">
           <Link href="/app" className="flex items-center gap-2">
             <Image src="/imagenes/logo/bykanot-icon.png" alt="" width={30} height={30} />
@@ -101,6 +102,28 @@ function SinConfigurar() {
         {`NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co\nNEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...`}
       </pre>
       <p className="text-sm text-white/50">Y reinicia el servidor (o añádelas en Vercel → Settings → Environment Variables).</p>
+    </div>
+  );
+}
+
+const NOMBRE_VISTA = { admin: "Admin", editor: "Editor", miembro: "Miembro de Kanot", usuario: "Usuario" } as const;
+
+/** Aviso fijo cuando el superadmin está viendo la app como otro rol. */
+function BarraVerComo() {
+  const { verComo, setVerComo } = useAuth();
+  if (!verComo) return null;
+  return (
+    <div className="flex items-center justify-center gap-3 bg-kanot-pink px-4 py-1.5 text-sm font-semibold text-kanot-navy-deep">
+      <span>
+        Viendo como <b>{NOMBRE_VISTA[verComo]}</b>
+      </span>
+      <button
+        type="button"
+        onClick={() => setVerComo(null)}
+        className="rounded-full bg-kanot-navy-deep px-3 py-1 text-xs font-bold text-white"
+      >
+        Volver
+      </button>
     </div>
   );
 }

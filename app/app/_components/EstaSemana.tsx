@@ -80,12 +80,14 @@ function relleno(): Proximo[] {
   const items: Proximo[] = [];
   const proxima = [...edicionesOrdenadas].reverse().find((e) => !e.finalizada);
   if (proxima) {
+    // Si la edición ya tiene fecha concreta ("13 de febrero de 2027"), sale con su día.
+    const fecha = proxima.fecha ? fechaWebAISO(proxima.fecha) : null;
     items.push({
       id: "kodigo-edicion",
       titulo: `Kodigo Klub · ${nombreEdicion(proxima.numero)}`,
-      fecha: null,
-      etiqueta: proxima.proximamente ? "Pronto" : undefined,
-      detalle: proxima.proximamente ? "Próximamente · fecha e invitadxs muy pronto" : proxima.fecha ?? "Kodigo Klub",
+      fecha: fecha && fecha >= hoyISO() ? fecha : null,
+      etiqueta: "Pronto",
+      detalle: fecha ? "Entradas en efectivo y online muy pronto" : "Próximamente · fecha e invitadxs muy pronto",
       href: "/app/kodigo-klub?tab=ediciones",
     });
   }
@@ -96,7 +98,7 @@ function relleno(): Proximo[] {
       titulo: `Podcast · ${episodio.titulo}`,
       fecha: null,
       etiqueta: "Nuevo",
-      detalle: "Último episodio de Kanot On Air",
+      detalle: "Último episodio del podcast",
       href: "/app/podcast",
     });
   }

@@ -6,6 +6,7 @@ import { useAuth } from "../_components/AuthProvider";
 import VistaSeccion from "../_components/VistaSeccion";
 import GestorArchivos from "../_components/GestorArchivos";
 import FormacionesWeb from "../_components/FormacionesWeb";
+import GaleriaCrew from "../_components/GaleriaCrew";
 import { KANOT_DRIVE_URL } from "../_components/secciones";
 import { Cargando } from "../_components/ui";
 import Pestanas, { usePestanaActiva } from "../_components/Pestanas";
@@ -14,7 +15,7 @@ const PESTANAS = [
   { id: "horarios", nombre: "Horarios", icono: CalendarClock, soloEquipo: false },
   { id: "competicion", nombre: "Competición", icono: Trophy, soloEquipo: false },
   { id: "formaciones", nombre: "Formaciones", icono: GraduationCap, soloEquipo: false },
-  { id: "archivos", nombre: "Archivos", icono: FolderOpen, soloEquipo: true },
+  { id: "archivos", nombre: "Archivos", icono: FolderOpen, soloEquipo: false },
 ] as const;
 
 export default function PaginaKanotCrew() {
@@ -49,8 +50,18 @@ function KanotCrew() {
       {activa === "horarios" && <VistaSeccion key="horarios" slug="horarios" compacto />}
       {activa === "competicion" && <VistaSeccion key="competicion" slug="competicion" compacto />}
       {activa === "formaciones" && <FormacionesWeb />}
-      {activa === "archivos" && esEditor && (
-        <div className="flex flex-col gap-5">
+      {activa === "archivos" && (
+        <div className="flex flex-col gap-8">
+          {/* Para todos los miembros */}
+          <GaleriaCrew />
+
+          {/* Solo editores y admins: Drive y gestor de documentos */}
+          {esEditor && (
+            <section className="flex flex-col gap-4 border-t border-white/10 pt-6">
+              <div>
+                <h2 className="text-xl font-black">Documentos del equipo</h2>
+                <p className="text-xs text-white/55">Solo lo ven editores y admins. Sube aquí lo que quieras: Excels, PDFs…</p>
+              </div>
           {KANOT_DRIVE_URL ? (
             <a
               href={KANOT_DRIVE_URL}
@@ -73,7 +84,8 @@ function KanotCrew() {
             </p>
           )}
           <GestorArchivos raiz="Kanot Crew" />
-          <p className="text-center text-xs text-white/40">Solo admins y editores ven esta pestaña.</p>
+            </section>
+          )}
         </div>
       )}
     </div>

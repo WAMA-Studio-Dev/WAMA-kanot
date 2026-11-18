@@ -23,6 +23,10 @@ export type KodigoEdicion = {
   /** Edición ya celebrada: no se muestran "Únete a Kodigo" ni "¿Cómo llegar?". */
   finalizada?: boolean;
   entradasHref?: string;
+  /** Venta de entradas en efectivo (app): lugar y fechas de venta. Sin fechas = "próximamente". */
+  ventaEfectivo?: { lugar: string; fechas: string[] };
+  /** Venta online en Forvenues (app). Vacío = "enlace próximamente". */
+  forvenuesHref?: string;
   fotos: string[];
   /** Fotos del collage abstracto (debajo del título de la edición). */
   collage?: { src: string; vertical: boolean }[];
@@ -93,7 +97,10 @@ export const ediciones: KodigoEdicion[] = [
   },
   {
     numero: 2,
+    fecha: "13 de febrero de 2027",
     proximamente: true,
+    ventaEfectivo: { lugar: "Star Factory · Bormujos", fechas: [] },
+    forvenuesHref: "",
     fotos: [],
     invitadxs: [],
     sala: SALA_EVEN,

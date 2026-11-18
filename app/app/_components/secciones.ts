@@ -248,4 +248,5 @@ export type Perfil = {
   role: Rol;
   created_at: string;
   avatar_url?: string | null;
+  super_admin?: boolean;
 };

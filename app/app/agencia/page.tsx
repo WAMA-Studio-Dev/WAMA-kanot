@@ -5,7 +5,8 @@ import { Briefcase, Info, Mail } from "lucide-react";
 import VistaSeccion from "../_components/VistaSeccion";
 import FormContacto from "../_components/FormContacto";
 import Pestanas, { usePestanaActiva } from "../_components/Pestanas";
-import { Cargando } from "../_components/ui";
+import { Aviso, Cargando } from "../_components/ui";
+import { useAuth } from "../_components/AuthProvider";
 
 const PESTANAS = [
   { id: "que-es", nombre: "Qué es", icono: Info },
@@ -22,6 +23,8 @@ export default function PaginaAgencia() {
 
 function Agencia() {
   const activa = usePestanaActiva(PESTANAS);
+  const { esEditor } = useAuth();
+  if (!esEditor) return <Aviso>Esta sección es solo para editores y administradores.</Aviso>;
 
   return (
     <div className="flex flex-col gap-5">

@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useRef, useState, type FormEvent } from "react";
-import { Camera, ChevronRight, FolderOpen, KeyRound, LogOut, Pencil, Trash2, Users } from "lucide-react";
+import { Camera, ChevronRight, Eye, FolderOpen, KeyRound, LogOut, Pencil, Trash2, Users } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "../_components/AuthProvider";
 import Avatar, { guardarMiPerfil, subirFotoPerfil } from "../_components/Avatar";
+import type { RolVista } from "../_components/AuthProvider";
 import InstalarApp from "../_components/InstalarApp";
 import { Aviso, Boton, Etiqueta, Input, Modal } from "../_components/ui";
 
@@ -18,7 +19,7 @@ const NOMBRE_ROL = {
 } as const;
 
 export default function PaginaPerfil() {
-  const { perfil, esEditor, esAdmin, salir } = useAuth();
+  const { perfil, esEditor, esAdmin, esSuper, salir } = useAuth();
   const [cambiarClave, setCambiarClave] = useState(false);
   const [editar, setEditar] = useState(false);
   if (!perfil) return null;
@@ -36,7 +37,7 @@ export default function PaginaPerfil() {
           <h1 className="text-xl font-bold">{perfil.nombre || "Sin nombre"}</h1>
           <p className="text-sm text-white/55">{perfil.email}</p>
           <span className="mt-2 inline-block rounded-full bg-kanot-pink/15 px-3 py-1 text-xs font-semibold text-kanot-pink">
-            {NOMBRE_ROL[perfil.role]}
+            {perfil.super_admin ? "Superadmin" : NOMBRE_ROL[perfil.role]}
           </span>
         </div>
         <button
@@ -69,6 +70,8 @@ export default function PaginaPerfil() {
           </ul>
         </section>
       )}
+
+      {esSuper && <VerComo />}
 
       <section>
         <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-widest text-white/50">Cuenta</h2>
@@ -261,4 +264,46 @@ function mensajeError(err: unknown) {
   if (/bucket not found/i.test(msg)) return "Falta activar las fotos de perfil en la base de datos (SQL 004).";
   if (/exceeded|too large|maximum/i.test(msg)) return "La foto es demasiado grande.";
   return msg;
+}
+
+const VISTAS: { rol: RolVista | null; nombre: string; ayuda: string }[] = [
+  { rol: null, nombre: "Yo", ayuda: "Superadmin: todo" },
+  { rol: "admin", nombre: "Admin", ayuda: "Todo + gestiona roles" },
+  { rol: "editor", nombre: "Editor", ayuda: "Todo menos roles" },
+  { rol: "miembro", nombre: "Miembro", ayuda: "Kanot Crew, sin editar" },
+  { rol: "usuario", nombre: "Usuario", ayuda: "Sin Kanot Crew ni Agencia" },
+];
+
+/** Solo superadmin: ver la app como la ve cada rol (no cambia su rol real). */
+function VerComo() {
+  const { verComo, setVerComo } = useAuth();
+  return (
+    <section>
+      <h2 className="mb-2 flex items-center gap-1.5 px-1 text-xs font-semibold uppercase tracking-widest text-white/50">
+        <Eye size={14} /> Ver la app como
+      </h2>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+        {VISTAS.map((v) => {
+          const activo = verComo === v.rol;
+          return (
+            <button
+              key={v.nombre}
+              type="button"
+              onClick={() => setVerComo(v.rol)}
+              aria-pressed={activo}
+              className={`rounded-2xl border px-3 py-2.5 text-left transition ${
+                activo ? "border-kanot-pink bg-kanot-pink/15" : "border-white/10 bg-black/25 hover:border-white/30"
+              }`}
+            >
+              <span className={`block text-sm font-bold ${activo ? "text-kanot-pink" : ""}`}>{v.nombre}</span>
+              <span className="block text-[11px] leading-snug text-white/50">{v.ayuda}</span>
+            </button>
+          );
+        })}
+      </div>
+      <p className="mt-2 px-1 text-[11px] text-white/40">
+        Solo cambia lo que ves tú en este móvil. Tu rol de superadmin no cambia.
+      </p>
+    </section>
+  );
 }

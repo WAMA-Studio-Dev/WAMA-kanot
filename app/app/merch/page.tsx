@@ -31,9 +31,9 @@ export default function PaginaMerch() {
         {FOTOS.map((f, i) => (
           <div
             key={f.src}
-            className="relative aspect-[4/5] w-[75%] shrink-0 snap-center overflow-hidden rounded-3xl border border-white/10 sm:w-[40%]"
+            className="relative aspect-[4/5] w-28 shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 sm:w-36"
           >
-            <Image src={f.src} alt={f.alt} fill priority={i === 0} sizes="(max-width: 640px) 75vw, 40vw" className="object-cover" />
+            <Image src={f.src} alt={f.alt} fill priority={i === 0} sizes="144px" className="object-cover" />
           </div>
         ))}
       </div>

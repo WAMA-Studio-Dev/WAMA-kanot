@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Suspense, useState } from "react";
-import { Disc3, ExternalLink, Images, Info, MapPin, Ticket } from "lucide-react";
+import { Banknote, Disc3, ExternalLink, Globe, Images, Info, MapPin, Ticket } from "lucide-react";
 import { InstagramIcon } from "@/app/components/ui/SocialIcons";
 import {
   KODIGO_KLUB_DESCRIPCION,
@@ -27,6 +27,8 @@ const PESTANAS = [
 const EDICION_A_LA_VENTA = edicionesOrdenadas.find((e) => !e.proximamente && !e.finalizada && e.entradasHref);
 /** La siguiente edición anunciada, para avisar en Entradas. */
 const PROXIMA = edicionesOrdenadas.find((e) => e.proximamente);
+/** Edición con las dos formas de compra (efectivo / Forvenues). */
+const CON_VENTA = [...edicionesOrdenadas].reverse().find((e) => !e.finalizada && (e.ventaEfectivo || e.forvenuesHref !== undefined));
 
 export default function PaginaKodigoKlub() {
   return (
@@ -193,7 +195,9 @@ function Proximamente() {
 function Entradas() {
   return (
     <div className="flex flex-col gap-5">
-      {EDICION_A_LA_VENTA ? (
+      {CON_VENTA ? (
+        <OpcionesCompra edicion={CON_VENTA} />
+      ) : EDICION_A_LA_VENTA ? (
         <>
           <a
             href={EDICION_A_LA_VENTA.entradasHref}
@@ -254,5 +258,65 @@ function BotonInstagram() {
     >
       <InstagramIcon className="h-5 w-5" /> @kodigoklub
     </a>
+  );
+}
+
+/** Dos formas de comprar: en efectivo (fechas y lugar) u online en Forvenues. */
+function OpcionesCompra({ edicion }: { edicion: KodigoEdicion }) {
+  const efectivo = edicion.ventaEfectivo;
+  return (
+    <div className="flex flex-col gap-4">
+      <div>
+        <h2 className="text-2xl font-black uppercase tracking-tight">Entradas · {nombreEdicion(edicion.numero)}</h2>
+        {edicion.fecha && <p className="text-sm font-semibold text-[#ff5fb0]">{edicion.fecha}</p>}
+      </div>
+
+      {/* Opción 1: efectivo */}
+      {efectivo && (
+        <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+          <p className="flex items-center gap-2 font-bold">
+            <Banknote size={18} className="text-[#ff5fb0]" /> En efectivo
+          </p>
+          <p className="mt-1 flex items-center gap-1.5 text-sm text-white/75">
+            <MapPin size={14} /> {efectivo.lugar}
+          </p>
+          {efectivo.fechas.length > 0 ? (
+            <ul className="mt-3 flex flex-col gap-1.5">
+              {efectivo.fechas.map((f) => (
+                <li key={f} className="rounded-xl bg-white/5 px-3 py-2 text-sm font-semibold">
+                  {f}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 rounded-xl bg-white/5 px-3 py-2 text-sm text-white/60">Fechas de venta: próximamente</p>
+          )}
+        </section>
+      )}
+
+      {/* Opción 2: online */}
+      <section className="rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+        <p className="flex items-center gap-2 font-bold">
+          <Globe size={18} className="text-[#ff5fb0]" /> Online · Forvenues
+        </p>
+        {edicion.forvenuesHref ? (
+          <a
+            href={edicion.forvenuesHref}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 flex items-center justify-center gap-2 rounded-2xl bg-[#d6127e] px-5 py-3.5 font-bold text-white shadow-lg shadow-[#d6127e]/30 transition hover:bg-[#9c1e53]"
+          >
+            <Ticket size={18} /> Comprar online <ExternalLink size={15} className="opacity-70" />
+          </a>
+        ) : (
+          <p className="mt-3 rounded-xl bg-white/5 px-3 py-2 text-sm text-white/60">Enlace de compra: próximamente</p>
+        )}
+      </section>
+
+      {/* El lugar de esta edición todavía no está confirmado */}
+      <p className="rounded-2xl bg-white/5 px-4 py-3 text-sm text-white/60">
+        <MapPin size={14} className="mr-1 inline -translate-y-0.5" /> Lugar del evento: próximamente
+      </p>
+    </div>
   );
 }

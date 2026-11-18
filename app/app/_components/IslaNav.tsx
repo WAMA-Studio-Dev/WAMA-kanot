@@ -2,35 +2,45 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Briefcase, Home, UserRound, UsersRound, type LucideIcon } from "lucide-react";
+import { Briefcase, Camera, Home, Music2, Shirt, Tent, UserRound, UsersRound, type LucideIcon } from "lucide-react";
 import { SUBSECCIONES_CREW } from "./secciones";
 import { useAuth } from "./AuthProvider";
 
 type ItemNav = { href: string; nombre: string; icono: LucideIcon; activo: (p: string) => boolean };
 
-const ITEMS: ItemNav[] = [
-  { href: "/app", nombre: "Inicio", icono: Home, activo: (p) => p === "/app" },
-  {
-    href: "/app/kanot-crew",
-    nombre: "Kanot Crew",
-    icono: UsersRound,
-    activo: (p) => p.startsWith("/app/kanot-crew") || SUBSECCIONES_CREW.some((s) => p.startsWith(`/app/${s}`)),
-  },
-  { href: "/app/agencia", nombre: "Agencia", icono: Briefcase, activo: (p) => p.startsWith("/app/agencia") },
-  {
-    href: "/app/perfil",
-    nombre: "Perfil",
-    icono: UserRound,
-    activo: (p) => p.startsWith("/app/perfil") || p.startsWith("/app/usuarios") || p.startsWith("/app/archivos"),
-  },
-];
+const empieza = (ruta: string) => (p: string) => p.startsWith(ruta);
+
+const INICIO: ItemNav = { href: "/app", nombre: "Inicio", icono: Home, activo: (p) => p === "/app" };
+const CREW: ItemNav = {
+  href: "/app/kanot-crew",
+  nombre: "Kanot Crew",
+  icono: UsersRound,
+  activo: (p) => p.startsWith("/app/kanot-crew") || SUBSECCIONES_CREW.some((s) => p.startsWith(`/app/${s}`)),
+};
+const AGENCIA: ItemNav = { href: "/app/agencia", nombre: "Agencia", icono: Briefcase, activo: empieza("/app/agencia") };
+const KODIGO: ItemNav = { href: "/app/kodigo-klub", nombre: "Kodigo", icono: Music2, activo: empieza("/app/kodigo-klub") };
+const KAMP: ItemNav = { href: "/app/kanot-kamp", nombre: "Kamp", icono: Tent, activo: empieza("/app/kanot-kamp") };
+const MERCH: ItemNav = { href: "/app/merch", nombre: "Merch", icono: Shirt, activo: empieza("/app/merch") };
+const FOTOS: ItemNav = { href: "/app/fotografia", nombre: "Fotografía", icono: Camera, activo: empieza("/app/fotografia") };
+const PERFIL: ItemNav = {
+  href: "/app/perfil",
+  nombre: "Perfil",
+  icono: UserRound,
+  activo: (p) => p.startsWith("/app/perfil") || p.startsWith("/app/usuarios") || p.startsWith("/app/archivos"),
+};
 
 /** Isla flotante de navegación en la parte inferior. El resto de apartados está en Inicio. */
 export default function IslaNav() {
   const pathname = usePathname();
-  const { esCrew } = useAuth();
-  // Kanot Crew solo aparece para miembros, editores y admins.
-  const items = ITEMS.filter((i) => esCrew || i.href !== "/app/kanot-crew");
+  const { esCrew, esEditor } = useAuth();
+  // Admins y editores: Inicio · Kanot Crew · Agencia · Perfil
+  // Miembros: Inicio · Kanot Crew · Kamp · Merch · Perfil
+  // Usuarios: Inicio · Kodigo · Kamp · Fotografía · Perfil
+  const items = esEditor
+    ? [INICIO, CREW, AGENCIA, PERFIL]
+    : esCrew
+      ? [INICIO, CREW, KAMP, MERCH, PERFIL]
+      : [INICIO, KODIGO, KAMP, FOTOS, PERFIL];
 
   return (
     <nav
@@ -45,7 +55,7 @@ export default function IslaNav() {
               <Link
                 href={item.href}
                 aria-current={activo ? "page" : undefined}
-                className={`flex w-[4.75rem] flex-col sm:w-24 items-center gap-1 rounded-full py-2 text-[11px] font-medium leading-none transition-colors ${
+                className={`flex w-[4.1rem] flex-col sm:w-24 items-center gap-1 rounded-full py-2 text-[11px] font-medium leading-none transition-colors ${
                   activo ? "bg-kanot-pink text-kanot-navy-deep" : "text-white/65 hover:text-white"
                 }`}
               >

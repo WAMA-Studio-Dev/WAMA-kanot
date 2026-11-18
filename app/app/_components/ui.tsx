@@ -22,7 +22,7 @@ export function Boton({
 }
 
 const campoBase =
-  "w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-base text-white placeholder:text-white/35 outline-none transition focus:border-kanot-pink focus:bg-white/10";
+  "w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-base text-white placeholder:text-white/35 outline-none transition focus:border-kanot-pink focus:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50";
 
 export function Etiqueta({ texto, children }: { texto: string; children: ReactNode }) {
   return (

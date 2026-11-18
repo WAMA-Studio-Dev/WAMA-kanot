@@ -12,19 +12,6 @@ const EPISODIOS_WEB = podcastVideos.filter((v) => v.url !== youtubeChannelUrl);
 export default function PaginaPodcast() {
   return (
     <div className="flex flex-col gap-6">
-      {/* Portada Kanot On Air */}
-      <div className="relative overflow-hidden rounded-3xl border border-white/10">
-        <Image
-          src="/imagenes/podcast/kanotonair.png"
-          alt="Kanot On Air"
-          width={2556}
-          height={1664}
-          className="h-auto w-full"
-          sizes="(max-width: 1024px) 100vw, 1024px"
-          priority
-        />
-      </div>
-
       {/* Canal */}
       <div className="flex items-center gap-4 rounded-3xl border border-white/10 bg-black/25 p-4">
         <Image

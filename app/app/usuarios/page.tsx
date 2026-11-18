@@ -12,12 +12,12 @@ const ROLES: { valor: Rol; nombre: string; ayuda: string }[] = [
   { valor: "pendiente", nombre: "Pendiente", ayuda: "Sin acceso todavía" },
   { valor: "usuario", nombre: "Usuario", ayuda: "Ve la app, sin Kanot Crew" },
   { valor: "miembro", nombre: "Miembro de Kanot", ayuda: "Además entra en Kanot Crew (horarios, competición, autorizaciones)" },
-  { valor: "editor", nombre: "Editor", ayuda: "Edita contenido y gestiona archivos" },
-  { valor: "admin", nombre: "Admin", ayuda: "Todo lo anterior + aprueba usuarios" },
+  { valor: "editor", nombre: "Editor", ayuda: "Puede hacer de todo menos gestionar roles" },
+  { valor: "admin", nombre: "Admin", ayuda: "Todo + aprueba usuarios y cambia roles (menos a otros admins)" },
 ];
 
 export default function GestionUsuarios() {
-  const { esAdmin, perfil: yo, recargarPerfil } = useAuth();
+  const { esAdmin, esSuper, perfil: yo, recargarPerfil } = useAuth();
   const [perfiles, setPerfiles] = useState<Perfil[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,8 +40,10 @@ export default function GestionUsuarios() {
   async function cambiarRol(p: Perfil, role: Rol) {
     const esYo = p.id === yo?.id;
     if (esYo && role !== "admin" && !confirm("Vas a quitarte el rol de admin. ¿Seguro?")) return;
+    if (role === "admin" && !confirm(`¿Hacer admin a ${p.nombre ?? p.email}? Después solo el superadmin podrá cambiarle el rol.`))
+      return;
     const { error } = await getSupabase().from("profiles").update({ role }).eq("id", p.id);
-    if (error) return setError(error.message);
+    if (error) return setError(traducir(error.message));
     if (esYo) recargarPerfil();
     else cargar();
   }
@@ -69,7 +71,7 @@ export default function GestionUsuarios() {
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-kanot-pink">
             Pendientes de aprobar ({pendientes.length})
           </h2>
-          <ListaPerfiles perfiles={pendientes} onCambiar={cambiarRol} />
+          <ListaPerfiles perfiles={pendientes} onCambiar={cambiarRol} esSuper={esSuper} />
         </section>
       )}
 
@@ -78,7 +80,7 @@ export default function GestionUsuarios() {
           <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-white/60">
             Con acceso ({resto.length})
           </h2>
-          <ListaPerfiles perfiles={resto} onCambiar={cambiarRol} />
+          <ListaPerfiles perfiles={resto} onCambiar={cambiarRol} esSuper={esSuper} />
         </section>
       )}
 
@@ -93,7 +95,21 @@ export default function GestionUsuarios() {
   );
 }
 
-function ListaPerfiles({ perfiles, onCambiar }: { perfiles: Perfil[]; onCambiar: (p: Perfil, r: Rol) => void }) {
+function traducir(msg: string) {
+  if (/otro admin/i.test(msg)) return "No puedes cambiar el rol de otro admin. Solo el superadmin puede hacerlo.";
+  if (/superadmin/i.test(msg)) return "El rol del superadmin no se puede cambiar desde la app.";
+  return msg;
+}
+
+function ListaPerfiles({
+  perfiles,
+  onCambiar,
+  esSuper,
+}: {
+  perfiles: Perfil[];
+  onCambiar: (p: Perfil, r: Rol) => void;
+  esSuper: boolean;
+}) {
   return (
     <ul className="divide-y divide-white/5 overflow-hidden rounded-3xl border border-white/10 bg-black/25">
       {perfiles.map((p) => (
@@ -101,13 +117,23 @@ function ListaPerfiles({ perfiles, onCambiar }: { perfiles: Perfil[]; onCambiar:
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <Avatar perfil={p} tamano={40} />
             <div className="min-w-0">
-              <p className="truncate font-medium">{p.nombre || "Sin nombre"}</p>
+              <p className="flex items-center gap-2 truncate font-medium">
+                {p.nombre || "Sin nombre"}
+                {p.super_admin && (
+                  <span className="rounded-full bg-kanot-pink px-2 py-0.5 text-[10px] font-bold uppercase text-kanot-navy-deep">
+                    Superadmin
+                  </span>
+                )}
+              </p>
               <p className="truncate text-xs text-white/50">{p.email}</p>
             </div>
           </div>
           <Select
             value={p.role}
             onChange={(e) => onCambiar(p, e.target.value as Rol)}
+            // Un admin no puede tocar a otro admin; el superadmin no se toca desde la app.
+            disabled={p.super_admin || (p.role === "admin" && !esSuper)}
+            title={p.super_admin ? "Superadmin" : p.role === "admin" && !esSuper ? "Solo el superadmin puede cambiar a un admin" : undefined}
             className="py-2 text-sm sm:w-44"
             aria-label={`Rol de ${p.nombre ?? p.email}`}
           >
