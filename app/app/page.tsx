@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
@@ -8,11 +9,8 @@ import {
   GraduationCap,
   Images,
   Info,
-  Music2,
   PenLine,
-  Tent,
   Ticket,
-  UsersRound,
   type LucideIcon,
 } from "lucide-react";
 import { APARTADOS, SUBSECCIONES_CREW, getSeccion } from "./_components/secciones";
@@ -37,7 +35,15 @@ export default function InicioApp() {
           href="/app/kanot-crew"
           titulo="Kanot Crew"
           subtitulo="El grupo de competición"
-          icono={<UsersRound size={24} />}
+          icono={
+            <Image
+              src="/imagenes/logo/bykanot-icon.png"
+              alt=""
+              width={48}
+              height={48}
+              className="h-12 w-12 rounded-2xl object-cover"
+            />
+          }
           estilo="kanot"
           accesos={SUBSECCIONES_CREW.map((slug) => {
             const s = getSeccion(slug)!;
@@ -50,7 +56,16 @@ export default function InicioApp() {
         href="/app/kodigo-klub"
         titulo="Kodigo Klub"
         subtitulo="Eventos, fiestas y cultura urbana"
-        icono={<Music2 size={24} />}
+        icono={
+          <Image
+            src="/imagenes/kodigoklub/icono-kodigo.svg"
+            alt=""
+            width={48}
+            height={48}
+            className="h-12 w-12 rounded-2xl"
+            unoptimized
+          />
+        }
         estilo="kodigo"
         accesos={[
           { href: "/app/kodigo-klub?tab=que-es", nombre: "Qué es", icono: Info },
@@ -63,7 +78,7 @@ export default function InicioApp() {
         href="/app/kanot-kamp"
         titulo="Kanot Kamp"
         subtitulo="Campus, convivencias e intensivos"
-        icono={<Tent size={24} />}
+        icono={<LogoCargando color="#4da8ff" />}
         estilo="kamp"
         accesos={[
           { href: "/app/kanot-kamp?tab=que-es", nombre: "Qué es", icono: Info },
@@ -112,17 +127,17 @@ export default function InicioApp() {
 const ESTILOS = {
   kanot: {
     caja: "border-kanot-pink/30 bg-gradient-to-br from-kanot-pink/15 to-black/25",
-    icono: "bg-kanot-pink text-kanot-navy-deep",
+    icono: "overflow-hidden",
     acceso: "text-kanot-pink",
   },
   kodigo: {
     caja: "border-[#d6127e]/40 bg-gradient-to-br from-[#9c1e53]/60 to-black/25",
-    icono: "bg-[#d6127e] text-white",
+    icono: "overflow-hidden",
     acceso: "text-[#ff5fb0]",
   },
   kamp: {
     caja: "border-kanot-electric/35 bg-gradient-to-br from-kanot-electric/20 to-black/25",
-    icono: "bg-kanot-electric text-kanot-navy-deep",
+    icono: "bg-black/40 ring-1 ring-kanot-electric/40",
     acceso: "text-kanot-electric",
   },
 };
@@ -167,5 +182,17 @@ function TarjetaGrupo({
         ))}
       </div>
     </section>
+  );
+}
+
+/** Icono provisional mientras se diseña el logo de Kanot Kamp: anillo que gira. */
+function LogoCargando({ color }: { color: string }) {
+  return (
+    <span
+      role="img"
+      aria-label="Logo en preparación"
+      className="h-6 w-6 animate-spin rounded-full border-[3px] border-white/15 [animation-duration:1.4s]"
+      style={{ borderTopColor: color, borderRightColor: color }}
+    />
   );
 }

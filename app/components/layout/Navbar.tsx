@@ -147,6 +147,13 @@ export default function Navbar() {
             </Link>
           ))}
 
+          <Link
+            href="/app"
+            className="rounded-full bg-kanot-pink px-4 py-1.5 text-sm font-bold text-kanot-navy transition-colors hover:bg-white"
+          >
+            App
+          </Link>
+
           <div className="flex items-center gap-3 border-l border-white/10 pl-4">
             <a
               href={socialLinks[0].href}
@@ -178,6 +185,13 @@ export default function Navbar() {
           </div>
         </nav>
 
+        <Link
+          href="/app"
+          className="md:hidden rounded-full bg-kanot-pink px-3 py-1 text-xs font-bold text-kanot-navy"
+        >
+          App
+        </Link>
+
         <button
           type="button"
           className="md:hidden ml-auto text-white"
@@ -207,6 +221,13 @@ export default function Navbar() {
 
       {mobileOpen && (
         <div className="md:hidden mt-3 rounded-2xl border border-white/10 bg-kanot-navy/95 backdrop-blur-md p-4 flex flex-col gap-1">
+          <Link
+            href="/app"
+            onClick={() => setMobileOpen(false)}
+            className="mb-2 flex items-center justify-center rounded-full bg-kanot-pink px-4 py-2.5 text-sm font-bold text-kanot-navy"
+          >
+            Descargar la app ByKanot
+          </Link>
           <p className="px-3 pt-1 pb-2 text-xs font-semibold uppercase tracking-wide text-kanot-pink-soft">
             Kanot Krew
           </p>

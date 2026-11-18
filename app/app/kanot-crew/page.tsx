@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { Suspense } from "react";
-import { CalendarClock, ExternalLink, FolderOpen, GraduationCap, Lock, Trophy, UsersRound } from "lucide-react";
+import { CalendarClock, ExternalLink, FolderOpen, GraduationCap, Lock, Trophy } from "lucide-react";
 import { useAuth } from "../_components/AuthProvider";
 import VistaSeccion from "../_components/VistaSeccion";
 import GestorArchivos from "../_components/GestorArchivos";
@@ -36,9 +37,13 @@ function KanotCrew() {
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center gap-3">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-kanot-pink/15 text-kanot-pink">
-          <UsersRound size={24} />
-        </span>
+        <Image
+          src="/imagenes/logo/bykanot-icon.png"
+          alt=""
+          width={48}
+          height={48}
+          className="h-12 w-12 shrink-0 rounded-2xl object-cover"
+        />
         <div>
           <h1 className="text-2xl font-bold leading-tight">Kanot Crew</h1>
           <p className="text-sm text-white/55">Horarios, competición y formaciones</p>

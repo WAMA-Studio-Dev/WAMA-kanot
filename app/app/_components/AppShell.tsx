@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
+import { ChevronLeft } from "lucide-react";
 import { supabaseConfigurado } from "@/app/lib/supabase/client";
 import { AuthProvider, useAuth } from "./AuthProvider";
 import Acceso from "./Acceso";
@@ -65,18 +66,27 @@ function Puerta({ children }: { children: ReactNode }) {
 function Marco({ children }: { children: ReactNode }) {
   const { perfil } = useAuth();
   const nombre = perfil?.nombre?.split(" ")[0];
+  const enInicio = usePathname() === "/app";
 
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-30 print:hidden border-b border-white/10 bg-kanot-navy/85 pt-[env(safe-area-inset-top)] backdrop-blur-lg">
         <BarraVerComo />
-        <div className="mx-auto flex h-14 max-w-5xl items-center px-4">
-          <Link href="/app" className="flex items-center gap-2">
-            <Image src="/imagenes/logo/bykanot-icon.png" alt="" width={30} height={30} />
+        <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4">
+          {!enInicio && (
+            <Link
+              href="/app"
+              className="flex shrink-0 items-center gap-1 rounded-full border border-white/15 bg-white/5 py-1.5 pl-2 pr-3 text-sm font-semibold transition hover:border-kanot-pink hover:text-kanot-pink"
+            >
+              <ChevronLeft size={18} /> Inicio
+            </Link>
+          )}
+          <Link href="/app" className="flex min-w-0 items-center gap-2">
+            <Image src="/imagenes/logo/bykanot-icon.png" alt="" width={30} height={30} className="shrink-0" />
             <span className="font-bold tracking-wide">ByKanot</span>
-            {nombre && <span className="font-medium text-kanot-pink">{nombre}</span>}
+            {nombre && <span className="truncate font-medium text-kanot-pink">{nombre}</span>}
           </Link>
-          <Link href="/app/perfil" aria-label="Mi perfil" className="ml-auto">
+          <Link href="/app/perfil" aria-label="Mi perfil" className="ml-auto shrink-0">
             <Avatar perfil={perfil} tamano={32} />
           </Link>
         </div>

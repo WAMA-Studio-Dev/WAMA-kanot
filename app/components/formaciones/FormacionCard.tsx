@@ -1,15 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, GraduationCap, MapPin, Users } from "lucide-react";
 import type { Formacion } from "@/app/data/formaciones";
 import GlassCard from "@/app/components/ui/GlassCard";
 import Pill from "@/app/components/ui/Pill";
 import { EASE_OUT } from "@/app/lib/motion";
-import InscripcionModal from "@/app/components/formaciones/InscripcionModal";
+import InscripcionWhatsapp from "@/app/components/formaciones/InscripcionWhatsapp";
 
-export default function FormacionCard({ formacion }: { formacion: Formacion }) {
+type ModalInscripcion = ComponentType<{ formacion: Formacion; onClose: () => void }>;
+
+/**
+ * Tarjeta de formación. "Apúntate" abre el formulario que lleva a WhatsApp;
+ * `inscripcion` permite usar otro (la app lo usa para rellenar el nombre de la cuenta).
+ */
+export default function FormacionCard({
+  formacion,
+  inscripcion: Inscripcion = InscripcionWhatsapp,
+}: {
+  formacion: Formacion;
+  inscripcion?: ModalInscripcion;
+}) {
   const [expanded, setExpanded] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -126,7 +138,7 @@ export default function FormacionCard({ formacion }: { formacion: Formacion }) {
 
       <AnimatePresence>
         {modalOpen && (
-          <InscripcionModal formacion={formacion} onClose={() => setModalOpen(false)} />
+          <Inscripcion formacion={formacion} onClose={() => setModalOpen(false)} />
         )}
       </AnimatePresence>
     </GlassCard>
