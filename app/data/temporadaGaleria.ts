@@ -20,3 +20,11 @@ export const galeria20252026 = [
   "/imagenes/temporadas/2025-2026/IMG_9837.jpg",
   "/imagenes/temporadas/2025-2026/IMG_9844.jpg",
 ];
+
+export const galeria20262027 = [
+  // Order matches PATTERN_12: vertical photos sit in the tall tiles,
+  // 6253 is the big one.
+  "6232", "6247", "6248", "6231",
+  "6249", "6235", "6253", "6234",
+  "6251", "6250", "6252", "6233",
+].map((n) => `/imagenes/temporadas/2026-2027/collage/IMG_${n}.jpg`);

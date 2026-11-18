@@ -1,29 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { galeria20252026 } from "@/app/data/temporadaGaleria";
 import GaleriaLightbox from "@/app/components/temporadas/GaleriaLightbox";
+import {
+  PATTERN_20,
+  SIZE_CLASSES,
+  type Size,
+} from "@/app/components/temporadas/collagePatterns";
 
-// Hand-tuned so every "band" below (however it groups) fills a whole number of
-// rows with zero leftover cells at both grid-cols-2 (mobile) and grid-cols-4
-// (sm+) — each band's tile shapes were checked to tile the row perfectly at
-// both column counts, so dense packing never leaves an empty gap.
-type Size = "big" | "wide" | "normal";
-
-const SIZE_CLASSES: Record<Size, string> = {
-  big: "col-span-2 row-span-2",
-  wide: "col-span-2 row-span-1",
-  normal: "col-span-1 row-span-1",
-};
-
-const SIZE_PATTERN: Size[] = [
-  "wide", "wide", "normal", "normal", "normal", "normal",
-  "big", "normal", "normal", "normal", "normal",
-  "normal", "normal", "normal", "normal",
-  "big", "normal", "normal", "normal", "normal",
-];
-
-export default function GaleriaCollage() {
+export default function GaleriaCollage({
+  images,
+  pattern = PATTERN_20,
+}: {
+  images: string[];
+  pattern?: Size[];
+}) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   return (
@@ -31,13 +22,13 @@ export default function GaleriaCollage() {
       <div
         className="grid grid-flow-row-dense grid-cols-2 auto-rows-[130px] gap-3 sm:auto-rows-[140px] sm:gap-4 md:grid-cols-4 md:auto-rows-[150px]"
       >
-        {galeria20252026.map((src, i) => (
+        {images.map((src, i) => (
           <button
             key={src}
             type="button"
             onClick={() => setLightboxIndex(i)}
             aria-label={`Ver foto ${i + 1}`}
-            className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-kanot-navy-deep transition-transform duration-300 ease-out hover:z-10 hover:scale-[1.06] hover:shadow-2xl hover:shadow-black/60 ${SIZE_CLASSES[SIZE_PATTERN[i]]}`}
+            className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-kanot-navy-deep transition-transform duration-300 ease-out hover:z-10 hover:scale-[1.06] hover:shadow-2xl hover:shadow-black/60 ${SIZE_CLASSES[pattern[i] ?? "normal"]}`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -53,7 +44,7 @@ export default function GaleriaCollage() {
 
       {lightboxIndex !== null && (
         <GaleriaLightbox
-          images={galeria20252026}
+          images={images}
           initialIndex={lightboxIndex}
           onClose={() => setLightboxIndex(null)}
         />
