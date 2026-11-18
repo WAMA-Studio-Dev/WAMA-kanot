@@ -1,10 +1,7 @@
 import KodigoKlubFloatingNav from "@/app/components/kodigoklub/KodigoKlubFloatingNav";
 import KodigoKlubHero from "@/app/components/kodigoklub/KodigoKlubHero";
 import JoinBand from "@/app/components/kodigoklub/JoinBand";
-import PhotoCarousel from "@/app/components/kodigoklub/PhotoCarousel";
-import PosterGallery from "@/app/components/kodigoklub/PosterGallery";
-import UneteKodigo from "@/app/components/kodigoklub/UneteKodigo";
-import ComoLlegar from "@/app/components/kodigoklub/ComoLlegar";
+import EdicionesKodigo from "@/app/components/kodigoklub/EdicionesKodigo";
 
 export default function KodigoKlubPage() {
   return (
@@ -13,10 +10,7 @@ export default function KodigoKlubPage() {
       <main className="flex-1">
         <KodigoKlubHero />
         <JoinBand />
-        <PhotoCarousel />
-        <PosterGallery />
-        <UneteKodigo />
-        <ComoLlegar />
+        <EdicionesKodigo />
       </main>
     </>
   );

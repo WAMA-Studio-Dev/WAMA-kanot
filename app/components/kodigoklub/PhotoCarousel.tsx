@@ -3,16 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 
-const photos = [
-  "/imagenes/kodigoklub/Foto 1.png",
-  "/imagenes/kodigoklub/Foto 2.jpeg",
-  "/imagenes/kodigoklub/Foto 3.png",
-  "/imagenes/kodigoklub/Foto 4.PNG",
-  "/imagenes/kodigoklub/Foto 5.PNG",
-  "/imagenes/kodigoklub/Foto 6.PNG",
-];
-
-export default function PhotoCarousel() {
+export default function PhotoCarousel({ photos, etiqueta }: { photos: string[]; etiqueta?: string }) {
   const [slide, setSlide] = useState<{ activeIndex: number; prevIndex: number | null }>({
     activeIndex: 0,
     prevIndex: null,
@@ -24,7 +15,7 @@ export default function PhotoCarousel() {
       setSlide((s) => ({ activeIndex: (s.activeIndex + 1) % photos.length, prevIndex: s.activeIndex }));
     }, 4500);
     return () => clearInterval(id);
-  }, []);
+  }, [photos.length]);
 
   useEffect(() => {
     const raf1 = requestAnimationFrame(() => {
@@ -48,6 +39,11 @@ export default function PhotoCarousel() {
     >
       <div className="mx-auto max-w-3xl">
         <div className="relative aspect-[16/10] w-full overflow-hidden rounded-3xl">
+          {etiqueta && (
+            <span className="absolute left-4 top-4 z-30 rounded-full bg-black/80 px-3 py-1 text-[11px] font-black uppercase tracking-[0.2em] text-[#d6127e] backdrop-blur-sm">
+              {etiqueta}
+            </span>
+          )}
           {photos.map((src, i) => {
             const isCurrent = i === slide.activeIndex;
             const isPrevious = i === slide.prevIndex;

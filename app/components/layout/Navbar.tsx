@@ -13,6 +13,7 @@ const temporadasLinks = temporadas.map((temporada) => ({
 }));
 
 const navLinks = [
+  { label: "Merch", href: "/merch" },
   { label: "Formaciones", href: "/formaciones" },
   { label: "Kodigo Klub", href: "/kodigoklub" },
   { label: "Podcast", href: "/podcast" },

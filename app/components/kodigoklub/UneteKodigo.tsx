@@ -5,7 +5,7 @@ import { InstagramIcon } from "@/app/components/ui/SocialIcons";
 import { useContactModal } from "@/app/components/contacto/ContactModalContext";
 import { KODIGO_KLUB_INSTAGRAM_HREF } from "@/app/data/kodigoKlub";
 
-export default function UneteKodigo() {
+export default function UneteKodigo({ entradasHref }: { entradasHref?: string }) {
   const { openModal } = useContactModal();
 
   return (
@@ -38,8 +38,9 @@ export default function UneteKodigo() {
             </span>
           </a>
 
+          {entradasHref && (
           <a
-            href="https://entradas.salaeven.com/es/entradas/kodigo-klub-en-sevilla"
+            href={entradasHref}
             target="_blank"
             rel="noopener noreferrer"
             className="group flex flex-1 flex-col items-start gap-5 rounded-2xl bg-[#9c1e53] px-6 py-6 transition-all duration-300 hover:scale-[1.02] hover:bg-black"
@@ -51,6 +52,7 @@ export default function UneteKodigo() {
               Entradas
             </span>
           </a>
+          )}
 
           <button
             type="button"

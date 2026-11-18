@@ -6,6 +6,7 @@ const BASE_URL = "https://bykanot.com";
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${BASE_URL}/`, changeFrequency: "weekly", priority: 1 },
+    { url: `${BASE_URL}/merch`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/formaciones`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/kodigoklub`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/podcast`, changeFrequency: "weekly", priority: 0.7 },
