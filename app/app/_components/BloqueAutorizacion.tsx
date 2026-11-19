@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { CheckCircle2, Download, Eye, FileText, Trash2, Upload, Users } from "lucide-react";
+import { Bell, CheckCircle2, Download, Eye, FileText, Trash2, Upload, Users } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "./AuthProvider";
 import { GRUPOS, type Entrada } from "./secciones";
 import { Aviso, Boton, Etiqueta, Input, Modal, Select } from "./ui";
+import { enviarNotificacion } from "./notificaciones";
 
 type Autorizacion = {
   id: string;
@@ -265,16 +266,25 @@ function SubirAutorizacion({
 }
 
 /** Lista de entregas para editores/admins, agrupada por grupo. */
+type Miembro = { id: string; nombre: string | null; email: string | null; grupo: string | null };
+
+/** Entregas para editores/admins: por grupo, quién la ha entregado y quién falta. */
 function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar: () => void; onCambio: () => void }) {
   const [lista, setLista] = useState<Autorizacion[] | null>(null);
+  const [miembros, setMiembros] = useState<Miembro[]>([]);
+  const [avisoMiembros, setAvisoMiembros] = useState<string | null>(null);
+  const [notificando, setNotificando] = useState(false);
+  const [resultado, setResultado] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
-    const { data } = await getSupabase()
-      .from("autorizaciones")
-      .select("*")
-      .eq("entrada_id", entrada.id)
-      .order("bailarin");
+    const supabase = getSupabase();
+    const [{ data }, crew] = await Promise.all([
+      supabase.from("autorizaciones").select("*").eq("entrada_id", entrada.id).order("bailarin"),
+      supabase.rpc("crew_miembros"),
+    ]);
     setLista((data ?? []) as Autorizacion[]);
+    if (crew.error) setAvisoMiembros(/crew_miembros|schema cache/i.test(crew.error.message) ? "Falta activar el SQL 010 para ver quién falta." : crew.error.message);
+    else setMiembros((crew.data ?? []) as Miembro[]);
   }, [entrada.id]);
 
   useEffect(() => {
@@ -291,32 +301,61 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
     onCambio();
   }
 
-  const porGrupo = [...GRUPOS_BAILE, "Sin grupo"].map((g) => ({
+  async function recordar() {
+    setNotificando(true);
+    setResultado(null);
+    try {
+      const r = await enviarNotificacion({
+        titulo: `Autorización · ${entrada.titulo}`,
+        cuerpo: "Si aún no la has subido, descárgala, fírmala y súbela en la app.",
+        url: "/app/kanot-crew?tab=competicion",
+        destino: "crew",
+      });
+      setResultado(`Recordatorio enviado a ${r.enviadas} ${r.enviadas === 1 ? "móvil" : "móviles"} de la crew.`);
+    } catch (err) {
+      setResultado(err instanceof Error ? err.message : String(err));
+    }
+    setNotificando(false);
+  }
+
+  // Una familia "ha entregado" si ha subido al menos una autorización para este campeonato.
+  const entregaron = new Set((lista ?? []).map((a) => a.user_id));
+  const grupos = [...GRUPOS_BAILE, "Sin grupo"].map((g) => ({
     grupo: g,
     items: (lista ?? []).filter((a) => (a.grupo ?? "Sin grupo") === g),
+    faltan: miembros.filter((m) => (m.grupo ?? "Sin grupo") === g && !entregaron.has(m.id)),
   }));
+  const totalFaltan = grupos.reduce((n, g) => n + g.faltan.length, 0);
 
   return (
     <Modal titulo={`Entregas · ${entrada.titulo}`} onCerrar={onCerrar}>
       {!lista ? (
         <p className="text-sm text-white/60">Cargando…</p>
-      ) : lista.length === 0 ? (
-        <p className="text-sm text-white/60">Todavía nadie ha subido la autorización.</p>
       ) : (
         <div className="flex flex-col gap-5">
-          <p className="text-sm text-white/65">
-            {lista.length} {lista.length === 1 ? "autorización entregada" : "autorizaciones entregadas"}
-          </p>
-          {porGrupo
-            .filter((g) => g.items.length)
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-2xl bg-emerald-500/10 p-3 text-center">
+              <p className="text-2xl font-black text-emerald-300">{lista.length}</p>
+              <p className="text-xs text-white/60">entregadas</p>
+            </div>
+            <div className="rounded-2xl bg-red-500/10 p-3 text-center">
+              <p className="text-2xl font-black text-red-200">{avisoMiembros ? "—" : totalFaltan}</p>
+              <p className="text-xs text-white/60">faltan</p>
+            </div>
+          </div>
+          {avisoMiembros && <p className="text-xs text-white/55">{avisoMiembros}</p>}
+
+          {grupos
+            .filter((g) => g.items.length || g.faltan.length)
             .map((g) => (
               <section key={g.grupo}>
                 <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-kanot-pink">
-                  {g.grupo} · {g.items.length}
+                  {g.grupo} · {g.items.length} entregadas{g.faltan.length ? ` · ${g.faltan.length} faltan` : ""}
                 </h3>
                 <ul className="divide-y divide-white/10 rounded-2xl bg-white/5">
                   {g.items.map((a) => (
                     <li key={a.id} className="flex items-center gap-2 px-3 py-2.5 text-sm">
+                      <CheckCircle2 size={16} className="shrink-0 text-emerald-300" />
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-semibold">{a.bailarin}</span>
                         <span className="block truncate text-xs text-white/45">
@@ -335,9 +374,32 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
                       </button>
                     </li>
                   ))}
+                  {g.faltan.map((m) => (
+                    <li key={m.id} className="flex items-center gap-2 px-3 py-2.5 text-sm text-white/60">
+                      <span className="h-4 w-4 shrink-0 rounded-full border-2 border-red-300/60" />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-semibold text-white/80">{m.nombre ?? m.email}</span>
+                        <span className="block text-xs text-red-200/80">Falta por entregar</span>
+                      </span>
+                    </li>
+                  ))}
                 </ul>
               </section>
             ))}
+
+          {lista.length === 0 && !miembros.length && (
+            <p className="text-sm text-white/60">Todavía nadie ha subido la autorización.</p>
+          )}
+
+          <div className="flex flex-col gap-2 border-t border-white/10 pt-4">
+            <Boton variante="secundario" onClick={recordar} disabled={notificando}>
+              <Bell size={16} /> {notificando ? "Enviando…" : "Enviar recordatorio a la crew"}
+            </Boton>
+            {resultado && <p className="text-center text-xs text-white/60">{resultado}</p>}
+            <p className="text-center text-[11px] text-white/40">
+              “Faltan” cuenta las cuentas de miembros sin ninguna autorización subida para este campeonato.
+            </p>
+          </div>
         </div>
       )}
     </Modal>

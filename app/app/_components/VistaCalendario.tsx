@@ -54,18 +54,21 @@ export default function VistaCalendario({
   const [grupo, setGrupo] = useState<string | null>(null);
   const [verPasados, setVerPasados] = useState(false);
 
+  // Por defecto se ven todos los grupos; si la persona eligió un filtro en este móvil, se recuerda.
   useEffect(() => {
+    let guardado: string | null = null;
     try {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- preferencia guardada en el navegador
-      setGrupo(localStorage.getItem(CLAVE_FILTRO));
+      guardado = localStorage.getItem(CLAVE_FILTRO);
     } catch {}
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- preferencia guardada en el navegador
+    setGrupo(guardado && guardado !== "todos" ? guardado : null);
   }, []);
 
   function elegir(g: string | null) {
     setGrupo(g);
     try {
-      if (g) localStorage.setItem(CLAVE_FILTRO, g);
-      else localStorage.removeItem(CLAVE_FILTRO);
+      // "todos" se guarda para recordar que la persona quiere ver todos los grupos.
+      localStorage.setItem(CLAVE_FILTRO, g ?? "todos");
     } catch {}
   }
 

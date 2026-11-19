@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { DIAS, type Campo, type Entrada, type Seccion } from "./secciones";
 import { Aviso, Boton, Etiqueta, Input, Modal, Select, Textarea } from "./ui";
+import { enviarNotificacion, notificacionAutomatica } from "./notificaciones";
 
 type Valores = Record<Campo, string>;
 
@@ -29,6 +30,9 @@ export default function FormEntrada({
   });
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Solo al crear algo nuevo en los apartados que avisan solos (ensayos, competiciones…).
+  const avisaSolo = !entrada && notificacionAutomatica({ seccion: seccion.slug, titulo: "", fecha: null, hora: null, lugar: null }) !== null;
+  const [notificar, setNotificar] = useState(true);
 
   const set = (c: Campo) => (e: { target: { value: string } }) => setValores((v) => ({ ...v, [c]: e.target.value }));
 
@@ -57,9 +61,18 @@ export default function FormEntrada({
       ? await supabase.from("entradas").update(fila).eq("id", entrada.id)
       : await supabase.from("entradas").insert(fila);
 
+    if (error) {
+      setGuardando(false);
+      setError(error.message);
+      return;
+    }
+    if (avisaSolo && notificar) {
+      const noti = notificacionAutomatica(fila);
+      // Si falla la notificación, lo publicado se queda igualmente.
+      if (noti) await enviarNotificacion(noti).catch(() => null);
+    }
     setGuardando(false);
-    if (error) setError(error.message);
-    else onGuardado();
+    onGuardado();
   }
 
   const c = seccion.campos;
@@ -121,6 +134,18 @@ export default function FormEntrada({
           <Etiqueta texto={c.enlace}>
             <Input type="text" inputMode="url" value={valores.enlace} onChange={set("enlace")} placeholder="https://…" />
           </Etiqueta>
+        )}
+
+        {avisaSolo && (
+          <label className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3 text-sm">
+            <input
+              type="checkbox"
+              checked={notificar}
+              onChange={(e) => setNotificar(e.target.checked)}
+              className="h-4 w-4 accent-kanot-pink"
+            />
+            Avisar con una notificación al móvil
+          </label>
         )}
 
         {error && <Aviso>{error}</Aviso>}

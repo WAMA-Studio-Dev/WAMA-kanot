@@ -33,8 +33,13 @@ const ITEMS: AccordionItem[] = [
             contacto y detalles adicionales.
           </li>
           <li>
-            El <strong className="text-white">formulario de inscripción a formaciones</strong>:
-            los datos anteriores junto con la formación o rango de competición seleccionado.
+            La <strong className="text-white">inscripción a formaciones</strong>: nombre y
+            apellidos, DNI/NIE e Instagram (opcional), que se envían por WhatsApp a ByKanot junto con
+            la formación elegida.
+          </li>
+          <li>
+            La <strong className="text-white">app ByKanot</strong> (www.bykanot.com/app), descrita en
+            el apartado 7.
           </li>
         </ul>
       </>
@@ -69,8 +74,15 @@ const ITEMS: AccordionItem[] = [
           competición, salvo que solicites su supresión con anterioridad.
         </p>
         <p>
-          Tus datos no se ceden a terceros, salvo obligación legal, y no se realizan
-          transferencias internacionales de datos.
+          Tus datos no se ceden a terceros, salvo obligación legal. Para prestar el servicio nos
+          apoyamos en proveedores que actúan como encargados del tratamiento:{" "}
+          <strong className="text-white">Supabase</strong> (base de datos y archivos de la app,
+          alojados en la Unión Europea), <strong className="text-white">Vercel</strong> (alojamiento
+          de la web), <strong className="text-white">Resend</strong> (envío de correos) y{" "}
+          <strong className="text-white">WhatsApp</strong> (cuando decides escribirnos por ahí).
+          Algunos de ellos pueden tratar datos fuera del Espacio Económico Europeo (por ejemplo, en
+          EE. UU.), siempre con las garantías que exige el RGPD, como las cláusulas contractuales
+          tipo de la Comisión Europea o el Marco de Privacidad de Datos UE-EE. UU.
         </p>
       </>
     ),
@@ -112,6 +124,61 @@ const ITEMS: AccordionItem[] = [
           imagen, salvo que manifiestes expresamente lo contrario por escrito a{" "}
           <span className="text-white">kanotcrew@gmail.com</span>. En el caso de menores de edad,
           este consentimiento debe ser otorgado por su madre, padre o tutor legal.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: "app",
+    title: "7. App ByKanot",
+    content: (
+      <>
+        <p>
+          La app ByKanot es un espacio privado para la comunidad de ByKanot. Para usarla hay que
+          crear una cuenta, que el equipo de ByKanot revisa y activa. En ella tratamos:
+        </p>
+        <ul className="ml-5 list-disc space-y-1">
+          <li>
+            <strong className="text-white">Datos de la cuenta</strong>: nombre, correo electrónico,
+            contraseña (guardada cifrada, nadie puede leerla), foto de perfil opcional, rol y, si
+            perteneces a Kanot Crew, tu grupo.
+          </li>
+          <li>
+            <strong className="text-white">Autorizaciones de campeonatos</strong>: el documento
+            firmado que subes, con los datos del menor (nombre, fecha de nacimiento, DNI/NIE,
+            contacto de emergencia e información médica relevante si la indicas) y el nombre del
+            bailarín o bailarina y su grupo.
+          </li>
+          <li>
+            <strong className="text-white">Fotos y vídeos</strong> que subas a la galería de Kanot
+            Crew.
+          </li>
+          <li>
+            <strong className="text-white">Notificaciones</strong>: si las activas, un identificador
+            técnico de tu dispositivo para poder enviarte avisos. Puedes desactivarlas cuando quieras.
+          </li>
+        </ul>
+        <p>
+          <strong className="text-white">Finalidad</strong>: organizar los ensayos, competiciones y
+          actividades de ByKanot, gestionar la participación de los menores en los campeonatos y
+          mantener informada a la comunidad. La base legal es tu consentimiento (y el de la madre,
+          padre o tutor legal en el caso de menores) y la gestión de la actividad en la que
+          participas.
+        </p>
+        <p>
+          <strong className="text-white">Quién lo ve</strong>: cada persona ve sus propios datos.
+          Las autorizaciones, la galería y los datos de la crew solo los ven los miembros autorizados
+          de Kanot Crew y el equipo de ByKanot (editores y administradores), según su función.
+        </p>
+        <p>
+          <strong className="text-white">Menores</strong>: los menores de 14 años no pueden crear una
+          cuenta por sí mismos; debe hacerlo o autorizarlo su madre, padre o tutor legal.
+        </p>
+        <p>
+          <strong className="text-white">Conservación</strong>: los datos de la cuenta se conservan
+          mientras la mantengas activa. Las autorizaciones se conservan durante la temporada en la que
+          se usan y se eliminan después. Puedes pedir que borremos tu cuenta y tus datos en cualquier
+          momento escribiendo a <span className="text-white">kanotcrew@gmail.com</span>.
         </p>
       </>
     ),

@@ -13,6 +13,8 @@ type AuthState = {
   cargando: boolean;
   session: Session | null;
   perfil: Perfil | null;
+  /** Rol con el que se ve la app (el real, o el de "ver como"). */
+  rol: Rol | undefined;
   esEditor: boolean;
   /** Miembro de Kanot Crew (o editor/admin): puede entrar en Kanot Crew. */
   esCrew: boolean;
@@ -94,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     cargando,
     session,
     perfil,
+    rol,
     esEditor: rol === "editor" || rol === "admin",
     esCrew: rol === "miembro" || rol === "editor" || rol === "admin",
     esAdmin: rol === "admin",

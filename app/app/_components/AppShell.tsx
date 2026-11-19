@@ -10,7 +10,8 @@ import { AuthProvider, useAuth } from "./AuthProvider";
 import Acceso from "./Acceso";
 import IslaNav from "./IslaNav";
 import Avatar from "./Avatar";
-import { Boton, Cargando } from "./ui";
+import { AvisoElegirGrupo } from "./ElegirGrupo";
+import { Boton } from "./ui";
 
 export default function AppShell({ children }: { children: ReactNode }) {
   useEffect(() => {
@@ -34,7 +35,7 @@ function Puerta({ children }: { children: ReactNode }) {
 
   // La página de restablecer contraseña gestiona su propia sesión.
   if (pathname.startsWith("/app/restablecer")) return <>{children}</>;
-  if (cargando) return <Cargando />;
+  if (cargando) return <PantallaCarga />;
   if (!session) return <Acceso />;
 
   if (!perfil || perfil.role === "pendiente") {
@@ -93,6 +94,7 @@ function Marco({ children }: { children: ReactNode }) {
       </header>
 
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-6 print:max-w-none print:p-0">
+        <AvisoElegirGrupo />
         {children}
       </main>
 
@@ -134,6 +136,35 @@ function BarraVerComo() {
       >
         Volver
       </button>
+    </div>
+  );
+}
+
+/** Pantalla de carga al abrir la app: el escudo de Kanot con un latido suave. */
+function PantallaCarga() {
+  return (
+    <div
+      role="status"
+      aria-label="Cargando ByKanot"
+      className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-6 bg-kanot-navy"
+    >
+      <div className="relative">
+        <span className="absolute inset-0 animate-ping rounded-[2rem] bg-kanot-pink/25 [animation-duration:1.8s]" />
+        <Image
+          src="/app-icons/icon-192.png"
+          alt=""
+          width={112}
+          height={112}
+          priority
+          className="relative h-28 w-28 rounded-[2rem] shadow-2xl shadow-black/50"
+        />
+      </div>
+      <div className="flex flex-col items-center gap-3">
+        <span className="text-xl font-black tracking-wide">ByKanot</span>
+        <span className="h-1 w-24 overflow-hidden rounded-full bg-white/10">
+          <span className="block h-full w-1/3 animate-[carga_1.1s_ease-in-out_infinite] rounded-full bg-kanot-pink" />
+        </span>
+      </div>
     </div>
   );
 }

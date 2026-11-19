@@ -87,3 +87,9 @@ input[type="range"].kanot-range::-moz-range-thumb {
     background: #fff !important;
   }
 }
+
+/* Barra de la pantalla de carga de la app */
+@keyframes carga {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}

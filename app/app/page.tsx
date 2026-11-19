@@ -17,6 +17,8 @@ import { APARTADOS, SUBSECCIONES_CREW, getSeccion } from "./_components/seccione
 import { useAuth } from "./_components/AuthProvider";
 import InstalarApp from "./_components/InstalarApp";
 import EstaSemana from "./_components/EstaSemana";
+import Tablon from "./_components/Tablon";
+import { InvitarNotificaciones } from "./_components/ActivarNotificaciones";
 
 export default function InicioApp() {
   const { esEditor, esCrew } = useAuth();
@@ -24,6 +26,9 @@ export default function InicioApp() {
   return (
     <div className="flex flex-col gap-6">
       <InstalarApp />
+      <InvitarNotificaciones />
+
+      <Tablon />
 
       <EstaSemana />
 

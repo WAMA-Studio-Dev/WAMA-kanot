@@ -17,6 +17,7 @@ export default function Acceso() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [verPassword, setVerPassword] = useState(false);
+  const [acepta, setAcepta] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [ok, setOk] = useState<string | null>(null);
@@ -205,6 +206,25 @@ export default function Acceso() {
               </CampoIcono>
             )}
 
+            {modo === "registro" && (
+              <label className="flex items-start gap-3 rounded-2xl bg-white/[0.04] p-3 text-xs leading-relaxed text-white/70">
+                <input
+                  type="checkbox"
+                  checked={acepta}
+                  onChange={(e) => setAcepta(e.target.checked)}
+                  required
+                  className="mt-0.5 h-4 w-4 shrink-0 accent-kanot-pink"
+                />
+                <span>
+                  He leído y acepto la{" "}
+                  <a href="/politica-de-privacidad" target="_blank" className="font-semibold text-kanot-pink underline">
+                    Política de privacidad
+                  </a>
+                  . Si la cuenta es para un menor de 14 años, la crea o autoriza su madre, padre o tutor legal.
+                </span>
+              </label>
+            )}
+
             {modo === "entrar" && (
               <button
                 type="button"
@@ -220,7 +240,7 @@ export default function Acceso() {
 
             <button
               type="submit"
-              disabled={enviando}
+              disabled={enviando || (modo === "registro" && !acepta)}
               className="mt-2 rounded-full bg-kanot-pink py-3.5 text-base font-bold text-kanot-navy-deep shadow-lg shadow-kanot-pink/25 transition hover:bg-white disabled:opacity-60"
             >
               {textoBoton}

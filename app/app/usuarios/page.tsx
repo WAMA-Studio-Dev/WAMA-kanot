@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Users } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "../_components/AuthProvider";
-import type { Perfil, Rol } from "../_components/secciones";
+import { GRUPOS, type Perfil, type Rol } from "../_components/secciones";
 import { Aviso, Cargando, Select } from "../_components/ui";
 import Avatar from "../_components/Avatar";
 
@@ -48,8 +48,17 @@ export default function GestionUsuarios() {
     else cargar();
   }
 
-  const pendientes = perfiles?.filter((p) => p.role === "pendiente") ?? [];
-  const resto = perfiles?.filter((p) => p.role !== "pendiente") ?? [];
+  async function cambiarGrupo(p: Perfil, grupo: string) {
+    const { error } = await getSupabase().from("profiles").update({ grupo: grupo || null }).eq("id", p.id);
+    if (error) return setError(/grupo/i.test(error.message) ? "Falta activar los grupos (SQL 009)." : traducir(error.message));
+    if (p.id === yo?.id) recargarPerfil();
+    cargar();
+  }
+
+  const lista = perfiles ?? [];
+  const deRol = (rol: Rol) => lista.filter((p) => p.role === rol);
+  const miembros = deRol("miembro");
+  const props = { onCambiar: cambiarRol, onGrupo: cambiarGrupo, esSuper };
 
   return (
     <div className="flex flex-col gap-6">
@@ -66,23 +75,45 @@ export default function GestionUsuarios() {
       {error && <Aviso>{error}</Aviso>}
       {!perfiles && !error && <Cargando />}
 
-      {pendientes.length > 0 && (
-        <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-kanot-pink">
-            Pendientes de aprobar ({pendientes.length})
-          </h2>
-          <ListaPerfiles perfiles={pendientes} onCambiar={cambiarRol} esSuper={esSuper} />
-        </section>
-      )}
+      <Bloque titulo="Pendientes de aprobar" n={deRol("pendiente").length} destacado>
+        <ListaPerfiles perfiles={deRol("pendiente")} {...props} />
+      </Bloque>
 
-      {resto.length > 0 && (
-        <section>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-white/60">
-            Con acceso ({resto.length})
-          </h2>
-          <ListaPerfiles perfiles={resto} onCambiar={cambiarRol} esSuper={esSuper} />
-        </section>
-      )}
+      <Bloque titulo="Usuarios" n={deRol("usuario").length}>
+        <ListaPerfiles perfiles={deRol("usuario")} {...props} />
+      </Bloque>
+
+      <Bloque titulo="Miembros de Kanot" n={miembros.length}>
+        <div className="flex flex-col gap-4">
+          {[...GRUPOS_CREW.map((g) => g.nombre), "Sin grupo"].map((grupo) => {
+            const delGrupo = miembros.filter((p) => (p.grupo ?? "Sin grupo") === grupo);
+            if (!delGrupo.length) return null;
+            const color = GRUPOS_CREW.find((g) => g.nombre === grupo)?.color;
+            return (
+              <div key={grupo}>
+                <h3 className="mb-2 flex items-center gap-2 px-1 text-sm font-bold">
+                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color ?? "rgba(255,255,255,0.3)" }} />
+                  {grupo}
+                  <span className="font-medium text-white/40">· {delGrupo.length}</span>
+                </h3>
+                <ListaPerfiles perfiles={delGrupo} {...props} />
+              </div>
+            );
+          })}
+        </div>
+      </Bloque>
+
+      <Bloque titulo="Editores" n={deRol("editor").length}>
+        <ListaPerfiles perfiles={deRol("editor")} {...props} />
+      </Bloque>
+
+      <Bloque titulo="Admins" n={deRol("admin").length}>
+        {/* El superadmin, el primero */}
+        <ListaPerfiles
+          perfiles={[...deRol("admin")].sort((x, y) => Number(!!y.super_admin) - Number(!!x.super_admin))}
+          {...props}
+        />
+      </Bloque>
 
       <div className="rounded-2xl bg-white/5 p-4 text-xs leading-relaxed text-white/55">
         {ROLES.map((r) => (
@@ -101,13 +132,42 @@ function traducir(msg: string) {
   return msg;
 }
 
+const GRUPOS_CREW = GRUPOS.filter((g) => g.nombre !== "Todos juntos");
+
+/** Sección de la lista (no se muestra si está vacía). */
+function Bloque({
+  titulo,
+  n,
+  destacado,
+  children,
+}: {
+  titulo: string;
+  n: number;
+  destacado?: boolean;
+  children: React.ReactNode;
+}) {
+  if (!n) return null;
+  return (
+    <section>
+      <h2
+        className={`mb-3 text-sm font-semibold uppercase tracking-widest ${destacado ? "text-kanot-pink" : "text-white/60"}`}
+      >
+        {titulo} ({n})
+      </h2>
+      {children}
+    </section>
+  );
+}
+
 function ListaPerfiles({
   perfiles,
   onCambiar,
+  onGrupo,
   esSuper,
 }: {
   perfiles: Perfil[];
   onCambiar: (p: Perfil, r: Rol) => void;
+  onGrupo: (p: Perfil, grupo: string) => void;
   esSuper: boolean;
 }) {
   return (
@@ -128,6 +188,21 @@ function ListaPerfiles({
               <p className="truncate text-xs text-white/50">{p.email}</p>
             </div>
           </div>
+          {p.role === "miembro" && (
+            <Select
+              value={p.grupo ?? ""}
+              onChange={(e) => onGrupo(p, e.target.value)}
+              className="py-2 text-sm sm:w-36"
+              aria-label={`Grupo de ${p.nombre ?? p.email}`}
+            >
+              <option value="">Sin grupo</option>
+              {GRUPOS_CREW.map((g) => (
+                <option key={g.nombre} value={g.nombre}>
+                  {g.nombre}
+                </option>
+              ))}
+            </Select>
+          )}
           <Select
             value={p.role}
             onChange={(e) => onCambiar(p, e.target.value as Rol)}

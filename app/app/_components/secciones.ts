@@ -249,4 +249,8 @@ export type Perfil = {
   created_at: string;
   avatar_url?: string | null;
   super_admin?: boolean;
+  /** Grupo de Kanot Crew (Kanot Jr, Knallas, Knelo, Kinkis). */
+  grupo?: string | null;
+  /** Tipos de notificación que la persona ha quitado. */
+  notis_off?: string[] | null;
 };

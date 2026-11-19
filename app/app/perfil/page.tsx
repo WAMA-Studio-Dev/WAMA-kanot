@@ -7,6 +7,10 @@ import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "../_components/AuthProvider";
 import Avatar, { guardarMiPerfil, subirFotoPerfil } from "../_components/Avatar";
 import type { RolVista } from "../_components/AuthProvider";
+import ElegirGrupo from "../_components/ElegirGrupo";
+import ActivarNotificaciones from "../_components/ActivarNotificaciones";
+import UsoAlmacenamiento from "../_components/UsoAlmacenamiento";
+import { colorGrupo } from "../_components/secciones";
 import InstalarApp from "../_components/InstalarApp";
 import { Aviso, Boton, Etiqueta, Input, Modal } from "../_components/ui";
 
@@ -19,7 +23,7 @@ const NOMBRE_ROL = {
 } as const;
 
 export default function PaginaPerfil() {
-  const { perfil, esEditor, esAdmin, esSuper, salir } = useAuth();
+  const { perfil, esEditor, esAdmin, esSuper, rol, salir } = useAuth();
   const [cambiarClave, setCambiarClave] = useState(false);
   const [editar, setEditar] = useState(false);
   if (!perfil) return null;
@@ -36,9 +40,23 @@ export default function PaginaPerfil() {
         <div>
           <h1 className="text-xl font-bold">{perfil.nombre || "Sin nombre"}</h1>
           <p className="text-sm text-white/55">{perfil.email}</p>
-          <span className="mt-2 inline-block rounded-full bg-kanot-pink/15 px-3 py-1 text-xs font-semibold text-kanot-pink">
-            {perfil.super_admin ? "Superadmin" : NOMBRE_ROL[perfil.role]}
-          </span>
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+            <span className="rounded-full bg-kanot-pink/15 px-3 py-1 text-xs font-semibold text-kanot-pink">
+              {perfil.super_admin ? "Superadmin" : NOMBRE_ROL[perfil.role]}
+            </span>
+            {rol === "miembro" && (
+              <a
+                href="#mi-grupo"
+                className="flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1 text-xs font-semibold hover:border-white/50"
+              >
+                <span
+                  className="h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: colorGrupo(perfil.grupo ?? "") }}
+                />
+                {perfil.grupo ?? "Sin grupo"} · cambiar
+              </a>
+            )}
+          </div>
         </div>
         <button
           type="button"
@@ -49,7 +67,10 @@ export default function PaginaPerfil() {
         </button>
       </div>
 
+      {rol === "miembro" && <ElegirGrupo />}
+
       <InstalarApp />
+      <ActivarNotificaciones />
 
       {enlaces.length > 0 && (
         <section>
@@ -70,6 +91,8 @@ export default function PaginaPerfil() {
           </ul>
         </section>
       )}
+
+      {esAdmin && <UsoAlmacenamiento />}
 
       {esSuper && <VerComo />}
 
