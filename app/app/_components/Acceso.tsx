@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState, type FormEvent } from "react";
-import { ArrowLeft, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
+import { ArrowLeft, AtSign, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { Aviso } from "./ui";
 import { BotonDescargar } from "./InstalarApp";
@@ -15,6 +15,7 @@ export default function Acceso() {
   const [modo, setModo] = useState<Modo>("entrar");
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
+  const [usuario, setUsuario] = useState("");
   const [password, setPassword] = useState("");
   const [verPassword, setVerPassword] = useState(false);
   const [acepta, setAcepta] = useState(false);
@@ -36,14 +37,26 @@ export default function Acceso() {
     const supabase = getSupabase();
     try {
       if (modo === "entrar") {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        // Se puede entrar con el email o con el nombre de usuario.
+        let correo = email.trim();
+        if (!correo.includes("@")) {
+          const { data, error } = await supabase.rpc("email_para_entrar", { p_usuario: correo, p_password: password });
+          if (error) throw error;
+          if (!data) throw new Error("usuario incorrecto");
+          correo = data as string;
+        }
+        const { error } = await supabase.auth.signInWithPassword({ email: correo, password });
         if (error) throw error;
       } else if (modo === "registro") {
+        const u = limpiarUsuario(usuario);
+        if (!USUARIO_VALIDO.test(u)) throw new Error("usuario no valido");
+        const libre = await supabase.rpc("usuario_libre", { p_usuario: u });
+        if (libre.data === false) throw new Error("usuario ocupado");
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { nombre },
+            data: { nombre, usuario: u },
             emailRedirectTo: `${window.location.origin}/app`,
           },
         });
@@ -60,7 +73,7 @@ export default function Acceso() {
         setOk("Te hemos enviado un correo para crear una contraseña nueva.");
       }
     } catch (err) {
-      setError(traducirError(err instanceof Error ? err.message : String(err)));
+      setError(traducirError(textoError(err)));
     } finally {
       setEnviando(false);
     }
@@ -169,16 +182,42 @@ export default function Acceso() {
                 />
               </CampoIcono>
             )}
-            <CampoIcono icono={<Mail size={18} />}>
+            {modo === "registro" && (
+              <div>
+                <CampoIcono icono={<AtSign size={18} />}>
+                  <input
+                    value={usuario}
+                    onChange={(e) => setUsuario(limpiarUsuario(e.target.value))}
+                    required
+                    minLength={3}
+                    maxLength={20}
+                    autoComplete="username"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    placeholder="Nombre de usuario"
+                    aria-label="Nombre de usuario"
+                    className={INPUT}
+                  />
+                </CampoIcono>
+                <p className="mt-1.5 px-2 text-[11px] text-white/45">
+                  Para entrar sin escribir el email. Solo letras, números, punto o guion bajo.
+                </p>
+              </div>
+            )}
+            <CampoIcono icono={modo === "entrar" ? <User size={18} /> : <Mail size={18} />}>
               <input
-                type="email"
+                type={modo === "entrar" ? "text" : "email"}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                autoComplete="email"
+                autoComplete={modo === "entrar" ? "username" : "email"}
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 inputMode="email"
-                placeholder="Email"
-                aria-label="Email"
+                placeholder={modo === "entrar" ? "Usuario o email" : "Email"}
+                aria-label={modo === "entrar" ? "Usuario o email" : "Email"}
                 className={INPUT}
               />
             </CampoIcono>
@@ -275,8 +314,30 @@ function CampoIcono({ icono, children }: { icono: React.ReactNode; children: Rea
   );
 }
 
+/** Texto de cualquier error (los de Supabase no siempre son Error). */
+export function textoError(err: unknown) {
+  if (err && typeof err === "object" && "message" in err) return String((err as { message: unknown }).message);
+  return String(err);
+}
+
+export const USUARIO_VALIDO = /^[a-z0-9._]{3,20}$/;
+
+/** Minúsculas, sin tildes ni espacios: "María López" → "marialopez". */
+export function limpiarUsuario(texto: string) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9._]/g, "")
+    .slice(0, 20);
+}
+
 function traducirError(msg: string) {
-  if (/invalid login credentials/i.test(msg)) return "Email o contraseña incorrectos.";
+  if (/invalid login credentials|usuario incorrecto/i.test(msg)) return "Usuario/email o contraseña incorrectos.";
+  if (/demasiados intentos/i.test(msg)) return "Demasiados intentos. Espera 15 minutos o entra con tu email.";
+  if (/email_para_entrar|usuario_libre|schema cache/i.test(msg)) return "Falta activar el SQL 017 en Supabase.";
+  if (/usuario no valido/i.test(msg)) return "El usuario debe tener entre 3 y 20 letras o números (sin espacios).";
+  if (/usuario ocupado/i.test(msg)) return "Ese nombre de usuario ya está cogido. Prueba otro.";
   if (/email not confirmed/i.test(msg)) return "Tienes que confirmar tu email antes de entrar (revisa tu correo).";
   if (/already registered/i.test(msg)) return "Ya existe una cuenta con ese email.";
   if (/password should be at least/i.test(msg)) return "La contraseña debe tener al menos 6 caracteres.";

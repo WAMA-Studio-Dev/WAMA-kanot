@@ -13,6 +13,7 @@ import ActivarNotificaciones from "../_components/ActivarNotificaciones";
 import UsoAlmacenamiento from "../_components/UsoAlmacenamiento";
 import { colorGrupo } from "../_components/secciones";
 import InstalarApp from "../_components/InstalarApp";
+import { limpiarUsuario, textoError, USUARIO_VALIDO } from "../_components/Acceso";
 import { Aviso, Boton, Etiqueta, Input, Modal } from "../_components/ui";
 
 const NOMBRE_ROL = {
@@ -41,7 +42,10 @@ export default function PaginaPerfil() {
         <FotoEditable />
         <div>
           <h1 className="text-xl font-bold">{perfil.nombre || "Sin nombre"}</h1>
-          <p className="text-sm text-white/55">{perfil.email}</p>
+          <p className="text-sm text-white/55">
+            {perfil.usuario && <span className="font-semibold text-white/75">@{perfil.usuario} · </span>}
+            {perfil.email}
+          </p>
           <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
             <span className="rounded-full bg-kanot-pink/15 px-3 py-1 text-xs font-semibold text-kanot-pink">
               {perfil.super_admin ? "Superadmin" : NOMBRE_ROL[perfil.role]}
@@ -67,6 +71,15 @@ export default function PaginaPerfil() {
         >
           <Pencil size={14} /> Editar perfil
         </button>
+        {!perfil.usuario && (
+          <button
+            type="button"
+            onClick={() => setEditar(true)}
+            className="rounded-2xl border border-kanot-pink/30 bg-kanot-pink/[0.07] px-4 py-2.5 text-xs text-white/80"
+          >
+            Elige un <b className="text-kanot-pink">nombre de usuario</b> para entrar sin escribir el email
+          </button>
+        )}
       </div>
 
       {rol === "miembro" && <ElegirGrupo />}
@@ -237,6 +250,7 @@ function FotoEditable() {
 function EditarPerfil({ onCerrar }: { onCerrar: () => void }) {
   const { perfil, recargarPerfil } = useAuth();
   const [nombre, setNombre] = useState(perfil?.nombre ?? "");
+  const [usuario, setUsuario] = useState(perfil?.usuario ?? "");
   const [quitarFoto, setQuitarFoto] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -247,6 +261,11 @@ function EditarPerfil({ onCerrar }: { onCerrar: () => void }) {
     setGuardando(true);
     setError(null);
     try {
+      if (usuario !== (perfil.usuario ?? "")) {
+        if (!USUARIO_VALIDO.test(usuario)) throw new Error("usuario no valido");
+        const { error } = await getSupabase().rpc("cambiar_mi_usuario", { p_usuario: usuario });
+        if (error) throw error;
+      }
       if (quitarFoto) {
         // Borra los archivos de su carpeta (si falla, la foto igualmente deja de mostrarse).
         const almacen = getSupabase().storage.from("avatares");
@@ -268,6 +287,19 @@ function EditarPerfil({ onCerrar }: { onCerrar: () => void }) {
         <Etiqueta texto="Nombre y apellidos">
           <Input value={nombre} onChange={(e) => setNombre(e.target.value)} required autoFocus autoComplete="name" />
         </Etiqueta>
+        <Etiqueta texto="Nombre de usuario (para entrar sin el email)">
+          <Input
+            value={usuario}
+            onChange={(e) => setUsuario(limpiarUsuario(e.target.value))}
+            placeholder="p. ej. mariakanot"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            minLength={3}
+            maxLength={20}
+            required={Boolean(perfil?.usuario)}
+          />
+        </Etiqueta>
         {perfil?.avatar_url && (
           <label className="flex items-center gap-3 rounded-xl bg-white/5 px-4 py-3 text-sm">
             <input type="checkbox" checked={quitarFoto} onChange={(e) => setQuitarFoto(e.target.checked)} className="h-4 w-4 accent-kanot-pink" />
@@ -285,7 +317,10 @@ function EditarPerfil({ onCerrar }: { onCerrar: () => void }) {
 }
 
 function mensajeError(err: unknown) {
-  const msg = err instanceof Error ? err.message : String(err);
+  const msg = textoError(err);
+  if (/cambiar_mi_usuario/i.test(msg)) return "Falta activar el SQL 017 en Supabase.";
+  if (/usuario no valido/i.test(msg)) return "El usuario debe tener entre 3 y 20 letras o números (sin espacios).";
+  if (/usuario ocupado/i.test(msg)) return "Ese nombre de usuario ya está cogido. Prueba otro.";
   if (/actualizar_mi_perfil|function .* does not exist|schema cache/i.test(msg))
     return "Falta activar las fotos de perfil en la base de datos (SQL 004).";
   if (/bucket not found/i.test(msg)) return "Falta activar las fotos de perfil en la base de datos (SQL 004).";

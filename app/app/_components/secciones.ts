@@ -257,6 +257,7 @@ export type Perfil = {
   grupo?: string | null;
   /** Tipos de notificación que la persona ha quitado. */
   notis_off?: string[] | null;
+  usuario?: string | null;
   /** El propio bailarín o su familia (madre, padre o tutor/a). */
   tipo?: "bailarin" | "familia";
 };

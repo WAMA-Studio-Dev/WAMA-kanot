@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { comprimirImagen } from "./comprimirImagen";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { Bell, CheckCircle2, Download, Eye, FileText, Trash2, Upload, Users } from "lucide-react";
+import { Bell, CheckCircle2, Download, Eye, FileText, Pencil, Trash2, Upload, Users, X } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "./AuthProvider";
 import { GRUPOS, type Entrada } from "./secciones";
@@ -46,6 +46,7 @@ export default function BloqueAutorizacion({ entrada, onCambio }: { entrada: Ent
   const [total, setTotal] = useState<number | null>(null);
   const [subir, setSubir] = useState(false);
   const [verEntregas, setVerEntregas] = useState(false);
+  const [editando, setEditando] = useState<Autorizacion | null>(null);
   const inputOficial = useRef<HTMLInputElement>(null);
   const [subiendoOficial, setSubiendoOficial] = useState(false);
 
@@ -90,6 +91,14 @@ export default function BloqueAutorizacion({ entrada, onCambio }: { entrada: Ent
     setSubiendoOficial(false);
   }
 
+  async function quitarOficial() {
+    if (!entrada.documento_path || !confirm("¿Quitar el documento de la organización?")) return;
+    const supabase = getSupabase();
+    await supabase.storage.from("documentos").remove([entrada.documento_path]);
+    await supabase.from("entradas").update({ documento_path: null }).eq("id", entrada.id);
+    onCambio?.();
+  }
+
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-kanot-pink/25 bg-kanot-pink/[0.07] p-4">
       <p className="flex items-center gap-2 text-sm font-bold">
@@ -126,6 +135,9 @@ export default function BloqueAutorizacion({ entrada, onCambio }: { entrada: Ent
               <button type="button" onClick={() => abrirArchivo("autorizaciones", a.archivo_path)} aria-label="Ver" className="p-1 text-white/55 hover:text-white">
                 <Eye size={16} />
               </button>
+              <button type="button" onClick={() => setEditando(a)} aria-label="Cambiar nombre" className="p-1 text-white/55 hover:text-white">
+                <Pencil size={15} />
+              </button>
               <button type="button" onClick={() => borrar(a)} aria-label="Borrar" className="p-1 text-white/55 hover:text-white">
                 <Trash2 size={16} />
               </button>
@@ -156,6 +168,15 @@ export default function BloqueAutorizacion({ entrada, onCambio }: { entrada: Ent
             <Upload size={14} />
             {subiendoOficial ? "Subiendo…" : entrada.documento_path ? "Cambiar documento oficial" : "Subir documento oficial"}
           </button>
+          {entrada.documento_path && (
+            <button
+              type="button"
+              onClick={quitarOficial}
+              className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold hover:bg-red-500/20"
+            >
+              <X size={14} /> Quitar documento oficial
+            </button>
+          )}
           <input
             ref={inputOficial}
             type="file"
@@ -180,6 +201,16 @@ export default function BloqueAutorizacion({ entrada, onCambio }: { entrada: Ent
         />
       )}
       {verEntregas && <Entregas entrada={entrada} onCerrar={() => setVerEntregas(false)} onCambio={cargar} />}
+      {editando && (
+        <EditarAutorizacion
+          autorizacion={editando}
+          onCerrar={() => setEditando(null)}
+          onGuardada={() => {
+            setEditando(null);
+            cargar();
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -188,14 +219,20 @@ function SubirAutorizacion({
   entrada,
   onCerrar,
   onSubida,
+  miembros,
+  para,
 }: {
   entrada: Entrada;
   onCerrar: () => void;
   onSubida: () => void;
+  /** Solo editores/admins: pueden subirla en nombre de otra cuenta. */
+  miembros?: Miembro[];
+  para?: Miembro | null;
 }) {
   const { perfil } = useAuth();
-  const [bailarin, setBailarin] = useState("");
-  const [grupo, setGrupo] = useState("");
+  const [cuenta, setCuenta] = useState(para?.id ?? "");
+  const [bailarin, setBailarin] = useState(para?.nombre ?? "");
+  const [grupo, setGrupo] = useState(para?.grupo ?? "");
   const [archivo, setArchivo] = useState<File | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -208,17 +245,26 @@ function SubirAutorizacion({
     const supabase = getSupabase();
     // Si es una foto, se reduce pero con calidad alta para que se lea bien la firma.
     const fichero = await comprimirImagen(archivo, { maxLado: 2200, calidad: 0.9 });
-    const ruta = `${entrada.id}/${perfil.id}/${Date.now()}-${limpiar(fichero.name)}`;
+    // La autorización cuenta para la cuenta elegida (o para quien la sube).
+    const duenio = cuenta || perfil.id;
+    const ruta = `${entrada.id}/${duenio}/${Date.now()}-${limpiar(fichero.name)}`;
     const { error: e1 } = await supabase.storage
       .from("autorizaciones")
       .upload(ruta, fichero, { contentType: fichero.type || undefined });
     if (e1) {
-      setError(/bucket not found/i.test(e1.message) ? "Falta activar las autorizaciones (SQL 006)." : e1.message);
+      setError(
+        /bucket not found/i.test(e1.message)
+          ? "Falta activar las autorizaciones (SQL 006)."
+          : /row-level security/i.test(e1.message)
+            ? "Falta activar el SQL 018 para subirla por otra persona."
+            : e1.message,
+      );
       setEnviando(false);
       return;
     }
     const { error: e2 } = await supabase.from("autorizaciones").insert({
       entrada_id: entrada.id,
+      user_id: duenio,
       bailarin: bailarin.trim(),
       grupo: grupo || null,
       archivo_path: ruta,
@@ -236,6 +282,29 @@ function SubirAutorizacion({
   return (
     <Modal titulo={`Autorización · ${entrada.titulo}`} onCerrar={onCerrar}>
       <form onSubmit={enviar} className="flex flex-col gap-4">
+        {miembros && (
+          <Etiqueta texto="¿De quién es? (cuenta de la app)">
+            <Select
+              value={cuenta}
+              onChange={(e) => {
+                const m = miembros.find((x) => x.id === e.target.value);
+                setCuenta(e.target.value);
+                if (m) {
+                  setBailarin(m.nombre ?? "");
+                  setGrupo(m.grupo ?? "");
+                }
+              }}
+            >
+              <option value="">Nadie en concreto (la subo yo)</option>
+              {miembros.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.nombre ?? m.email}
+                  {m.grupo ? ` · ${m.grupo}` : ""}
+                </option>
+              ))}
+            </Select>
+          </Etiqueta>
+        )}
         <Etiqueta texto="Nombre y apellidos del bailarín/a">
           <Input value={bailarin} onChange={(e) => setBailarin(e.target.value)} required autoFocus />
         </Etiqueta>
@@ -268,7 +337,61 @@ function SubirAutorizacion({
   );
 }
 
-/** Lista de entregas para editores/admins, agrupada por grupo. */
+/** Cambiar el nombre o el grupo de una autorización ya subida. */
+function EditarAutorizacion({
+  autorizacion,
+  onCerrar,
+  onGuardada,
+}: {
+  autorizacion: Autorizacion;
+  onCerrar: () => void;
+  onGuardada: () => void;
+}) {
+  const [bailarin, setBailarin] = useState(autorizacion.bailarin);
+  const [grupo, setGrupo] = useState(autorizacion.grupo ?? "");
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function guardar(e: FormEvent) {
+    e.preventDefault();
+    setGuardando(true);
+    setError(null);
+    const { data, error } = await getSupabase()
+      .from("autorizaciones")
+      .update({ bailarin: bailarin.trim(), grupo: grupo || null })
+      .eq("id", autorizacion.id)
+      .select("id");
+    setGuardando(false);
+    if (error) return setError(error.message);
+    if (!data?.length) return setError("Falta activar el SQL 018 para poder cambiar nombres.");
+    onGuardada();
+  }
+
+  return (
+    <Modal titulo="Cambiar autorización" onCerrar={onCerrar}>
+      <form onSubmit={guardar} className="flex flex-col gap-4">
+        <Etiqueta texto="Nombre y apellidos del bailarín/a">
+          <Input value={bailarin} onChange={(e) => setBailarin(e.target.value)} required autoFocus />
+        </Etiqueta>
+        <Etiqueta texto="Grupo">
+          <Select value={grupo} onChange={(e) => setGrupo(e.target.value)}>
+            <option value="">Sin grupo</option>
+            {GRUPOS_BAILE.map((g) => (
+              <option key={g} value={g}>
+                {g}
+              </option>
+            ))}
+          </Select>
+        </Etiqueta>
+        {error && <Aviso>{error}</Aviso>}
+        <Boton type="submit" disabled={guardando}>
+          {guardando ? "Guardando…" : "Guardar"}
+        </Boton>
+      </form>
+    </Modal>
+  );
+}
+
 type Miembro = { id: string; nombre: string | null; email: string | null; grupo: string | null };
 
 /** Entregas para editores/admins: por grupo, quién la ha entregado y quién falta. */
@@ -278,6 +401,8 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
   const [avisoMiembros, setAvisoMiembros] = useState<string | null>(null);
   const [notificando, setNotificando] = useState(false);
   const [resultado, setResultado] = useState<string | null>(null);
+  const [subirPara, setSubirPara] = useState<Miembro | null | undefined>(undefined);
+  const [editando, setEditando] = useState<Autorizacion | null>(null);
 
   const cargar = useCallback(async () => {
     const supabase = getSupabase();
@@ -372,6 +497,9 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
                       >
                         Ver
                       </button>
+                      <button type="button" onClick={() => setEditando(a)} aria-label="Cambiar nombre" className="p-1.5 text-white/45 hover:text-white">
+                        <Pencil size={15} />
+                      </button>
                       <button type="button" onClick={() => borrar(a)} aria-label="Borrar" className="p-1.5 text-white/45 hover:text-white">
                         <Trash2 size={15} />
                       </button>
@@ -384,6 +512,13 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
                         <span className="block truncate font-semibold text-white/80">{m.nombre ?? m.email}</span>
                         <span className="block text-xs text-red-200/80">Falta por entregar</span>
                       </span>
+                      <button
+                        type="button"
+                        onClick={() => setSubirPara(m)}
+                        className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-white/15"
+                      >
+                        <Upload size={13} /> Subir
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -395,6 +530,9 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
           )}
 
           <div className="flex flex-col gap-2 border-t border-white/10 pt-4">
+            <Boton onClick={() => setSubirPara(null)}>
+              <Upload size={16} /> Subir una autorización
+            </Boton>
             <Boton variante="secundario" onClick={recordar} disabled={notificando}>
               <Bell size={16} /> {notificando ? "Enviando…" : "Enviar recordatorio a la crew"}
             </Boton>
@@ -404,6 +542,30 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
             </p>
           </div>
         </div>
+      )}
+      {subirPara !== undefined && (
+        <SubirAutorizacion
+          entrada={entrada}
+          miembros={miembros}
+          para={subirPara}
+          onCerrar={() => setSubirPara(undefined)}
+          onSubida={() => {
+            setSubirPara(undefined);
+            cargar();
+            onCambio();
+          }}
+        />
+      )}
+      {editando && (
+        <EditarAutorizacion
+          autorizacion={editando}
+          onCerrar={() => setEditando(null)}
+          onGuardada={() => {
+            setEditando(null);
+            cargar();
+            onCambio();
+          }}
+        />
       )}
     </Modal>
   );

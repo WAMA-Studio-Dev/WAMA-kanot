@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { Euro, Plus, Trash2, Users } from "lucide-react";
+import { CheckCircle2, Circle, Euro, Plus, Trash2, Users } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "./AuthProvider";
 import { GRUPOS, type Entrada } from "./secciones";
@@ -17,6 +17,7 @@ type Inscripcion = {
   extra_opcion: string | null;
   extra_importe: number;
   pareja_con: string | null;
+  pagado?: boolean | null;
   bailarines: { nombre: string } | null;
 };
 
@@ -34,17 +35,26 @@ function fechaCorta(iso: string) {
  * (Los pagos se llevan en el Excel.)
  */
 export default function BloqueInscripcion({ entrada, onCambio }: { entrada: Entrada; onCambio?: () => void }) {
-  const { esEditor } = useAuth();
+  const { esEditor, perfil } = useAuth();
   const [lista, setLista] = useState<Inscripcion[] | null>(null);
   const [verTodas, setVerTodas] = useState(false);
 
   const cargar = useCallback(async () => {
-    const { data, error } = await getSupabase()
+    const supabase = getSupabase();
+    const { data, error } = await supabase
       .from("inscripciones")
       .select("*, bailarines(nombre)")
       .eq("entrada_id", entrada.id);
-    setLista(error ? [] : ((data ?? []) as Inscripcion[]));
-  }, [entrada.id]);
+    let todas = error ? [] : ((data ?? []) as Inscripcion[]);
+    // Como miembro, solo los bailarines que un admin ha asignado a ESTA cuenta
+    // (aunque quien mire sea un admin usando "Ver como").
+    if (!esEditor) {
+      const { data: mios } = await supabase.from("cuenta_bailarines").select("bailarin_id").eq("user_id", perfil?.id ?? "");
+      const ids = new Set((mios ?? []).map((m) => m.bailarin_id as string));
+      todas = todas.filter((i) => ids.has(i.bailarin_id));
+    }
+    setLista(todas);
+  }, [entrada.id, esEditor, perfil?.id]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- carga inicial
@@ -58,6 +68,7 @@ export default function BloqueInscripcion({ entrada, onCambio }: { entrada: Entr
   if (esEditor) {
     const total = lista.reduce((n, i) => n + Number(i.importe) + Number(i.extra_importe), 0);
     const conExtra = lista.filter((i) => i.extra_opcion).length;
+    const pagados = lista.filter((i) => i.pagado).length;
     return (
       <div className="flex flex-col gap-2 rounded-2xl border border-white/15 bg-white/[0.04] p-4">
         <p className="flex items-center gap-2 text-sm font-bold">
@@ -68,6 +79,12 @@ export default function BloqueInscripcion({ entrada, onCambio }: { entrada: Entr
             <>
               {lista.length} bailarines · {eur(total)} en total
               {conExtra ? ` · ${conExtra} con solo/pareja` : ""}
+              {" · "}
+              {pagados === lista.length ? (
+                <span className="font-semibold text-emerald-300">todos pagados</span>
+              ) : (
+                `${pagados} de ${lista.length} pagados`
+              )}
             </>
           ) : (
             "Todavía no hay inscripciones cargadas para este campeonato."
@@ -134,7 +151,14 @@ function InscripcionMiembro({ entrada, ins, onCambio }: { entrada: Entrada; ins:
     <div className="flex flex-col gap-2 border-t border-white/10 pt-3 first:border-t-0 first:pt-0">
       <div className="flex items-baseline justify-between gap-3">
         <p className="font-semibold">{ins.bailarines?.nombre}</p>
-        <p className="text-lg font-black tabular-nums">{eur(total)}</p>
+        <p className="flex items-center gap-2 text-lg font-black tabular-nums">
+          {ins.pagado && (
+            <span className="flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-bold text-emerald-300">
+              <CheckCircle2 size={12} /> Pagado
+            </span>
+          )}
+          {eur(total)}
+        </p>
       </div>
       <p className="text-xs text-white/60">
         {ins.grupos} · {ins.categorias} {ins.categorias === 1 ? "categoría" : "categorías"} · {eur(ins.importe)}
@@ -227,6 +251,22 @@ function ListaInscripciones({
   const total = lista.reduce((n, i) => n + Number(i.importe) + Number(i.extra_importe), 0);
   const extras = lista.filter((i) => i.extra_opcion);
 
+  const [pagos, setPagos] = useState<Record<string, boolean>>(() => Object.fromEntries(lista.map((i) => [i.id, Boolean(i.pagado)])));
+  const pagados = lista.filter((i) => pagos[i.id]).length;
+
+  const [errorPago, setErrorPago] = useState<string | null>(null);
+
+  async function marcarPagado(ids: string[], valor: boolean) {
+    setErrorPago(null);
+    const antes = pagos;
+    setPagos({ ...pagos, ...Object.fromEntries(ids.map((id) => [id, valor])) });
+    const { error } = await getSupabase().from("inscripciones").update({ pagado: valor }).in("id", ids);
+    if (error) {
+      setPagos(antes);
+      setErrorPago(/pagado|schema cache/i.test(error.message) ? "Falta activar el SQL 019 para marcar pagos." : error.message);
+    } else onCambio();
+  }
+
   async function guardarOpciones() {
     setGuardando(true);
     setError(null);
@@ -246,6 +286,23 @@ function ListaInscripciones({
   return (
     <Modal titulo={`Inscripciones · ${entrada.titulo}`} onCerrar={onCerrar}>
       <div className="flex flex-col gap-5">
+        <div className="flex items-center justify-between gap-3 rounded-2xl bg-emerald-500/10 px-4 py-3 text-sm">
+          <span>
+            <b className="text-emerald-300">{pagados}</b> de {lista.length} pagados
+          </span>
+          {pagados < lista.length ? (
+            <button
+              type="button"
+              onClick={() => confirm("¿Marcar a todos como pagados?") && marcarPagado(lista.map((i) => i.id), true)}
+              className="rounded-full bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-200 hover:bg-emerald-500/30"
+            >
+              Marcar todos pagados
+            </button>
+          ) : (
+            <span className="text-xs font-semibold text-emerald-300">Todo pagado</span>
+          )}
+        </div>
+        {errorPago && <Aviso>{errorPago}</Aviso>}
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="rounded-2xl bg-white/5 p-3">
             <p className="text-2xl font-black">{lista.length}</p>
@@ -301,7 +358,7 @@ function ListaInscripciones({
           <Boton onClick={guardarOpciones} disabled={guardando} className="py-2">
             {guardando ? "Guardando…" : "Guardar opciones"}
           </Boton>
-          <p className="text-[11px] text-white/40">El precio es por bailarín. Los pagos se siguen llevando en el Excel.</p>
+          <p className="text-[11px] text-white/40">El precio es por bailarín. Marca aquí quién ha pagado (el detalle sigue en el Excel).</p>
         </section>
 
         {extras.length > 0 && (
@@ -338,7 +395,18 @@ function ListaInscripciones({
                         {i.grupos} · {i.categorias} cat.{i.extra_opcion ? ` · ${i.extra_opcion}` : ""}
                       </span>
                     </span>
-                    <span className="shrink-0 font-semibold tabular-nums">{eur(Number(i.importe) + Number(i.extra_importe))}</span>
+                    <span className="flex shrink-0 items-center gap-2">
+                      <span className="font-semibold tabular-nums">{eur(Number(i.importe) + Number(i.extra_importe))}</span>
+                      <button
+                        type="button"
+                        onClick={() => marcarPagado([i.id], !pagos[i.id])}
+                        aria-label={pagos[i.id] ? "Pagado (pulsa para quitar)" : "Marcar como pagado"}
+                        title={pagos[i.id] ? "Pagado" : "Sin pagar"}
+                        className={pagos[i.id] ? "text-emerald-300" : "text-white/30 hover:text-white/60"}
+                      >
+                        {pagos[i.id] ? <CheckCircle2 size={20} /> : <Circle size={20} />}
+                      </button>
+                    </span>
                   </li>
                 ))}
               </ul>
