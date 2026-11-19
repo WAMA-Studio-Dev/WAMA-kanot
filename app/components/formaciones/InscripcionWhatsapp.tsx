@@ -15,11 +15,14 @@ export default function InscripcionWhatsapp({
   formacion,
   onClose,
   nombreInicial = "",
+  onEnviado,
 }: {
   formacion: Formacion;
   onClose: () => void;
   /** En la app se rellena con el nombre de la cuenta. */
   nombreInicial?: string;
+  /** En la app: guarda quién se ha apuntado (sin el DNI, que solo va por WhatsApp). */
+  onEnviado?: (datos: { nombre: string; instagram: string }) => void;
 }) {
   const [nombre, setNombre] = useState(nombreInicial);
   const [dni, setDni] = useState("");
@@ -39,6 +42,7 @@ export default function InscripcionWhatsapp({
   function enviar(e: FormEvent) {
     e.preventDefault();
     window.open(whatsappUrl(mensaje), "_blank", "noopener");
+    onEnviado?.({ nombre: nombre.trim(), instagram: ig });
     onClose();
   }
 

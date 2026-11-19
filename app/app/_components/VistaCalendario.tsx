@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import BotonCalendario from "./BotonCalendario";
 import { MapPin } from "lucide-react";
 import { GRUPOS, colorGrupo, type Entrada } from "./secciones";
 
@@ -184,6 +185,7 @@ function Sesion({ e, acciones }: { e: Entrada; acciones?: (e: Entrada) => ReactN
         )}
         {e.descripcion && <p className="mt-1 whitespace-pre-line text-xs text-white/55">{e.descripcion}</p>}
       </div>
+      <BotonCalendario entrada={e} prefijo="Ensayo" />
       {acciones?.(e)}
     </li>
   );

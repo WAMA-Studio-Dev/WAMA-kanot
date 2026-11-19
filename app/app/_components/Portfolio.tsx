@@ -113,7 +113,7 @@ export default function Portfolio() {
       )}
 
       {actual && fotos && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-black/95" onClick={() => setAbierta(null)}>
+        <div className="tema-fijo fixed inset-0 z-50 flex flex-col bg-black/95" onClick={() => setAbierta(null)}>
           <div className="flex justify-end gap-1 p-4 pt-[max(1rem,env(safe-area-inset-top))]" onClick={(e) => e.stopPropagation()}>
             {esEditor && (
               <button type="button" onClick={() => borrar(actual)} aria-label="Quitar" className="rounded-full p-2 hover:bg-white/10">

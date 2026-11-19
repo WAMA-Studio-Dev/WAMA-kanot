@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Users } from "lucide-react";
+import { Search, Users, X } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "../_components/AuthProvider";
 import { GRUPOS, type Perfil, type Rol } from "../_components/secciones";
-import { Aviso, Cargando, Select } from "../_components/ui";
+import { Aviso, Cargando, Input, Select } from "../_components/ui";
 import Avatar from "../_components/Avatar";
 import AsignarBailarines from "../_components/AsignarBailarines";
 import SolicitudesFamilia from "../_components/SolicitudesFamilia";
@@ -24,6 +24,8 @@ export default function GestionUsuarios() {
   const [asignados, setAsignados] = useState<Record<string, string[]>>({});
   const [asignando, setAsignando] = useState<Perfil | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [busca, setBusca] = useState("");
+  const [bienvenida, setBienvenida] = useState<{ tipo: "ok" | "error"; texto: string } | null>(null);
 
   const cargar = useCallback(async () => {
     const { data, error } = await getSupabase()
@@ -55,8 +57,30 @@ export default function GestionUsuarios() {
       return;
     const { error } = await getSupabase().from("profiles").update({ role }).eq("id", p.id);
     if (error) return setError(traducir(error.message));
+    // Al aprobar una cuenta pendiente, le llega un correo de bienvenida.
+    if (p.role === "pendiente" && role !== "pendiente") enviarBienvenida(p);
     if (esYo) recargarPerfil();
     else cargar();
+  }
+
+  async function enviarBienvenida(p: Perfil) {
+    setBienvenida(null);
+    try {
+      const { data } = await getSupabase().auth.getSession();
+      const res = await fetch("/api/bienvenida", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.session?.access_token ?? ""}` },
+        body: JSON.stringify({ userId: p.id }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(json.error ?? "No se pudo enviar.");
+      setBienvenida({ tipo: "ok", texto: `Cuenta aprobada. Le hemos enviado un correo de bienvenida a ${p.email}.` });
+    } catch (err) {
+      setBienvenida({
+        tipo: "error",
+        texto: `Cuenta aprobada, pero no se pudo enviar el correo de bienvenida (${err instanceof Error ? err.message : err}). Al entrar en la app verá igualmente la bienvenida.`,
+      });
+    }
   }
 
   async function cambiarGrupo(p: Perfil, grupo: string) {
@@ -66,7 +90,14 @@ export default function GestionUsuarios() {
     cargar();
   }
 
-  const lista = perfiles ?? [];
+  // Buscador: por nombre, email, usuario o bailarín asignado (sin importar tildes ni mayúsculas).
+  const normalizar = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const q = normalizar(busca.trim());
+  const lista = (perfiles ?? []).filter(
+    (p) =>
+      !q ||
+      [p.nombre, p.email, p.usuario, p.grupo, ...(asignados[p.id] ?? [])].some((v) => v && normalizar(v).includes(q)),
+  );
   const deRol = (rol: Rol) => lista.filter((p) => p.role === rol);
   const miembros = deRol("miembro");
   const props = { onCambiar: cambiarRol, onGrupo: cambiarGrupo, esSuper, asignados, onBailarines: setAsignando };
@@ -83,7 +114,34 @@ export default function GestionUsuarios() {
         </div>
       </div>
 
+      <div className="relative">
+        <Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
+        <Input
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          placeholder="Buscar por nombre, email, grupo o bailarín"
+          className="pl-9 pr-9"
+          aria-label="Buscar usuarios"
+        />
+        {busca && (
+          <button
+            type="button"
+            onClick={() => setBusca("")}
+            aria-label="Borrar búsqueda"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-white/50 hover:text-white"
+          >
+            <X size={16} />
+          </button>
+        )}
+      </div>
+      {q && perfiles && (
+        <p className="-mt-3 px-1 text-xs text-white/50">
+          {lista.length} {lista.length === 1 ? "resultado" : "resultados"} para “{busca.trim()}”
+        </p>
+      )}
+
       {error && <Aviso>{error}</Aviso>}
+      {bienvenida && <Aviso tipo={bienvenida.tipo === "ok" ? "ok" : undefined}>{bienvenida.texto}</Aviso>}
       {!perfiles && !error && <Cargando />}
 
       <SolicitudesFamilia perfiles={lista} onCambio={cargar} />

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Suspense } from "react";
 import { CalendarClock, ExternalLink, FolderOpen, GraduationCap, Lock, Trophy } from "lucide-react";
 import { useAuth } from "../_components/AuthProvider";
+import { HistorialCompeticion } from "../_components/ResultadosCompeticion";
 import VistaSeccion from "../_components/VistaSeccion";
 import GestorArchivos from "../_components/GestorArchivos";
 import FormacionesWeb from "../_components/FormacionesWeb";
@@ -53,7 +54,12 @@ function KanotCrew() {
       <Pestanas pestanas={visibles} activa={activa} />
 
       {activa === "horarios" && <VistaSeccion key="horarios" slug="horarios" compacto />}
-      {activa === "competicion" && <VistaSeccion key="competicion" slug="competicion" compacto />}
+      {activa === "competicion" && (
+        <div>
+          <HistorialCompeticion />
+          <VistaSeccion key="competicion" slug="competicion" compacto />
+        </div>
+      )}
       {activa === "formaciones" && <FormacionesWeb />}
       {activa === "archivos" && (
         <div className="flex flex-col gap-8">

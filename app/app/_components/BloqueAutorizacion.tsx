@@ -7,7 +7,7 @@ import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "./AuthProvider";
 import { GRUPOS, type Entrada } from "./secciones";
 import { Aviso, Boton, Etiqueta, Input, Modal, Select } from "./ui";
-import { enviarNotificacion } from "./notificaciones";
+import { avisarPersonas, fechaAviso, ultimosAvisos } from "./notificaciones";
 
 type Autorizacion = {
   id: string;
@@ -327,9 +327,10 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
   const [lista, setLista] = useState<Autorizacion[] | null>(null);
   const [miembros, setMiembros] = useState<Miembro[]>([]);
   const [avisoMiembros, setAvisoMiembros] = useState<string | null>(null);
-  const [notificando, setNotificando] = useState(false);
   const [resultado, setResultado] = useState<string | null>(null);
   const [subirPara, setSubirPara] = useState<Miembro | null | undefined>(undefined);
+  const [avisos, setAvisos] = useState<Record<string, string>>({});
+  const [estadoAviso, setEstadoAviso] = useState<Record<string, "enviando" | "ok" | "sin-movil">>({});
   const [editando, setEditando] = useState<Autorizacion | null>(null);
 
   const cargar = useCallback(async () => {
@@ -339,6 +340,7 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
       supabase.rpc("crew_miembros"),
     ]);
     setLista((data ?? []) as Autorizacion[]);
+    setAvisos(await ultimosAvisos(entrada.id, "autorizacion"));
     if (crew.error) setAvisoMiembros(/crew_miembros|schema cache/i.test(crew.error.message) ? "Falta activar el SQL 010 para ver quién falta." : crew.error.message);
     else setMiembros((crew.data ?? []) as Miembro[]);
   }, [entrada.id]);
@@ -357,22 +359,37 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
     onCambio();
   }
 
-  async function recordar() {
-    setNotificando(true);
+  async function avisar(ids: string[]) {
+    if (!ids.length) return;
     setResultado(null);
+    setEstadoAviso((e) => ({ ...e, ...Object.fromEntries(ids.map((id) => [id, "enviando" as const])) }));
     try {
-      const r = await enviarNotificacion({
-        titulo: `Autorización · ${entrada.titulo}`,
-        cuerpo: "Si aún no la has subido, descárgala, fírmala y súbela en la app.",
+      const { avisados, sinMovil } = await avisarPersonas({
+        usuarios: ids,
+        titulo: `Falta tu autorización · ${entrada.titulo}`,
+        cuerpo: "Descarga la autorización oficial, fírmala y súbela en la app.",
         url: "/app/kanot-crew?tab=competicion",
-        destino: "crew",
+        entradaId: entrada.id,
+        tipo: "autorizacion",
       });
-      setResultado(`Recordatorio enviado a ${r.enviadas} ${r.enviadas === 1 ? "móvil" : "móviles"} de la crew.`);
+      setEstadoAviso((e) => ({
+        ...e,
+        ...Object.fromEntries(avisados.map((id) => [id, "ok" as const])),
+        ...Object.fromEntries(sinMovil.map((id) => [id, "sin-movil" as const])),
+      }));
+      if (ids.length > 1)
+        setResultado(
+          `Avisadas ${avisados.length} ${avisados.length === 1 ? "persona" : "personas"}` +
+            (sinMovil.length ? ` · ${sinMovil.length} sin notificaciones activadas (avísales por WhatsApp)` : "") +
+            ".",
+        );
+      setAvisos(await ultimosAvisos(entrada.id, "autorizacion"));
     } catch (err) {
+      setEstadoAviso((e) => Object.fromEntries(Object.entries(e).filter(([id]) => !ids.includes(id))));
       setResultado(err instanceof Error ? err.message : String(err));
     }
-    setNotificando(false);
   }
+
 
   // Una familia "ha entregado" si ha subido al menos una autorización para este campeonato.
   const entregaron = new Set((lista ?? []).map((a) => a.user_id));
@@ -382,6 +399,7 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
     faltan: miembros.filter((m) => (m.grupo ?? "Sin grupo") === g && !entregaron.has(m.id)),
   }));
   const totalFaltan = grupos.reduce((n, g) => n + g.faltan.length, 0);
+  const idsFaltan = grupos.flatMap((g) => g.faltan.map((m) => m.id));
 
   return (
     <Modal titulo={`Entregas · ${entrada.titulo}`} onCerrar={onCerrar}>
@@ -438,8 +456,15 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
                       <span className="h-4 w-4 shrink-0 rounded-full border-2 border-red-300/60" />
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-semibold text-white/80">{m.nombre ?? m.email}</span>
-                        <span className="block text-xs text-red-200/80">Falta por entregar</span>
+                        <span className="block text-xs text-red-200/80">
+                          {estadoAviso[m.id] === "sin-movil"
+                            ? "No tiene las notificaciones activadas"
+                            : avisos[m.id]
+                              ? `Falta · avisado el ${fechaAviso(avisos[m.id])}`
+                              : "Falta por entregar"}
+                        </span>
                       </span>
+                      <BotonAvisar estado={estadoAviso[m.id]} onClick={() => avisar([m.id])} />
                       <button
                         type="button"
                         onClick={() => setSubirPara(m)}
@@ -461,12 +486,18 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
             <Boton onClick={() => setSubirPara(null)}>
               <Upload size={16} /> Subir una autorización
             </Boton>
-            <Boton variante="secundario" onClick={recordar} disabled={notificando}>
-              <Bell size={16} /> {notificando ? "Enviando…" : "Enviar recordatorio a la crew"}
-            </Boton>
+            {idsFaltan.length > 0 && (
+              <Boton
+                variante="secundario"
+                onClick={() => confirm(`¿Avisar a las ${idsFaltan.length} personas que faltan?`) && avisar(idsFaltan)}
+                disabled={idsFaltan.some((id) => estadoAviso[id] === "enviando")}
+              >
+                <Bell size={16} /> Avisar a todos los que faltan ({idsFaltan.length})
+              </Boton>
+            )}
             {resultado && <p className="text-center text-xs text-white/60">{resultado}</p>}
             <p className="text-center text-[11px] text-white/40">
-              “Faltan” cuenta las cuentas de miembros sin ninguna autorización subida para este campeonato.
+              “Faltan” cuenta las cuentas de miembros sin ninguna autorización subida. El aviso llega solo a su móvil.
             </p>
           </div>
         </div>
@@ -496,5 +527,24 @@ function Entregas({ entrada, onCerrar, onCambio }: { entrada: Entrada; onCerrar:
         />
       )}
     </Modal>
+  );
+}
+
+/** Campana para avisar a una persona. */
+export function BotonAvisar({ estado, onClick }: { estado?: "enviando" | "ok" | "sin-movil"; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={estado === "enviando"}
+      aria-label="Enviar aviso"
+      title="Enviar aviso a su móvil"
+      className={`flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1.5 text-xs font-semibold disabled:opacity-50 ${
+        estado === "ok" ? "bg-emerald-500/15 text-emerald-300" : "bg-kanot-pink/15 text-kanot-pink hover:bg-kanot-pink/25"
+      }`}
+    >
+      {estado === "ok" ? <CheckCircle2 size={13} /> : <Bell size={13} />}
+      {estado === "enviando" ? "…" : estado === "ok" ? "Avisado" : "Avisar"}
+    </button>
   );
 }

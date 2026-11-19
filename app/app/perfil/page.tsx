@@ -2,27 +2,22 @@
 
 import Link from "next/link";
 import { useRef, useState, type FormEvent } from "react";
-import { BarChart3, Camera, ChevronRight, Eye, FolderOpen, KeyRound, LogOut, Pencil, Trash2, Users } from "lucide-react";
+import { BarChart3, History, Camera, ChevronRight, Eye, FolderOpen, KeyRound, LogOut, Trash2, Users } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "../_components/AuthProvider";
 import Avatar, { guardarMiPerfil, subirFotoPerfil } from "../_components/Avatar";
 import type { RolVista } from "../_components/AuthProvider";
 import ElegirGrupo from "../_components/ElegirGrupo";
 import MiFamilia from "../_components/MiFamilia";
+import MisPedidos from "../_components/MisPedidos";
+import Carnet from "../_components/Carnet";
+import EscribirKanot from "../_components/EscribirKanot";
+import SelectorTema from "../_components/SelectorTema";
 import ActivarNotificaciones from "../_components/ActivarNotificaciones";
 import UsoAlmacenamiento from "../_components/UsoAlmacenamiento";
-import { colorGrupo } from "../_components/secciones";
 import InstalarApp from "../_components/InstalarApp";
 import { limpiarUsuario, textoError, USUARIO_VALIDO } from "../_components/Acceso";
 import { Aviso, Boton, Etiqueta, Input, Modal } from "../_components/ui";
-
-const NOMBRE_ROL = {
-  pendiente: "Pendiente",
-  usuario: "Usuario",
-  miembro: "Miembro de Kanot",
-  editor: "Editor",
-  admin: "Admin",
-} as const;
 
 export default function PaginaPerfil() {
   const { perfil, esEditor, esAdmin, esSuper, rol, salir } = useAuth();
@@ -34,57 +29,20 @@ export default function PaginaPerfil() {
     { href: "/app/archivos", nombre: "Gestor de archivos", ayuda: "Todos los archivos del equipo", icono: FolderOpen, ver: esEditor },
     { href: "/app/usuarios", nombre: "Usuarios", ayuda: "Aprobar cuentas y asignar roles", icono: Users, ver: esAdmin },
     { href: "/app/estadisticas", nombre: "Estadísticas", ayuda: "Quién usa la app y qué mira", icono: BarChart3, ver: esAdmin },
+    { href: "/app/historial", nombre: "Historial de cambios", ayuda: "Quién ha subido, cambiado o borrado algo", icono: History, ver: esAdmin },
   ].filter((e) => e.ver);
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col items-center gap-3 pt-2 text-center">
-        <FotoEditable />
-        <div>
-          <h1 className="text-xl font-bold">{perfil.nombre || "Sin nombre"}</h1>
-          <p className="text-sm text-white/55">
-            {perfil.usuario && <span className="font-semibold text-white/75">@{perfil.usuario} · </span>}
-            {perfil.email}
-          </p>
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
-            <span className="rounded-full bg-kanot-pink/15 px-3 py-1 text-xs font-semibold text-kanot-pink">
-              {perfil.super_admin ? "Superadmin" : NOMBRE_ROL[perfil.role]}
-            </span>
-            {rol === "miembro" && (
-              <a
-                href="#mi-grupo"
-                className="flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1 text-xs font-semibold hover:border-white/50"
-              >
-                <span
-                  className="h-2.5 w-2.5 rounded-full"
-                  style={{ backgroundColor: colorGrupo(perfil.grupo ?? "") }}
-                />
-                {perfil.grupo ?? "Sin grupo"} · cambiar
-              </a>
-            )}
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => setEditar(true)}
-          className="flex items-center gap-1.5 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold transition hover:border-kanot-pink hover:text-kanot-pink"
-        >
-          <Pencil size={14} /> Editar perfil
-        </button>
-        {!perfil.usuario && (
-          <button
-            type="button"
-            onClick={() => setEditar(true)}
-            className="rounded-2xl border border-kanot-pink/30 bg-kanot-pink/[0.07] px-4 py-2.5 text-xs text-white/80"
-          >
-            Elige un <b className="text-kanot-pink">nombre de usuario</b> para entrar sin escribir el email
-          </button>
-        )}
-      </div>
+      <Carnet foto={<FotoEditable tamano={76} />} onEditar={() => setEditar(true)} />
 
       {rol === "miembro" && <ElegirGrupo />}
 
       {rol === "miembro" && <MiFamilia />}
+
+      <MisPedidos />
+
+      <EscribirKanot compacto />
 
       <InstalarApp />
       <ActivarNotificaciones />
@@ -112,6 +70,8 @@ export default function PaginaPerfil() {
       {esAdmin && <UsoAlmacenamiento />}
 
       {esSuper && <VerComo />}
+
+      <SelectorTema />
 
       <section>
         <h2 className="mb-2 px-1 text-xs font-semibold uppercase tracking-widest text-white/50">Cuenta</h2>
@@ -193,7 +153,7 @@ function CambiarClave({ onCerrar }: { onCerrar: () => void }) {
 }
 
 /** Foto grande con botón de cámara: al elegir una imagen se sube y se guarda al momento. */
-function FotoEditable() {
+function FotoEditable({ tamano = 104 }: { tamano?: number }) {
   const { perfil, recargarPerfil } = useAuth();
   const input = useRef<HTMLInputElement>(null);
   const [subiendo, setSubiendo] = useState(false);
@@ -223,7 +183,7 @@ function FotoEditable() {
         aria-label="Cambiar foto de perfil"
         className="group relative rounded-full"
       >
-        <Avatar perfil={perfil} tamano={104} className={`ring-4 ring-kanot-navy-deep ${subiendo ? "opacity-50" : ""}`} />
+        <Avatar perfil={perfil} tamano={tamano} className={`ring-4 ring-black/20 ${subiendo ? "opacity-50" : ""}`} />
         <span className="absolute bottom-0 right-0 flex h-9 w-9 items-center justify-center rounded-full border-4 border-kanot-navy bg-kanot-pink text-kanot-navy-deep transition group-hover:scale-110">
           {subiendo ? (
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-kanot-navy-deep/30 border-t-kanot-navy-deep" />

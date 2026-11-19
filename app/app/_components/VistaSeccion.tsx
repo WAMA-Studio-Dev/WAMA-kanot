@@ -11,6 +11,8 @@ import VistaCalendario from "./VistaCalendario";
 import BloqueAutorizacion from "./BloqueAutorizacion";
 import BloqueInscripcion from "./BloqueInscripcion";
 import DocumentosCompeticion from "./DocumentosCompeticion";
+import ProgramaCompeticion from "./ProgramaCompeticion";
+import ResultadosCompeticion from "./ResultadosCompeticion";
 
 export default function VistaSeccion({
   slug,
@@ -166,7 +168,13 @@ function Listado({
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-kanot-pink">{g.titulo}</h2>
             <div className="flex flex-col gap-3">
               {g.lista.map((e) => (
-                <TarjetaEntrada key={e.id} entrada={e} acciones={acciones} textoEnlace={seccion.textoEnlace} />
+                <TarjetaEntrada
+                  key={e.id}
+                  entrada={e}
+                  acciones={acciones}
+                  textoEnlace={seccion.textoEnlace}
+                  pie={seccion.slug === "competicion" ? <ResultadosCompeticion entrada={e} onCambio={recargar} /> : undefined}
+                />
               ))}
             </div>
           </section>
@@ -239,9 +247,12 @@ function Listado({
               acciones={acciones}
               textoEnlace={seccion.textoEnlace}
               video={esPodcast}
+              cuentaAtras={seccion.slug === "competicion"}
               pie={
                 seccion.autorizaciones && e.fecha ? (
                   <>
+                    <ResultadosCompeticion entrada={e} onCambio={recargar} />
+                    <ProgramaCompeticion entrada={e} onCambio={recargar} />
                     <DocumentosCompeticion entrada={e} />
                     <BloqueInscripcion entrada={e} onCambio={recargar} />
                     <BloqueAutorizacion entrada={e} onCambio={recargar} />
@@ -283,6 +294,7 @@ function TarjetaEntrada({
   video,
   textoEnlace = "Abrir enlace",
   pie,
+  cuentaAtras,
 }: {
   entrada: Entrada;
   acciones: Acciones;
@@ -290,6 +302,8 @@ function TarjetaEntrada({
   textoEnlace?: string;
   /** Contenido extra al final de la tarjeta (p. ej. autorizaciones). */
   pie?: React.ReactNode;
+  /** Mostrar "Faltan X días" al lado de la fecha (campeonatos). */
+  cuentaAtras?: boolean;
 }) {
   const youtubeId = video && e.enlace ? idYoutube(e.enlace) : null;
 
@@ -316,6 +330,7 @@ function TarjetaEntrada({
           {e.fecha && (
             <span className="flex items-center gap-1.5">
               <CalendarDays size={15} className="text-kanot-pink" /> {formatearFecha(e.fecha)}
+              {cuentaAtras && <CuentaAtras fecha={e.fecha} />}
             </span>
           )}
           {e.hora && (
@@ -375,4 +390,24 @@ function formatearFecha(iso: string) {
 function idYoutube(url: string) {
   const m = url.match(/(?:youtu\.be\/|v=|\/shorts\/|\/embed\/|\/live\/)([\w-]{11})/);
   return m?.[1] ?? null;
+}
+
+/** Pastilla pequeña con los días que faltan: "Hoy", "Mañana", "Faltan 12 días". */
+function CuentaAtras({ fecha }: { fecha: string }) {
+  const [y, m, d] = fecha.split("-").map(Number);
+  const hoy = new Date();
+  const dias = Math.round(
+    (new Date(y, m - 1, d).getTime() - new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime()) / 86400000,
+  );
+  if (dias < 0) return null;
+  const texto = dias === 0 ? "¡Hoy!" : dias === 1 ? "Mañana" : `Faltan ${dias} días`;
+  return (
+    <span
+      className={`ml-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${
+        dias <= 7 ? "bg-kanot-pink text-kanot-navy-deep" : "bg-kanot-pink/15 text-kanot-pink"
+      }`}
+    >
+      {texto}
+    </span>
+  );
 }

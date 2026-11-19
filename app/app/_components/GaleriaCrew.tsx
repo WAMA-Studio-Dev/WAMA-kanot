@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { comprimirImagen } from "./comprimirImagen";
-import { Download, ImagePlus, Play, Trash2, X } from "lucide-react";
+import { Download, FolderDown, FolderInput, FolderPlus, ImagePlus, Play, Trash2, X } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "./AuthProvider";
 import { Aviso, Boton, Cargando } from "./ui";
@@ -13,6 +13,7 @@ type Medio = {
   subido_por: string | null;
   archivo_path: string;
   tipo: "foto" | "video";
+  carpeta?: string | null;
   created_at: string;
   url?: string;
 };
@@ -31,6 +32,9 @@ export default function GaleriaCrew() {
   const [subiendo, setSubiendo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [abierto, setAbierto] = useState<Medio | null>(null);
+  // Carpeta elegida (null = todo). Las carpetas nuevas existen en cuanto se sube algo dentro.
+  const [carpeta, setCarpeta] = useState<string | null>(null);
+  const [nuevas, setNuevas] = useState<string[]>([]);
   const input = useRef<HTMLInputElement>(null);
 
   const cargar = useCallback(async () => {
@@ -83,7 +87,7 @@ export default function GaleriaCrew() {
       }
       const { error: e2 } = await supabase
         .from("crew_media")
-        .insert({ archivo_path: ruta, tipo, subido_por: perfil.nombre ?? perfil.email });
+        .insert({ archivo_path: ruta, tipo, subido_por: perfil.nombre ?? perfil.email, ...(carpeta ? { carpeta } : {}) });
       if (e2) {
         await supabase.storage.from(BUCKET).remove([ruta]);
         setError(e2.message);
@@ -118,12 +122,70 @@ export default function GaleriaCrew() {
 
   const puedeBorrar = (m: Medio) => esEditor || m.user_id === perfil?.id;
 
+  const carpetas = [...new Set([...(medios ?? []).map((m) => m.carpeta).filter((c): c is string => Boolean(c)), ...nuevas])].sort((a, b) =>
+    a.localeCompare(b, "es"),
+  );
+  const visibles = (medios ?? []).filter((m) => !carpeta || m.carpeta === carpeta);
+
+  /** Descarga todas las fotos y vídeos de la carpeta en un .zip. */
+  async function descargarCarpeta() {
+    if (!carpeta || !visibles.length) return;
+    const pesoMB = visibles.filter((m) => m.tipo === "video").length * 20 + visibles.length * 0.5;
+    if (pesoMB > 400 && !confirm("Esta carpeta pesa bastante. ¿Descargarla igualmente? Mejor con Wi-Fi.")) return;
+    setError(null);
+    try {
+      const { zipSync } = await import("fflate");
+      const supabase = getSupabase();
+      const { data: urls, error } = await supabase.storage.from(BUCKET).createSignedUrls(visibles.map((m) => m.archivo_path), 600);
+      if (error || !urls) throw error ?? new Error("No se pudieron preparar los archivos.");
+      const archivos: Record<string, [Uint8Array, { level: 0 }]> = {};
+      for (const [i, u] of urls.entries()) {
+        setSubiendo(`Descargando ${i + 1} de ${urls.length}…`);
+        if (!u.signedUrl) continue;
+        const r = await fetch(u.signedUrl);
+        const nombre = (u.path ?? `archivo-${i}`).split("/").pop()!.replace(/^\d+-/, "");
+        archivos[`${String(i + 1).padStart(3, "0")}-${nombre}`] = [new Uint8Array(await r.arrayBuffer()), { level: 0 }];
+      }
+      setSubiendo("Preparando el .zip…");
+      const zip = zipSync(archivos);
+      const url = URL.createObjectURL(new Blob([zip as BlobPart], { type: "application/zip" }));
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${limpiar(carpeta)}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "No se pudo descargar la carpeta.");
+    }
+    setSubiendo(null);
+  }
+
+  function crearCarpeta() {
+    const nombre = prompt("Nombre de la carpeta (p. ej. Jack Unit 2027)")?.trim().slice(0, 40);
+    if (!nombre) return;
+    setNuevas((n) => [...new Set([...n, nombre])]);
+    setCarpeta(nombre);
+  }
+
+  async function mover(m: Medio, destino: string) {
+    const valor = destino === "__nueva__" ? prompt("Nombre de la carpeta nueva")?.trim().slice(0, 40) : destino;
+    if (valor === undefined) return;
+    const { error } = await getSupabase().from("crew_media").update({ carpeta: valor || null }).eq("id", m.id);
+    if (error) return setError(/carpeta|schema cache/i.test(error.message) ? "Falta activar el SQL 024 para las carpetas." : error.message);
+    setAbierto({ ...m, carpeta: valor || null });
+    cargar();
+  }
+
   return (
     <section className="flex flex-col gap-3">
       <div className="flex items-end justify-between gap-3">
         <div>
           <h2 className="text-xl font-black">Fotos y vídeos de la crew</h2>
-          <p className="text-xs text-white/55">Cualquier miembro puede subir. Máx. {MAX_MB} MB por archivo.</p>
+          <p className="text-xs text-white/55">
+            {carpeta ? `Subes a la carpeta “${carpeta}”.` : "Cualquier miembro puede subir."} Máx. {MAX_MB} MB.
+          </p>
         </div>
         <Boton onClick={() => input.current?.click()} disabled={!!subiendo} className="shrink-0 px-4">
           <ImagePlus size={17} /> Subir
@@ -141,18 +203,58 @@ export default function GaleriaCrew() {
         />
       </div>
 
+      {/* Carpetas */}
+      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {[null, ...carpetas].map((c) => (
+          <button
+            key={c ?? "__todo__"}
+            type="button"
+            onClick={() => setCarpeta(c)}
+            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold ${
+              carpeta === c ? "bg-kanot-pink text-kanot-navy-deep" : "bg-white/10 text-white/75 hover:bg-white/15"
+            }`}
+          >
+            {c ?? "Todo"}
+            {c && ` · ${(medios ?? []).filter((m) => m.carpeta === c).length}`}
+          </button>
+        ))}
+        <button
+          type="button"
+          onClick={crearCarpeta}
+          className="flex shrink-0 items-center gap-1 rounded-full border border-dashed border-white/25 px-3 py-1.5 text-xs font-semibold text-white/70 hover:text-white"
+        >
+          <FolderPlus size={14} /> Carpeta
+        </button>
+      </div>
+
+      {carpeta && visibles.length > 0 && (
+        <button
+          type="button"
+          onClick={descargarCarpeta}
+          disabled={!!subiendo}
+          className="flex w-fit items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold hover:bg-white/15 disabled:opacity-50"
+        >
+          <FolderDown size={14} /> Descargar la carpeta “{carpeta}” ({visibles.length})
+        </button>
+      )}
+
       {subiendo && <Aviso tipo="ok">{subiendo}</Aviso>}
       {error && <Aviso>{error}</Aviso>}
       {!medios && <Cargando />}
+      {medios && medios.length > 0 && carpeta && visibles.length === 0 && (
+        <p className="rounded-2xl border border-dashed border-white/15 p-6 text-center text-sm text-white/55">
+          La carpeta “{carpeta}” está vacía. Pulsa “Subir” para añadir fotos aquí.
+        </p>
+      )}
       {medios?.length === 0 && !error && (
         <p className="rounded-2xl border border-dashed border-white/15 p-8 text-center text-sm text-white/55">
           Todavía no hay nada. ¡Sube las primeras fotos de los ensayos!
         </p>
       )}
 
-      {medios && medios.length > 0 && (
+      {visibles.length > 0 && (
         <div className="grid grid-cols-3 gap-1.5 sm:grid-cols-4">
-          {medios.map((m) => (
+          {visibles.map((m) => (
             <button
               key={m.id}
               type="button"
@@ -179,10 +281,11 @@ export default function GaleriaCrew() {
       )}
 
       {abierto && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-black/95" onClick={() => setAbierto(null)}>
+        <div className="tema-fijo fixed inset-0 z-50 flex flex-col bg-black/95" onClick={() => setAbierto(null)}>
           <div className="flex items-center justify-between gap-3 p-4 pt-[max(1rem,env(safe-area-inset-top))]" onClick={(e) => e.stopPropagation()}>
             <p className="min-w-0 truncate text-sm text-white/70">
               {abierto.subido_por ?? "—"} · {new Date(abierto.created_at).toLocaleDateString("es-ES")}
+              {abierto.carpeta ? ` · ${abierto.carpeta}` : ""}
             </p>
             <div className="flex gap-1">
               <button
@@ -193,6 +296,25 @@ export default function GaleriaCrew() {
               >
                 <Download size={18} /> Descargar
               </button>
+              {puedeBorrar(abierto) && (
+                <label className="relative flex items-center rounded-full p-2 hover:bg-white/10" title="Mover a carpeta">
+                  <FolderInput size={20} />
+                  <select
+                    aria-label="Mover a carpeta"
+                    value={abierto.carpeta ?? ""}
+                    onChange={(e) => mover(abierto, e.target.value)}
+                    className="absolute inset-0 cursor-pointer opacity-0"
+                  >
+                    <option value="">Sin carpeta</option>
+                    {carpetas.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                    <option value="__nueva__">+ Carpeta nueva…</option>
+                  </select>
+                </label>
+              )}
               {puedeBorrar(abierto) && (
                 <button type="button" onClick={() => borrar(abierto)} aria-label="Borrar" className="rounded-full p-2 hover:bg-white/10">
                   <Trash2 size={20} />

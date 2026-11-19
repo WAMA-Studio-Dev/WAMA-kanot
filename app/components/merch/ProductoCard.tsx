@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check } from "lucide-react";
+import { Check, ShoppingBag } from "lucide-react";
 import GlassCard from "@/app/components/ui/GlassCard";
 import { WhatsAppIcon } from "@/app/components/ui/SocialIcons";
 import { TALLAS, whatsappUrl, type GrupoTallas, type Producto } from "@/app/data/merch";
@@ -58,7 +58,18 @@ function tallaTexto(id: string) {
   return `${resto.join(" ")} (${grupo.toLowerCase()})`;
 }
 
-export default function ProductoCard({ producto }: { producto: Producto }) {
+/** Una línea de la cesta (app). */
+export type LineaCesta = { id: string; producto: string; detalle: string; precio: number };
+
+export default function ProductoCard({
+  producto,
+  onAnadir,
+}: {
+  producto: Producto;
+  /** En la app: en vez de reservar directamente, se añade a la cesta. */
+  onAnadir?: (linea: LineaCesta) => void;
+}) {
+  const [anadido, setAnadido] = useState(false);
   const esPack = producto.id === "pack";
   const [talla, setTalla] = useState<string | null>(null);
   const [tallaCamiseta, setTallaCamiseta] = useState<string | null>(null);
@@ -133,7 +144,34 @@ export default function ProductoCard({ producto }: { producto: Producto }) {
         </div>
 
         <div className="mt-auto flex flex-col gap-2 pt-2">
-          {listo ? (
+          {listo && onAnadir ? (
+            <button
+              type="button"
+              onClick={() => {
+                onAnadir({
+                  id: `${producto.id}-${Date.now()}`,
+                  producto: producto.nombre,
+                  detalle: esPack
+                    ? `camiseta ${tallaTexto(tallaCamiseta!)} + pantalón ${tallaTexto(tallaPantalon!)}`
+                    : `talla ${tallaTexto(talla!)}`,
+                  precio: producto.precio,
+                });
+                setTalla(null);
+                setTallaCamiseta(null);
+                setTallaPantalon(null);
+                setAnadido(true);
+                setTimeout(() => setAnadido(false), 2000);
+              }}
+              className="flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-kanot-pink px-4 py-3 text-sm font-bold text-kanot-navy transition-colors hover:bg-white"
+            >
+              <ShoppingBag className="h-4 w-4" />
+              Añadir a la cesta
+            </button>
+          ) : anadido ? (
+            <span className="flex items-center justify-center gap-2 whitespace-nowrap rounded-full bg-emerald-500/20 px-4 py-3 text-sm font-bold text-emerald-300">
+              <Check className="h-4 w-4" /> Añadido a la cesta
+            </span>
+          ) : listo ? (
             <a
               href={whatsappUrl(mensaje)}
               target="_blank"
@@ -148,14 +186,16 @@ export default function ProductoCard({ producto }: { producto: Producto }) {
               aria-disabled="true"
               className="flex cursor-not-allowed items-center justify-center gap-2 whitespace-nowrap rounded-full bg-white/10 px-4 py-3 text-sm font-bold text-white/40"
             >
-              <WhatsAppIcon className="h-4 w-4" />
+              {onAnadir ? <ShoppingBag className="h-4 w-4" /> : <WhatsAppIcon className="h-4 w-4" />}
               {esPack ? "Elige las dos tallas" : "Elige tu talla"}
             </span>
           )}
           <p className="text-center text-xs text-white/50">
-            {listo
-              ? "Se abre WhatsApp con tu pedido ya escrito."
-              : "Te preparamos el mensaje de WhatsApp con tu talla."}
+            {onAnadir
+              ? "Puedes añadir varias prendas y enviarlo todo junto."
+              : listo
+                ? "Se abre WhatsApp con tu pedido ya escrito."
+                : "Te preparamos el mensaje de WhatsApp con tu talla."}
           </p>
         </div>
       </div>

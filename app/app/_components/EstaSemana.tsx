@@ -25,7 +25,7 @@ const MESES_LARGOS = [
 ];
 
 /** "20 de diciembre de 2026" → "2026-12-20" (las fechas tipo "Enero 2027" se ignoran). */
-function fechaWebAISO(texto: string) {
+export function fechaWebAISO(texto: string) {
   const m = texto.toLowerCase().match(/(\d{1,2}) de ([a-záéíóú]+) de (\d{4})/);
   const mes = m ? MESES_LARGOS.indexOf(m[2]) + 1 : 0;
   if (!m || !mes) return null;

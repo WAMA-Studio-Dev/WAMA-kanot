@@ -6,6 +6,7 @@ import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "../_components/AuthProvider";
 import { GRUPOS } from "../_components/secciones";
 import { Aviso, Cargando } from "../_components/ui";
+import EstadisticasNotis from "../_components/EstadisticasNotis";
 
 type Stats = {
   roles: Record<string, number>;
@@ -37,6 +38,7 @@ const NOMBRE_APARTADO: Record<string, string> = {
   archivos: "Archivos",
   autorizacion: "Autorizaciones",
   estadisticas: "Estadísticas",
+  historial: "Historial",
 };
 const NOMBRE_ROL: Record<string, string> = {
   pendiente: "Pendientes",
@@ -138,6 +140,8 @@ export default function PaginaEstadisticas() {
               </ul>
             </Tarjeta>
           </div>
+
+          <EstadisticasNotis />
 
           <div className="grid grid-cols-3 gap-3">
             <Cifra valor={stats.autorizaciones} etiqueta="Autorizaciones subidas" pequena />

@@ -12,6 +12,7 @@ export const TIPOS_NOTI = [
   { id: "formaciones", nombre: "Formaciones", soloCrew: true },
   { id: "kodigo-klub", nombre: "Kodigo Klub", soloCrew: false },
   { id: "kanot-kamp", nombre: "Kanot Kamp", soloCrew: false },
+  { id: "podcast", nombre: "Episodios nuevos del podcast", soloCrew: false },
 ] as const;
 export type TipoNoti = (typeof TIPOS_NOTI)[number]["id"];
 
@@ -46,6 +47,8 @@ export function notificacionAutomatica(e: {
       return { titulo: `Kodigo Klub · ${e.titulo}`, cuerpo: detalle, url: "/app/kodigo-klub?tab=entradas", destino: "todos", tipo: "kodigo-klub" };
     case "kanot-kamp":
       return { titulo: `Kanot Kamp · ${e.titulo}`, cuerpo: detalle, url: "/app/kanot-kamp?tab=inscribete", destino: "todos", tipo: "kanot-kamp" };
+    case "podcast":
+      return { titulo: `Nuevo episodio del podcast · ${e.titulo}`, cuerpo: "Ya puedes verlo en la app.", url: "/app/podcast", destino: "todos", tipo: "podcast" };
     default:
       return null;
   }
@@ -136,4 +139,65 @@ export async function enviarNotificacion(datos: {
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.error ?? "No se pudo enviar la notificación.");
   return json as { enviadas: number; total: number };
+}
+
+/**
+ * Editores/admins: aviso personal a unas cuentas concretas (falta autorización, falta pagar…).
+ * Guarda cuándo se avisó. Devuelve las cuentas que no lo han recibido (sin notificaciones activadas).
+ */
+export async function avisarPersonas(datos: {
+  usuarios: string[];
+  titulo: string;
+  cuerpo: string;
+  url: string;
+  entradaId: string;
+  tipo: "autorizacion" | "pago";
+  /** Para pagos: bailarín de cada cuenta avisada. */
+  bailarinDe?: Record<string, string>;
+}) {
+  const supabase = getSupabase();
+  const { data } = await supabase.auth.getSession();
+  const res = await fetch("/api/notificar", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.session?.access_token ?? ""}` },
+    body: JSON.stringify({ titulo: datos.titulo, cuerpo: datos.cuerpo, url: datos.url, usuarios: datos.usuarios }),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = String(json.error ?? "");
+    throw new Error(/push_personas|schema cache/i.test(msg) ? "Falta activar el SQL 021 para avisar a personas." : msg || "No se pudo enviar el aviso.");
+  }
+  const sinMovil = (json.sinMovil ?? []) as string[];
+  const avisados = datos.usuarios.filter((u) => !sinMovil.includes(u));
+  if (avisados.length) {
+    await supabase.from("avisos_enviados").insert(
+      avisados.map((u) => ({
+        entrada_id: datos.entradaId,
+        tipo: datos.tipo,
+        user_id: u,
+        bailarin_id: datos.bailarinDe?.[u] ?? null,
+      })),
+    );
+  }
+  return { avisados, sinMovil };
+}
+
+/** Última vez que se avisó, por cuenta y por bailarín, en un campeonato. */
+export async function ultimosAvisos(entradaId: string, tipo: "autorizacion" | "pago") {
+  const { data } = await getSupabase()
+    .from("avisos_enviados")
+    .select("user_id, bailarin_id, created_at")
+    .eq("entrada_id", entradaId)
+    .eq("tipo", tipo)
+    .order("created_at");
+  const mapa: Record<string, string> = {};
+  for (const a of data ?? []) {
+    if (a.user_id) mapa[a.user_id] = a.created_at;
+    if (a.bailarin_id) mapa[a.bailarin_id] = a.created_at;
+  }
+  return mapa;
+}
+
+export function fechaAviso(iso: string) {
+  return new Date(iso).toLocaleDateString("es-ES", { day: "numeric", month: "short" });
 }

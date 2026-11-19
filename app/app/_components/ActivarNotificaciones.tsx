@@ -51,7 +51,7 @@ export default function ActivarNotificaciones() {
   }
 
   return (
-    <section className="flex flex-col gap-2 rounded-3xl border border-white/10 bg-black/25 p-4">
+    <section id="notificaciones" className="flex scroll-mt-24 flex-col gap-2 rounded-3xl border border-white/10 bg-black/25 p-4">
       <div className="flex items-center gap-3">
         {estado === "activas" ? <Bell className="text-kanot-pink" size={20} /> : <BellOff className="text-white/50" size={20} />}
         <div className="flex-1">

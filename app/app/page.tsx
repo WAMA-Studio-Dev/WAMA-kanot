@@ -19,6 +19,7 @@ import InstalarApp from "./_components/InstalarApp";
 import EstaSemana from "./_components/EstaSemana";
 import Tablon from "./_components/Tablon";
 import { InvitarNotificaciones } from "./_components/ActivarNotificaciones";
+import EscribirKanot from "./_components/EscribirKanot";
 
 export default function InicioApp() {
   const { esEditor, esCrew } = useAuth();
@@ -125,6 +126,8 @@ export default function InicioApp() {
           <ChevronRight className="text-white/40" />
         </Link>
       )}
+
+      <EscribirKanot />
     </div>
   );
 }

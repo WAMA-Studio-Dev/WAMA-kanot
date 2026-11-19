@@ -1,6 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import { useTemaApp } from "./tema";
+import SinConexion from "./SinConexion";
+import Bienvenida from "./Bienvenida";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
@@ -71,10 +74,12 @@ function Marco({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const enInicio = pathname === "/app";
   useRegistrarVisita(pathname, perfil?.id);
+  useTemaApp();
 
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-30 print:hidden border-b border-white/10 bg-kanot-navy/85 pt-[env(safe-area-inset-top)] backdrop-blur-lg">
+        <SinConexion />
         <BarraVerComo />
         <div className="mx-auto flex h-14 max-w-5xl items-center gap-3 px-4">
           {!enInicio && (
@@ -96,6 +101,7 @@ function Marco({ children }: { children: ReactNode }) {
         </div>
       </header>
 
+      <Bienvenida />
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-[calc(6.5rem+env(safe-area-inset-bottom))] pt-6 print:max-w-none print:p-0">
         <AvisoElegirGrupo />
         {children}

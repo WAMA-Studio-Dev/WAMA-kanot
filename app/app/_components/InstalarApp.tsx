@@ -48,7 +48,7 @@ export default function InstalarApp() {
   }
 
   return (
-    <div className="relative flex items-start gap-3 rounded-3xl border border-kanot-pink/30 bg-kanot-pink/10 p-4 pr-10">
+    <div id="instalar" className="relative flex scroll-mt-24 items-start gap-3 rounded-3xl border border-kanot-pink/30 bg-kanot-pink/10 p-4 pr-10">
       <Download className="mt-0.5 shrink-0 text-kanot-pink" size={20} />
       <div className="flex-1 text-sm">
         <p className="font-semibold">Instala la app en tu móvil</p>

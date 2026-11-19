@@ -105,6 +105,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setVerComo,
     recargarPerfil: () => cargarPerfil(session),
     salir: async () => {
+      // Lo guardado para usar sin conexión es de esta cuenta: se borra al salir.
+      navigator.serviceWorker?.controller?.postMessage("borrar-datos");
       await getSupabase().auth.signOut();
     },
   };

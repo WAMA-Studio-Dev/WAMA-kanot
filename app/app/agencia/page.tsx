@@ -1,7 +1,9 @@
 "use client";
 
 import { Suspense } from "react";
-import { Briefcase, Info, Mail } from "lucide-react";
+import { Briefcase, Inbox, Info, Mail, UsersRound } from "lucide-react";
+import SolicitudesAgencia from "../_components/SolicitudesAgencia";
+import FichasAgencia from "../_components/FichasAgencia";
 import VistaSeccion from "../_components/VistaSeccion";
 import FormContacto from "../_components/FormContacto";
 import Pestanas, { usePestanaActiva } from "../_components/Pestanas";
@@ -10,6 +12,8 @@ import { useAuth } from "../_components/AuthProvider";
 
 const PESTANAS = [
   { id: "que-es", nombre: "Qué es", icono: Info },
+  { id: "bailarines", nombre: "Bailarines", icono: UsersRound },
+  { id: "solicitudes", nombre: "Solicitudes", icono: Inbox },
   { id: "contacto", nombre: "Contacto", icono: Mail },
 ] as const;
 
@@ -41,6 +45,8 @@ function Agencia() {
       <Pestanas pestanas={PESTANAS} activa={activa} />
 
       {activa === "que-es" && <VistaSeccion key="agencia" slug="agencia" compacto />}
+      {activa === "bailarines" && <FichasAgencia />}
+      {activa === "solicitudes" && <SolicitudesAgencia />}
       {activa === "contacto" && (
         <div className="flex flex-col gap-4">
           <p className="text-sm text-white/70">

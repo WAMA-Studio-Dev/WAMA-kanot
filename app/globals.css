@@ -93,3 +93,97 @@ input[type="range"].kanot-range::-moz-range-thumb {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(300%); }
 }
+
+/* Carnet de Kanot (niveles Oro y Kanot Legend): reflejo que cruza la tarjeta */
+@keyframes carnet-brillo {
+  0%, 70% { transform: translateX(-120%) skewX(-20deg); }
+  100% { transform: translateX(220%) skewX(-20deg); }
+}
+.carnet-brillo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  animation: carnet-brillo 5s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .carnet-brillo::after { animation: none; display: none; }
+}
+
+/* ===================== Modo claro de la app =====================
+   Se activa con <html data-tema="claro"> (Perfil → Apariencia). Convierte los colores
+   oscuros de la app a claros. Lo que lleva .tema-fijo (carnet, visores de fotos…) no cambia. */
+html[data-tema="claro"] body { background: #f5f1ea; color: rgb(14 31 69); }
+html[data-tema="claro"] .tema-fijo { color: #fff; }
+html[data-tema="claro"] ::-webkit-scrollbar-track { background: #f5f1ea; }
+html[data-tema="claro"] select option { background: #fff; color: rgb(14 31 69); }
+html[data-tema="claro"] .text-white:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69); }
+html[data-tema="claro"] .text-white\/30:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / 0.32); }
+html[data-tema="claro"] .text-white\/35:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / 0.38); }
+html[data-tema="claro"] .text-white\/40:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / 0.43); }
+html[data-tema="claro"] .text-white\/45:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / 0.49); }
+html[data-tema="claro"] .text-white\/50:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / 0.54); }
+html[data-tema="claro"] .text-white\/55:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / 0.59); }
+html[data-tema="claro"] .text-white\/60:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / 0.65); }
+html[data-tema="claro"] .text-white\/65:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / 0.70); }
+html[data-tema="claro"] .text-white\/70:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / 0.76); }
+html[data-tema="claro"] .text-white\/75:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / 0.81); }
+html[data-tema="claro"] .text-white\/80:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / 0.86); }
+html[data-tema="claro"] .text-white\/85:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / 0.92); }
+html[data-tema="claro"] .text-white\/90:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / 0.97); }
+html[data-tema="claro"] .hover\:text-white:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69); }
+html[data-tema="claro"] .hover\:text-white\/60:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: rgb(14 31 69 / .7); }
+html[data-tema="claro"] .bg-white\/\[0\.04\]:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / 0.036); }
+html[data-tema="claro"] .bg-white\/\[0\.05\]:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / 0.045); }
+html[data-tema="claro"] .bg-white\/\[0\.06\]:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / 0.054); }
+html[data-tema="claro"] .bg-white\/5:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / 0.045); }
+html[data-tema="claro"] .bg-white\/10:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / 0.090); }
+html[data-tema="claro"] .bg-white\/15:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / 0.135); }
+html[data-tema="claro"] .bg-white\/20:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / 0.180); }
+html[data-tema="claro"] .bg-white\/25:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / 0.225); }
+html[data-tema="claro"] .hover\:bg-white\/\[0\.08\]:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / 0.092); }
+html[data-tema="claro"] .hover\:bg-white\/5:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / 0.065); }
+html[data-tema="claro"] .hover\:bg-white\/10:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / 0.110); }
+html[data-tema="claro"] .hover\:bg-white\/15:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / 0.155); }
+html[data-tema="claro"] .hover\:bg-white\/20:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / 0.200); }
+html[data-tema="claro"] .focus\:bg-white\/10:focus:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: #fff; }
+html[data-tema="claro"] .border-white\/10:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { border-color: rgb(14 31 69 / 0.110); }
+html[data-tema="claro"] .border-white\/12:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { border-color: rgb(14 31 69 / 0.132); }
+html[data-tema="claro"] .border-white\/15:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { border-color: rgb(14 31 69 / 0.165); }
+html[data-tema="claro"] .border-white\/20:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { border-color: rgb(14 31 69 / 0.220); }
+html[data-tema="claro"] .border-white\/25:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { border-color: rgb(14 31 69 / 0.275); }
+html[data-tema="claro"] .border-white\/30:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { border-color: rgb(14 31 69 / 0.330); }
+html[data-tema="claro"] .border-white\/40:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { border-color: rgb(14 31 69 / 0.440); }
+html[data-tema="claro"] .border-white\/50:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { border-color: rgb(14 31 69 / 0.500); }
+html[data-tema="claro"] .border-white\/60:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { border-color: rgb(14 31 69 / 0.500); }
+html[data-tema="claro"] .hover\:border-white\/30:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { border-color: rgb(14 31 69 / .45); }
+html[data-tema="claro"] .hover\:border-white\/40:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { border-color: rgb(14 31 69 / .45); }
+html[data-tema="claro"] .hover\:border-white\/50:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { border-color: rgb(14 31 69 / .45); }
+html[data-tema="claro"] .border-white:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { border-color: rgb(14 31 69 / .5); }
+html[data-tema="claro"] .divide-white\/5:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) > :not(:last-child) { border-color: rgb(14 31 69 / 0.060); }
+html[data-tema="claro"] .divide-white\/10:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) > :not(:last-child) { border-color: rgb(14 31 69 / 0.120); }
+html[data-tema="claro"] .bg-black\/20:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: #ffffff; box-shadow: 0 1px 2px rgb(14 31 69 / .06); }
+html[data-tema="claro"] .bg-black\/25:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: #ffffff; box-shadow: 0 1px 2px rgb(14 31 69 / .06); }
+html[data-tema="claro"] .bg-black\/30:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: #ffffff; box-shadow: 0 1px 2px rgb(14 31 69 / .06); }
+html[data-tema="claro"] .bg-black\/40:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: #ffffff; box-shadow: 0 1px 2px rgb(14 31 69 / .06); }
+html[data-tema="claro"] .hover\:bg-black\/35:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / .05); }
+html[data-tema="claro"] .hover\:bg-black\/40:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69 / .05); }
+html[data-tema="claro"] .to-black\/25:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { --tw-gradient-to: #ffffff; }
+html[data-tema="claro"] .bg-kanot-navy:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: #f5f1ea; }
+html[data-tema="claro"] .bg-kanot-navy-deep:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: #fdfbf7; }
+html[data-tema="claro"] .bg-kanot-navy\/85:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(245 241 234 / .88); }
+html[data-tema="claro"] .bg-kanot-navy-deep\/85:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(255 255 255 / .97); box-shadow: 0 10px 30px rgb(14 31 69 / .18); }
+html[data-tema="claro"] .hover\:bg-kanot-navy-deep:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { background-color: rgb(14 31 69);color:#fff; }
+html[data-tema="claro"] .text-kanot-pink:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *), html[data-tema="claro"] .hover\:text-kanot-pink:hover:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: #c4307a; }
+html[data-tema="claro"] .text-kanot-electric:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: #1f6fd1; }
+html[data-tema="claro"] .text-emerald-300:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: #047857; }
+html[data-tema="claro"] .text-emerald-200:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: #047857; }
+html[data-tema="claro"] .text-amber-200:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: #b45309; }
+html[data-tema="claro"] .text-amber-200\/80:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: #b45309; }
+html[data-tema="claro"] .text-red-200:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: #b91c1c; }
+html[data-tema="claro"] .text-red-200\/80:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: #b91c1c; }
+html[data-tema="claro"] .text-\[\#ffd166\]:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: #a16207; }
+html[data-tema="claro"] .text-\[\#ffe29a\]:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *) { color: #a16207; }
+html[data-tema="claro"] .placeholder\:text-white\/35:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *)::placeholder { color: rgb(14 31 69 / .45); }
+html[data-tema="claro"] .placeholder\:text-white\/40:not(.tema-fijo, .tema-fijo *, .bg-black\/90, .bg-black\/90 *, .bg-\[\#9c1e53\], .bg-\[\#9c1e53\] *, .bg-\[\#d6127e\], .bg-\[\#d6127e\] *)::placeholder { color: rgb(14 31 69 / .45); }

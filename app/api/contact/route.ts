@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { buildAdminEmail, buildUserEmail } from "@/app/lib/emailTemplates";
 import { isValidEmail } from "@/app/lib/validation";
+import { createClient } from "@supabase/supabase-js";
 
 type ContactPayload = {
   nombre?: string;
@@ -140,6 +141,24 @@ export async function POST(request: NextRequest) {
 
   if (adminFailed && userFailed) {
     return NextResponse.json({ error: "No se pudo enviar el correo." }, { status: 502 });
+  }
+
+  // Agencia: además del correo, la solicitud se guarda en la app (pestaña Solicitudes).
+  if (/agencia/i.test(tipo) && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
+    try {
+      const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+      const { error } = await supabase.rpc("guardar_solicitud_agencia", {
+        p_nombre: nombre,
+        p_email: email,
+        p_telefono: telefono ? String(telefono) : null,
+        p_mensaje: mensaje ?? null,
+      });
+      if (error) console.error("No se pudo guardar la solicitud de agencia:", error.message);
+    } catch (error) {
+      console.error("Error guardando la solicitud de agencia:", error);
+    }
   }
 
   const sheetsUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL;

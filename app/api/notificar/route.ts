@@ -2,10 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import * as webpush from "web-push";
 
-type Peticion = { titulo?: string; cuerpo?: string; url?: string; destino?: "todos" | "crew"; tipo?: string };
+type Peticion = {
+  titulo?: string;
+  cuerpo?: string;
+  url?: string;
+  destino?: "todos" | "crew";
+  tipo?: string;
+  /** Si viene, se envía solo a estas cuentas (avisos personales). */
+  usuarios?: string[];
+};
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Tipos que cada persona puede desactivar en su perfil. Sin tipo = siempre se envía. */
-const TIPOS = ["avisos", "horarios", "competicion", "formaciones", "kodigo-klub", "kanot-kamp"];
+const TIPOS = ["avisos", "horarios", "competicion", "formaciones", "kodigo-klub", "kanot-kamp", "podcast"];
 
 /**
  * Envía una notificación a los móviles suscritos. Solo editores y admins:
@@ -41,7 +51,10 @@ export async function POST(request: NextRequest) {
     global: { headers: { Authorization: `Bearer ${token}` } },
     auth: { persistSession: false, autoRefreshToken: false },
   });
-  const { data: subs, error } = await supabase.rpc("push_destinos", { p_destino: destino, p_tipo: tipo });
+  const usuarios = Array.isArray(datos.usuarios) ? datos.usuarios.filter((u) => typeof u === "string" && UUID.test(u)).slice(0, 500) : null;
+  const { data: subs, error } = usuarios
+    ? await supabase.rpc("push_personas", { p_usuarios: usuarios })
+    : await supabase.rpc("push_destinos", { p_destino: destino, p_tipo: tipo });
   if (error) return NextResponse.json({ error: error.message }, { status: 403 });
 
   webpush.setVapidDetails("mailto:kanotcrew@gmail.com", vapidPublica, vapidPrivada);
@@ -50,13 +63,15 @@ export async function POST(request: NextRequest) {
   const mensaje = JSON.stringify({ titulo, cuerpo, url: conMarca });
 
   let enviadas = 0;
+  const recibieron = new Set<string>();
   await Promise.all(
-    (subs as { endpoint: string; p256dh: string; auth: string }[]).map(async (s) => {
+    (subs as { user_id?: string; endpoint: string; p256dh: string; auth: string }[]).map(async (s) => {
       try {
         await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, mensaje, {
           TTL: 60 * 60 * 24,
         });
         enviadas++;
+        if (s.user_id) recibieron.add(s.user_id);
       } catch (err) {
         const codigo = (err as { statusCode?: number }).statusCode;
         // 404/410: el móvil ya no existe o desactivó las notificaciones.
@@ -66,5 +81,7 @@ export async function POST(request: NextRequest) {
     }),
   );
 
-  return NextResponse.json({ enviadas, total: subs?.length ?? 0 });
+  // En avisos personales: quién no lo ha recibido (no tiene las notificaciones activadas).
+  const sinMovil = usuarios ? usuarios.filter((u) => !recibieron.has(u)) : [];
+  return NextResponse.json({ enviadas, total: subs?.length ?? 0, sinMovil });
 }

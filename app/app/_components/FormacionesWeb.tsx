@@ -7,11 +7,18 @@ import VistaSeccion from "./VistaSeccion";
 import InscripcionWhatsapp from "@/app/components/formaciones/InscripcionWhatsapp";
 import type { Formacion } from "@/app/data/formaciones";
 import { useAuth } from "./AuthProvider";
+import ApuntadosFormacion, { guardarApuntado } from "./ApuntadosFormacion";
 
 /** Igual que en la web, pero con el nombre de la cuenta ya puesto. */
 function InscripcionApp(props: { formacion: Formacion; onClose: () => void }) {
   const { perfil } = useAuth();
-  return <InscripcionWhatsapp {...props} nombreInicial={perfil?.nombre ?? ""} />;
+  return (
+    <InscripcionWhatsapp
+      {...props}
+      nombreInicial={perfil?.nombre ?? ""}
+      onEnviado={(datos) => guardarApuntado(props.formacion.id, datos)}
+    />
+  );
 }
 
 const PROXIMAS = formaciones.filter((f) => !f.finalizada);
@@ -27,7 +34,10 @@ export default function FormacionesWeb() {
   return (
     <div className="flex flex-col gap-4">
       {PROXIMAS.map((f) => (
-        <FormacionCard key={f.id} formacion={f} inscripcion={InscripcionApp} />
+        <div key={f.id} className="flex flex-col gap-4">
+          <FormacionCard formacion={f} inscripcion={InscripcionApp} />
+          <ApuntadosFormacion formacionId={f.id} titulo={f.titulo} />
+        </div>
       ))}
 
       {/* Formaciones extra creadas desde la app */}

@@ -5,6 +5,7 @@ import { Play } from "lucide-react";
 import { youtubeChannelUrl } from "@/app/data/podcast";
 import { podcastVideos } from "@/app/data/podcastVideos";
 import VistaSeccion from "../_components/VistaSeccion";
+import PropuestasPodcast from "../_components/PropuestasPodcast";
 
 // Episodios publicados en la web (sin los huecos de "próximamente").
 const EPISODIOS_WEB = podcastVideos.filter((v) => v.url !== youtubeChannelUrl);
@@ -84,6 +85,8 @@ export default function PaginaPodcast() {
           Ver todos los episodios en YouTube
         </a>
       </section>
+
+      <PropuestasPodcast />
     </div>
   );
 }

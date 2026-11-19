@@ -16,6 +16,7 @@ import {
 import VistaSeccion from "../_components/VistaSeccion";
 import Pestanas, { usePestanaActiva } from "../_components/Pestanas";
 import { Cargando } from "../_components/ui";
+import { fechaWebAISO } from "../_components/EstaSemana";
 
 const PESTANAS = [
   { id: "que-es", nombre: "Qué es", icono: Info },
@@ -53,6 +54,8 @@ function KodigoKlub() {
           priority
         />
       </div>
+
+      <CuentaAtrasKodigo />
 
       <Pestanas pestanas={PESTANAS} activa={activa} />
 
@@ -316,6 +319,37 @@ function OpcionesCompra({ edicion }: { edicion: KodigoEdicion }) {
       {/* El lugar de esta edición todavía no está confirmado */}
       <p className="rounded-2xl bg-white/5 px-4 py-3 text-sm text-white/60">
         <MapPin size={14} className="mr-1 inline -translate-y-0.5" /> Lugar del evento: próximamente
+      </p>
+    </div>
+  );
+}
+
+/** "Faltan X días" para la próxima edición (solo si ya tiene fecha). */
+function CuentaAtrasKodigo() {
+  const proxima = [...edicionesOrdenadas].reverse().find((e) => !e.finalizada && e.fecha);
+  const iso = proxima?.fecha ? fechaWebAISO(proxima.fecha) : null;
+  if (!proxima || !iso) return null;
+  const [y, m, d] = iso.split("-").map(Number);
+  const hoy = new Date();
+  const dias = Math.round((new Date(y, m - 1, d).getTime() - new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate()).getTime()) / 86400000);
+  if (dias < 0) return null;
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-2xl border border-[#ff5fb0]/40 bg-[#ff5fb0]/10 px-4 py-3">
+      <div className="min-w-0">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#ff5fb0]">Próxima edición</p>
+        <p className="truncate text-sm font-bold">
+          {nombreEdicion(proxima.numero)} · {proxima.fecha}
+        </p>
+      </div>
+      <p className="shrink-0 text-right leading-none">
+        {dias === 0 ? (
+          <span className="text-xl font-black text-[#ff5fb0]">¡Hoy!</span>
+        ) : (
+          <>
+            <span className="block text-3xl font-black tabular-nums text-[#ff5fb0]">{dias}</span>
+            <span className="text-[11px] font-semibold text-white/60">{dias === 1 ? "día" : "días"}</span>
+          </>
+        )}
       </p>
     </div>
   );

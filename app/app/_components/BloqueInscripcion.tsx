@@ -1,11 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { CheckCircle2, Circle, Euro, Plus, Trash2, Users } from "lucide-react";
+import { Bell, CheckCircle2, Circle, Euro, Plus, Trash2, Users } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "./AuthProvider";
 import { GRUPOS, type Entrada } from "./secciones";
 import { Aviso, Boton, Etiqueta, Input, Modal } from "./ui";
+import { avisarPersonas, fechaAviso, ultimosAvisos } from "./notificaciones";
+import { BotonAvisar } from "./BloqueAutorizacion";
 
 type Inscripcion = {
   id: string;
@@ -255,6 +257,73 @@ function ListaInscripciones({
   const pagados = lista.filter((i) => pagos[i.id]).length;
 
   const [errorPago, setErrorPago] = useState<string | null>(null);
+  // Cuentas de cada bailarín (para avisar) y cuándo se le avisó por última vez.
+  const [cuentas, setCuentas] = useState<Record<string, string[]> | null>(null);
+  const [avisos, setAvisos] = useState<Record<string, string>>({});
+  const [estadoAviso, setEstadoAviso] = useState<Record<string, "enviando" | "ok" | "sin-movil" | "sin-cuenta">>({});
+  const [resultadoAviso, setResultadoAviso] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = getSupabase();
+    const ids = lista.map((i) => i.bailarin_id);
+    Promise.all([
+      supabase.from("cuenta_bailarines").select("user_id, bailarin_id").in("bailarin_id", ids),
+      ultimosAvisos(entrada.id, "pago"),
+    ]).then(([c, a]) => {
+      const mapa: Record<string, string[]> = {};
+      for (const f of c.data ?? []) (mapa[f.bailarin_id] ??= []).push(f.user_id);
+      setCuentas(mapa);
+      setAvisos(a);
+    });
+  }, [lista, entrada.id]);
+
+  async function avisarPago(inscripciones: Inscripcion[]) {
+    setResultadoAviso(null);
+    let ok = 0;
+    const sinCuenta: string[] = [];
+    const sinMovil: string[] = [];
+    for (const i of inscripciones) {
+      const usuarios = cuentas?.[i.bailarin_id] ?? [];
+      const nombre = i.bailarines?.nombre ?? "tu bailarín";
+      if (!usuarios.length) {
+        sinCuenta.push(nombre);
+        setEstadoAviso((e) => ({ ...e, [i.id]: "sin-cuenta" }));
+        continue;
+      }
+      setEstadoAviso((e) => ({ ...e, [i.id]: "enviando" }));
+      try {
+        const r = await avisarPersonas({
+          usuarios,
+          titulo: `Pago pendiente · ${entrada.titulo}`,
+          cuerpo: `Falta pagar la inscripción de ${nombre}: ${eur(Number(i.importe) + Number(i.extra_importe))}.`,
+          url: "/app/kanot-crew?tab=competicion",
+          entradaId: entrada.id,
+          tipo: "pago",
+          bailarinDe: Object.fromEntries(usuarios.map((u) => [u, i.bailarin_id])),
+        });
+        if (r.avisados.length) ok++;
+        else sinMovil.push(nombre);
+        setEstadoAviso((e) => ({ ...e, [i.id]: r.avisados.length ? "ok" : "sin-movil" }));
+      } catch (err) {
+        setEstadoAviso((e) => Object.fromEntries(Object.entries(e).filter(([id]) => id !== i.id)));
+        setResultadoAviso(err instanceof Error ? err.message : String(err));
+        return;
+      }
+    }
+    setAvisos(await ultimosAvisos(entrada.id, "pago"));
+    if (inscripciones.length > 1 || sinCuenta.length || sinMovil.length)
+      setResultadoAviso(
+        [
+          `Avisados: ${ok}.`,
+          sinMovil.length ? `Sin notificaciones activadas: ${sinMovil.join(", ")}.` : "",
+          sinCuenta.length ? `Sin cuenta asignada: ${sinCuenta.join(", ")}.` : "",
+        ]
+          .filter(Boolean)
+          .join(" "),
+      );
+  }
+
+  const sinPagar = lista.filter((i) => !pagos[i.id]);
 
   async function marcarPagado(ids: string[], valor: boolean) {
     setErrorPago(null);
@@ -303,6 +372,17 @@ function ListaInscripciones({
           )}
         </div>
         {errorPago && <Aviso>{errorPago}</Aviso>}
+        {sinPagar.length > 0 && (
+          <Boton
+            variante="secundario"
+            onClick={() => confirm(`¿Avisar a los ${sinPagar.length} que no han pagado?`) && avisarPago(sinPagar)}
+            disabled={!cuentas}
+            className="py-2"
+          >
+            <Bell size={16} /> Avisar a todos los que no han pagado ({sinPagar.length})
+          </Boton>
+        )}
+        {resultadoAviso && <p className="-mt-2 text-xs text-white/60">{resultadoAviso}</p>}
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="rounded-2xl bg-white/5 p-3">
             <p className="text-2xl font-black">{lista.length}</p>
@@ -394,8 +474,23 @@ function ListaInscripciones({
                       <span className="block text-[11px] text-white/45">
                         {i.grupos} · {i.categorias} cat.{i.extra_opcion ? ` · ${i.extra_opcion}` : ""}
                       </span>
+                      {!pagos[i.id] && (estadoAviso[i.id] === "sin-cuenta" || estadoAviso[i.id] === "sin-movil" || avisos[i.bailarin_id]) && (
+                        <span className="block text-[11px] text-amber-200/80">
+                          {estadoAviso[i.id] === "sin-cuenta"
+                            ? "Sin cuenta asignada"
+                            : estadoAviso[i.id] === "sin-movil"
+                              ? "No tiene las notificaciones activadas"
+                              : `Avisado el ${fechaAviso(avisos[i.bailarin_id])}`}
+                        </span>
+                      )}
                     </span>
                     <span className="flex shrink-0 items-center gap-2">
+                      {!pagos[i.id] && cuentas && (
+                        <BotonAvisar
+                          estado={estadoAviso[i.id] === "ok" ? "ok" : estadoAviso[i.id] === "enviando" ? "enviando" : undefined}
+                          onClick={() => avisarPago([i])}
+                        />
+                      )}
                       <span className="font-semibold tabular-nums">{eur(Number(i.importe) + Number(i.extra_importe))}</span>
                       <button
                         type="button"
