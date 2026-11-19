@@ -7,6 +7,8 @@ import { useAuth } from "../_components/AuthProvider";
 import { GRUPOS, type Perfil, type Rol } from "../_components/secciones";
 import { Aviso, Cargando, Select } from "../_components/ui";
 import Avatar from "../_components/Avatar";
+import AsignarBailarines from "../_components/AsignarBailarines";
+import SolicitudesFamilia from "../_components/SolicitudesFamilia";
 
 const ROLES: { valor: Rol; nombre: string; ayuda: string }[] = [
   { valor: "pendiente", nombre: "Pendiente", ayuda: "Sin acceso todavía" },
@@ -19,6 +21,8 @@ const ROLES: { valor: Rol; nombre: string; ayuda: string }[] = [
 export default function GestionUsuarios() {
   const { esAdmin, esSuper, perfil: yo, recargarPerfil } = useAuth();
   const [perfiles, setPerfiles] = useState<Perfil[] | null>(null);
+  const [asignados, setAsignados] = useState<Record<string, string[]>>({});
+  const [asignando, setAsignando] = useState<Perfil | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
@@ -28,6 +32,13 @@ export default function GestionUsuarios() {
       .order("created_at", { ascending: false });
     if (error) setError(error.message);
     else setPerfiles(data as Perfil[]);
+    // Bailarines de cada cuenta (si ya está activado el SQL 013)
+    const { data: cb } = await getSupabase().from("cuenta_bailarines").select("user_id, bailarines(nombre)");
+    const mapa: Record<string, string[]> = {};
+    for (const fila of (cb ?? []) as unknown as { user_id: string; bailarines: { nombre: string } | null }[]) {
+      if (fila.bailarines) (mapa[fila.user_id] ??= []).push(fila.bailarines.nombre);
+    }
+    setAsignados(mapa);
   }, []);
 
   useEffect(() => {
@@ -58,7 +69,7 @@ export default function GestionUsuarios() {
   const lista = perfiles ?? [];
   const deRol = (rol: Rol) => lista.filter((p) => p.role === rol);
   const miembros = deRol("miembro");
-  const props = { onCambiar: cambiarRol, onGrupo: cambiarGrupo, esSuper };
+  const props = { onCambiar: cambiarRol, onGrupo: cambiarGrupo, esSuper, asignados, onBailarines: setAsignando };
 
   return (
     <div className="flex flex-col gap-6">
@@ -74,6 +85,8 @@ export default function GestionUsuarios() {
 
       {error && <Aviso>{error}</Aviso>}
       {!perfiles && !error && <Cargando />}
+
+      <SolicitudesFamilia perfiles={lista} onCambio={cargar} />
 
       <Bloque titulo="Pendientes de aprobar" n={deRol("pendiente").length} destacado>
         <ListaPerfiles perfiles={deRol("pendiente")} {...props} />
@@ -114,6 +127,17 @@ export default function GestionUsuarios() {
           {...props}
         />
       </Bloque>
+
+      {asignando && (
+        <AsignarBailarines
+          perfil={asignando}
+          onCerrar={() => setAsignando(null)}
+          onGuardado={() => {
+            setAsignando(null);
+            cargar();
+          }}
+        />
+      )}
 
       <div className="rounded-2xl bg-white/5 p-4 text-xs leading-relaxed text-white/55">
         {ROLES.map((r) => (
@@ -163,11 +187,15 @@ function ListaPerfiles({
   perfiles,
   onCambiar,
   onGrupo,
+  asignados,
+  onBailarines,
   esSuper,
 }: {
   perfiles: Perfil[];
   onCambiar: (p: Perfil, r: Rol) => void;
   onGrupo: (p: Perfil, grupo: string) => void;
+  asignados: Record<string, string[]>;
+  onBailarines: (p: Perfil) => void;
   esSuper: boolean;
 }) {
   return (
@@ -179,6 +207,11 @@ function ListaPerfiles({
             <div className="min-w-0">
               <p className="flex items-center gap-2 truncate font-medium">
                 {p.nombre || "Sin nombre"}
+                {p.tipo === "familia" && (
+                  <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold uppercase text-white/80">
+                    Familia
+                  </span>
+                )}
                 {p.super_admin && (
                   <span className="rounded-full bg-kanot-pink px-2 py-0.5 text-[10px] font-bold uppercase text-kanot-navy-deep">
                     Superadmin
@@ -186,6 +219,15 @@ function ListaPerfiles({
                 )}
               </p>
               <p className="truncate text-xs text-white/50">{p.email}</p>
+              {(p.role === "miembro" || asignados[p.id]?.length) && (
+                <button
+                  type="button"
+                  onClick={() => onBailarines(p)}
+                  className="mt-1 max-w-full truncate text-left text-xs font-semibold text-kanot-pink hover:underline"
+                >
+                  {asignados[p.id]?.length ? `Bailarines: ${asignados[p.id].join(", ")}` : "+ Asignar bailarines"}
+                </button>
+              )}
             </div>
           </div>
           {p.role === "miembro" && (

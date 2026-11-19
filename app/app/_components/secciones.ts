@@ -237,6 +237,10 @@ export type Entrada = {
   enlace: string | null;
   orden: number;
   documento_path?: string | null;
+  /** Opciones de solo/pareja del campeonato, con su precio. */
+  opciones_extra?: { nombre: string; precio: number }[] | null;
+  /** Fecha límite para elegir solo/pareja. */
+  limite_extra?: string | null;
 };
 
 export type Rol = "pendiente" | "usuario" | "miembro" | "editor" | "admin";
@@ -253,4 +257,6 @@ export type Perfil = {
   grupo?: string | null;
   /** Tipos de notificación que la persona ha quitado. */
   notis_off?: string[] | null;
+  /** El propio bailarín o su familia (madre, padre o tutor/a). */
+  tipo?: "bailarin" | "familia";
 };

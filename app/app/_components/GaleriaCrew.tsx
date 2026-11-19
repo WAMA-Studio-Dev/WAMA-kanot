@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ImagePlus, Play, Trash2, X } from "lucide-react";
+import { comprimirImagen } from "./comprimirImagen";
+import { Download, ImagePlus, Play, Trash2, X } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "./AuthProvider";
 import { Aviso, Boton, Cargando } from "./ui";
@@ -60,7 +61,10 @@ export default function GaleriaCrew() {
     setError(null);
     const supabase = getSupabase();
     const lista = Array.from(archivos);
-    for (const [i, f] of lista.entries()) {
+    for (const [i, original] of lista.entries()) {
+      // Las fotos se reducen en el móvil antes de subirlas (ocupan ~10 veces menos).
+      setSubiendo(`Preparando ${i + 1} de ${lista.length}…`);
+      const f = original.type.startsWith("image/") ? await comprimirImagen(original) : original;
       const tipo = f.type.startsWith("video/") ? "video" : f.type.startsWith("image/") ? "foto" : null;
       if (!tipo) {
         setError(`${f.name}: solo fotos o vídeos.`);
@@ -96,6 +100,20 @@ export default function GaleriaCrew() {
     await supabase.from("crew_media").delete().eq("id", m.id);
     setAbierto(null);
     cargar();
+  }
+
+  /** Descarga el archivo original con un enlace temporal (cualquier miembro). */
+  async function descargar(m: Medio) {
+    const nombre = m.archivo_path.split("/").pop()?.replace(/^\d+-/, "") || "kanot";
+    const ventana = window.open("", "_blank");
+    const { data, error } = await getSupabase().storage.from(BUCKET).createSignedUrl(m.archivo_path, 600, { download: nombre });
+    if (error || !data) {
+      ventana?.close();
+      setError(error?.message ?? "No se pudo descargar.");
+      return;
+    }
+    if (ventana) ventana.location.href = data.signedUrl;
+    else window.location.assign(data.signedUrl);
   }
 
   const puedeBorrar = (m: Medio) => esEditor || m.user_id === perfil?.id;
@@ -167,6 +185,14 @@ export default function GaleriaCrew() {
               {abierto.subido_por ?? "—"} · {new Date(abierto.created_at).toLocaleDateString("es-ES")}
             </p>
             <div className="flex gap-1">
+              <button
+                type="button"
+                onClick={() => descargar(abierto)}
+                aria-label="Descargar"
+                className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-2 text-sm font-semibold hover:bg-white/20"
+              >
+                <Download size={18} /> Descargar
+              </button>
               {puedeBorrar(abierto) && (
                 <button type="button" onClick={() => borrar(abierto)} aria-label="Borrar" className="rounded-full p-2 hover:bg-white/10">
                   <Trash2 size={20} />

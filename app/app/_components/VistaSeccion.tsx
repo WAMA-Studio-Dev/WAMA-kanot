@@ -9,6 +9,7 @@ import { Aviso, Boton, Cargando } from "./ui";
 import FormEntrada from "./FormEntrada";
 import VistaCalendario from "./VistaCalendario";
 import BloqueAutorizacion from "./BloqueAutorizacion";
+import BloqueInscripcion from "./BloqueInscripcion";
 
 export default function VistaSeccion({
   slug,
@@ -237,7 +238,14 @@ function Listado({
               acciones={acciones}
               textoEnlace={seccion.textoEnlace}
               video={esPodcast}
-              pie={seccion.autorizaciones && e.fecha ? <BloqueAutorizacion entrada={e} onCambio={recargar} /> : undefined}
+              pie={
+                seccion.autorizaciones && e.fecha ? (
+                  <>
+                    <BloqueInscripcion entrada={e} onCambio={recargar} />
+                    <BloqueAutorizacion entrada={e} onCambio={recargar} />
+                  </>
+                ) : undefined
+              }
             />
           ))}
         </div>

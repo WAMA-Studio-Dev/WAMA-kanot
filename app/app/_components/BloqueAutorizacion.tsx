@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { comprimirImagen } from "./comprimirImagen";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Bell, CheckCircle2, Download, Eye, FileText, Trash2, Upload, Users } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
@@ -205,10 +206,12 @@ function SubirAutorizacion({
     setEnviando(true);
     setError(null);
     const supabase = getSupabase();
-    const ruta = `${entrada.id}/${perfil.id}/${Date.now()}-${limpiar(archivo.name)}`;
+    // Si es una foto, se reduce pero con calidad alta para que se lea bien la firma.
+    const fichero = await comprimirImagen(archivo, { maxLado: 2200, calidad: 0.9 });
+    const ruta = `${entrada.id}/${perfil.id}/${Date.now()}-${limpiar(fichero.name)}`;
     const { error: e1 } = await supabase.storage
       .from("autorizaciones")
-      .upload(ruta, archivo, { contentType: archivo.type || undefined });
+      .upload(ruta, fichero, { contentType: fichero.type || undefined });
     if (e1) {
       setError(/bucket not found/i.test(e1.message) ? "Falta activar las autorizaciones (SQL 006)." : e1.message);
       setEnviando(false);

@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useRef, useState, type FormEvent } from "react";
-import { Camera, ChevronRight, Eye, FolderOpen, KeyRound, LogOut, Pencil, Trash2, Users } from "lucide-react";
+import { BarChart3, Camera, ChevronRight, Eye, FolderOpen, KeyRound, LogOut, Pencil, Trash2, Users } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "../_components/AuthProvider";
 import Avatar, { guardarMiPerfil, subirFotoPerfil } from "../_components/Avatar";
 import type { RolVista } from "../_components/AuthProvider";
 import ElegirGrupo from "../_components/ElegirGrupo";
+import MiFamilia from "../_components/MiFamilia";
 import ActivarNotificaciones from "../_components/ActivarNotificaciones";
 import UsoAlmacenamiento from "../_components/UsoAlmacenamiento";
 import { colorGrupo } from "../_components/secciones";
@@ -31,6 +32,7 @@ export default function PaginaPerfil() {
   const enlaces = [
     { href: "/app/archivos", nombre: "Gestor de archivos", ayuda: "Todos los archivos del equipo", icono: FolderOpen, ver: esEditor },
     { href: "/app/usuarios", nombre: "Usuarios", ayuda: "Aprobar cuentas y asignar roles", icono: Users, ver: esAdmin },
+    { href: "/app/estadisticas", nombre: "Estadísticas", ayuda: "Quién usa la app y qué mira", icono: BarChart3, ver: esAdmin },
   ].filter((e) => e.ver);
 
   return (
@@ -68,6 +70,8 @@ export default function PaginaPerfil() {
       </div>
 
       {rol === "miembro" && <ElegirGrupo />}
+
+      {rol === "miembro" && <MiFamilia />}
 
       <InstalarApp />
       <ActivarNotificaciones />

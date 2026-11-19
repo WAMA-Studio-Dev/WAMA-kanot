@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { comprimirImagen } from "./comprimirImagen";
 import { ChevronLeft, ChevronRight, ImagePlus, Trash2, X } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "./AuthProvider";
@@ -47,8 +48,10 @@ export default function Portfolio() {
     setError(null);
     const almacen = getSupabase().storage.from(BUCKET);
     const lista = Array.from(archivos);
-    for (const [i, f] of lista.entries()) {
+    for (const [i, original] of lista.entries()) {
       setSubiendo(`Subiendo ${i + 1} de ${lista.length}…`);
+      // Portfolio: algo más de tamaño y calidad, que son fotos para enseñar.
+      const f = await comprimirImagen(original, { maxLado: 2400, calidad: 0.88 });
       const { error } = await almacen.upload(`${Date.now()}-${limpiar(f.name)}`, f, { contentType: f.type });
       if (error) setError(`${f.name}: ${error.message}`);
     }

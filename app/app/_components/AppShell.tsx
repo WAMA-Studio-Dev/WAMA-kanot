@@ -11,6 +11,7 @@ import Acceso from "./Acceso";
 import IslaNav from "./IslaNav";
 import Avatar from "./Avatar";
 import { AvisoElegirGrupo } from "./ElegirGrupo";
+import { getSupabase } from "@/app/lib/supabase/client";
 import { Boton } from "./ui";
 
 export default function AppShell({ children }: { children: ReactNode }) {
@@ -67,7 +68,9 @@ function Puerta({ children }: { children: ReactNode }) {
 function Marco({ children }: { children: ReactNode }) {
   const { perfil } = useAuth();
   const nombre = perfil?.nombre?.split(" ")[0];
-  const enInicio = usePathname() === "/app";
+  const pathname = usePathname();
+  const enInicio = pathname === "/app";
+  useRegistrarVisita(pathname, perfil?.id);
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -167,4 +170,28 @@ function PantallaCarga() {
       </div>
     </div>
   );
+}
+
+/**
+ * Estadísticas: apunta una vez al día cada apartado que visita la persona,
+ * si la app está instalada y si ha entrado desde una notificación. No guarda nada más.
+ */
+function useRegistrarVisita(pathname: string, usuario: string | undefined) {
+  useEffect(() => {
+    if (!usuario) return;
+    const apartado = pathname.split("/")[2] || "inicio";
+    const hoy = new Date().toISOString().slice(0, 10);
+    const desdeNoti = new URLSearchParams(window.location.search).get("noti") === "1";
+    const clave = `kanot-visita-${hoy}-${apartado}`;
+    try {
+      if (!desdeNoti && localStorage.getItem(clave)) return;
+      localStorage.setItem(clave, "1");
+    } catch {}
+    const instalada =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (navigator as Navigator & { standalone?: boolean }).standalone === true;
+    getSupabase()
+      .rpc("registrar_actividad", { p_apartado: apartado, p_instalada: instalada, p_noti: desdeNoti })
+      .then(() => {}, () => {});
+  }, [pathname, usuario]);
 }

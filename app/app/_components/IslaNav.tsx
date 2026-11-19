@@ -26,7 +26,7 @@ const PERFIL: ItemNav = {
   href: "/app/perfil",
   nombre: "Perfil",
   icono: UserRound,
-  activo: (p) => p.startsWith("/app/perfil") || p.startsWith("/app/usuarios") || p.startsWith("/app/archivos"),
+  activo: (p) => p.startsWith("/app/perfil") || p.startsWith("/app/usuarios") || p.startsWith("/app/archivos") || p.startsWith("/app/estadisticas"),
 };
 
 /** Isla flotante de navegación en la parte inferior. El resto de apartados está en Inicio. */

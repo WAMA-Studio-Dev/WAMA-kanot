@@ -45,7 +45,9 @@ export async function POST(request: NextRequest) {
   if (error) return NextResponse.json({ error: error.message }, { status: 403 });
 
   webpush.setVapidDetails("mailto:kanotcrew@gmail.com", vapidPublica, vapidPrivada);
-  const mensaje = JSON.stringify({ titulo, cuerpo, url: enlace });
+  // ?noti=1 para saber en las estadísticas que se abrió desde una notificación.
+  const conMarca = `${enlace}${enlace.includes("?") ? "&" : "?"}noti=1`;
+  const mensaje = JSON.stringify({ titulo, cuerpo, url: conMarca });
 
   let enviadas = 0;
   await Promise.all(

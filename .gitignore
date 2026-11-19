@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Datos personales (nombres de bailarines) para importar: no se suben a GitHub
+supabase/privado/
