@@ -10,6 +10,7 @@ import FormEntrada from "./FormEntrada";
 import VistaCalendario from "./VistaCalendario";
 import BloqueAutorizacion from "./BloqueAutorizacion";
 import BloqueInscripcion from "./BloqueInscripcion";
+import DocumentosCompeticion from "./DocumentosCompeticion";
 
 export default function VistaSeccion({
   slug,
@@ -241,6 +242,7 @@ function Listado({
               pie={
                 seccion.autorizaciones && e.fecha ? (
                   <>
+                    <DocumentosCompeticion entrada={e} />
                     <BloqueInscripcion entrada={e} onCambio={recargar} />
                     <BloqueAutorizacion entrada={e} onCambio={recargar} />
                   </>

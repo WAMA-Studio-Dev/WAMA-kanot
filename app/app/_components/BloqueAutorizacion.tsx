@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { comprimirImagen } from "./comprimirImagen";
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { Bell, CheckCircle2, Download, Eye, FileText, Pencil, Trash2, Upload, Users, X } from "lucide-react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { Bell, CheckCircle2, Eye, FileText, Pencil, Trash2, Upload, Users } from "lucide-react";
 import { getSupabase } from "@/app/lib/supabase/client";
 import { useAuth } from "./AuthProvider";
 import { GRUPOS, type Entrada } from "./secciones";
@@ -23,11 +22,11 @@ type Autorizacion = {
 
 const GRUPOS_BAILE = GRUPOS.filter((g) => g.nombre !== "Todos juntos").map((g) => g.nombre);
 
-function limpiar(nombre: string) {
+export function limpiar(nombre: string) {
   return nombre.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^\w.\-]+/g, "_");
 }
 
-async function abrirArchivo(bucket: string, ruta: string) {
+export async function abrirArchivo(bucket: string, ruta: string) {
   const ventana = window.open("", "_blank");
   const { data, error } = await getSupabase().storage.from(bucket).createSignedUrl(ruta, 600);
   if (error || !data) {
@@ -40,15 +39,13 @@ async function abrirArchivo(bucket: string, ruta: string) {
 }
 
 /** Autorizaciones de un campeonato: descargar, subir firmada y (editores) ver entregas. */
-export default function BloqueAutorizacion({ entrada, onCambio }: { entrada: Entrada; onCambio?: () => void }) {
+export default function BloqueAutorizacion({ entrada }: { entrada: Entrada; onCambio?: () => void }) {
   const { perfil, esEditor } = useAuth();
   const [mias, setMias] = useState<Autorizacion[]>([]);
   const [total, setTotal] = useState<number | null>(null);
   const [subir, setSubir] = useState(false);
   const [verEntregas, setVerEntregas] = useState(false);
   const [editando, setEditando] = useState<Autorizacion | null>(null);
-  const inputOficial = useRef<HTMLInputElement>(null);
-  const [subiendoOficial, setSubiendoOficial] = useState(false);
 
   const cargar = useCallback(async () => {
     if (!perfil) return;
@@ -75,53 +72,12 @@ export default function BloqueAutorizacion({ entrada, onCambio }: { entrada: Ent
     cargar();
   }
 
-  async function subirOficial(archivo: File | undefined) {
-    if (!archivo) return;
-    setSubiendoOficial(true);
-    const supabase = getSupabase();
-    const ruta = `${entrada.id}/${Date.now()}-${limpiar(archivo.name)}`;
-    const { error } = await supabase.storage.from("documentos").upload(ruta, archivo, { contentType: archivo.type || undefined });
-    if (!error) {
-      if (entrada.documento_path) await supabase.storage.from("documentos").remove([entrada.documento_path]);
-      await supabase.from("entradas").update({ documento_path: ruta }).eq("id", entrada.id);
-      onCambio?.();
-    } else {
-      alert(error.message);
-    }
-    setSubiendoOficial(false);
-  }
-
-  async function quitarOficial() {
-    if (!entrada.documento_path || !confirm("¿Quitar el documento de la organización?")) return;
-    const supabase = getSupabase();
-    await supabase.storage.from("documentos").remove([entrada.documento_path]);
-    await supabase.from("entradas").update({ documento_path: null }).eq("id", entrada.id);
-    onCambio?.();
-  }
-
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-kanot-pink/25 bg-kanot-pink/[0.07] p-4">
       <p className="flex items-center gap-2 text-sm font-bold">
-        <FileText size={16} className="text-kanot-pink" /> Autorización
+        <FileText size={16} className="text-kanot-pink" /> Autorización firmada
       </p>
-
-      <div className="grid gap-2 sm:grid-cols-2">
-        <Link
-          href={`/app/autorizacion/${entrada.id}`}
-          className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-2.5 text-sm font-semibold transition hover:border-kanot-pink hover:text-kanot-pink"
-        >
-          <Download size={16} /> Autorización ByKanot
-        </Link>
-        {entrada.documento_path && (
-          <button
-            type="button"
-            onClick={() => abrirArchivo("documentos", entrada.documento_path!)}
-            className="flex items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-2.5 text-sm font-semibold transition hover:border-kanot-pink hover:text-kanot-pink"
-          >
-            <Download size={16} /> Documento de la organización
-          </button>
-        )}
-      </div>
+      <p className="-mt-1 text-xs text-white/55">Descarga la autorización oficial en Documentos, fírmala y súbela aquí.</p>
 
       {mias.length > 0 && (
         <ul className="flex flex-col gap-1.5">
@@ -159,34 +115,6 @@ export default function BloqueAutorizacion({ entrada, onCambio }: { entrada: Ent
           >
             <Users size={14} /> Ver entregas{total !== null ? ` (${total})` : ""}
           </button>
-          <button
-            type="button"
-            onClick={() => inputOficial.current?.click()}
-            disabled={subiendoOficial}
-            className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold hover:bg-white/15 disabled:opacity-50"
-          >
-            <Upload size={14} />
-            {subiendoOficial ? "Subiendo…" : entrada.documento_path ? "Cambiar documento oficial" : "Subir documento oficial"}
-          </button>
-          {entrada.documento_path && (
-            <button
-              type="button"
-              onClick={quitarOficial}
-              className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold hover:bg-red-500/20"
-            >
-              <X size={14} /> Quitar documento oficial
-            </button>
-          )}
-          <input
-            ref={inputOficial}
-            type="file"
-            accept="application/pdf,image/*,.doc,.docx"
-            hidden
-            onChange={(e) => {
-              subirOficial(e.target.files?.[0]);
-              e.target.value = "";
-            }}
-          />
         </div>
       )}
 
